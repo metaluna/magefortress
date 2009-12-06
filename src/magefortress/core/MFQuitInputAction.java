@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2009 Simon Hardijanto
- *
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,59 +22,26 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.gui;
+package magefortress.core;
 
-import java.awt.Component;
+import magefortress.input.MFInputAction;
 
 /**
- * Central class where every object that directly interacts with the player
- * can register listeners. Notifications about different events will be
- * generated.
- * It is a singleton.
- * 
+ * Quits the current game
  */
-public class MFInputManager
+public class MFQuitInputAction extends MFInputAction
 {
-  private static MFInputManager instance;
-  private Component mainContainer;
-
-  /**
-   * cf. Singleton pattern
-   * @return The instance of the input manager
-   */
-  public static synchronized MFInputManager getInstance()
+  public MFQuitInputAction(MFGame _game)
   {
-    if (instance == null) {
-      instance = new MFInputManager();
-    }
-
-    return instance;
+    super(_game);
   }
 
-  /**
-   * Sets the container where the input manager will register
-   * for event listening.
-   * @param _mainContainer The container of the game
-   */
-  public void setMainContainer(Component _mainContainer)
+  @Override
+  public void execute()
   {
-    this.mainContainer = _mainContainer;
+    this.game.quit();
   }
 
-
-//  public static addMouseListener()
-//  {
-//
-//  }
     //---vvv---      PRIVATE METHODS      ---vvv---
-
-  /**
-   * Hidden constructor.
-   * cf. Singleton pattern
-   */
-  private MFInputManager()
-  {
-
-  }
 
 }

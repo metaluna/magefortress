@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2009 Simon Hardijanto
- *
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,31 +22,21 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.gui;
+package magefortress.input;
 
-import magefortress.input.MFInputManager;
-import java.awt.Graphics2D;
+import magefortress.core.*;
 
 /**
- * Used to display various screens of the game.
- * 
+ * Parent class for all actions a player can execute
  */
-public abstract class MFScreen
+public abstract class MFInputAction
 {
-  private MFInputManager inputManager;
+  protected final MFGame game;
 
-  public MFScreen()
+  public MFInputAction(MFGame _game)
   {
-    this.inputManager = MFInputManager.getInstance();
+    this.game = _game;
   }
 
-  final MFInputManager getInputManager()
-  {
-    return this.inputManager;
-  }
-
-  public abstract void initialize();
-  public abstract void deinitialize();
-  public abstract void update();
-  public abstract void paint(Graphics2D _g);
+  public abstract void execute();
 }

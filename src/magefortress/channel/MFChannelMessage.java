@@ -22,34 +22,35 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
-
-import magefortress.jobs.MFJob;
-import java.awt.Point;
+package magefortress.channel;
 
 /**
- * Each object that has jobs to offer has to implement this interface. Actors
- * who wish to apply for the job will listen to the channel and ask the sender
- * if the job is still available when they have time to do it. Finally they'll
- * grab the job.
- * 
+ * Encapsulates a message. At the moment only notifications about available jobs
+ * are sent over the communication channel.
+ * @see MFCommunicationChannel
+ * @see MFIChannelSender
+ * @see MFIChannelSubscriber
  */
-public interface MFIChannelSender
+public class MFChannelMessage
 {
-  /**
-   * Before a job applicant can grab the job he has to check if it's still
-   * available by calling this method.
-   * @return Is a job still available?
-   */
-  public boolean jobAvailable();
+  /** The object which sent the message */
+  private MFIChannelSender sender;
 
   /**
-   * When a job applicant has checked if there's still a job available he is
-   * allowed to grab it.
-   * @return Returns <code>null</code> if no job is available. Otherwise it
-   * returns a job.
+   * Constructor
+   * @param _sender The object which sent the message.
    */
-  public MFJob getJob();
+  public MFChannelMessage(MFIChannelSender _sender)
+  {
+    this.sender = _sender;
+  }
 
-  public MFLocation getLocation();
+  /**
+   * The sender of the message
+   * @return The sender of the message
+   */
+  public MFIChannelSender getSender()
+  {
+    return this.sender;
+  }
 }

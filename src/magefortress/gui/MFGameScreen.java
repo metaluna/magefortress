@@ -27,15 +27,12 @@ package magefortress.gui;
 import java.awt.Color;
 import magefortress.core.MFGame;
 import java.awt.Graphics2D;
-import java.util.Random;
 
 /**
  * Represents the main game screen. It's mainly handling the interface elements.
  */
 public class MFGameScreen extends MFScreen
 {
-  private MFGame game;
-  private Random rand = new Random();
 
   public MFGameScreen(MFGame _game)
   {
@@ -59,11 +56,36 @@ public class MFGameScreen extends MFScreen
   }
 
   @Override
-  public void paint(Graphics2D g)
+  public void paint(Graphics2D _g)
   {
-    this.game.paint(g);
+    this.paintRaster(_g);
+    this.game.paint(_g);
   }
 
-    //---vvv---      PRIVATE METHODS      ---vvv---
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private MFGame game;
 
+  private void paintRaster(Graphics2D _g)
+  {
+    final int tilesize = this.game.getTilesize();
+    final int startx = 0;
+    final int starty = 0;
+    final int width = _g.getDeviceConfiguration().getBounds().width;
+    final int height = _g.getDeviceConfiguration().getBounds().height;
+
+    // fill background
+    _g.setColor(Color.BLACK);
+    _g.fillRect(startx, starty, width, height);
+
+    // draw grid
+    _g.setColor(Color.GRAY);
+    // draw vertical lines
+    for (int x=startx; x < width; x+=tilesize) {
+      _g.drawLine(x, starty, x, starty+height-1);
+    }
+    // draw horizontal lines
+    for (int y=starty; y < height; y+=tilesize) {
+      _g.drawLine(startx, y, startx+width-1, y);
+    }
+  }
 }

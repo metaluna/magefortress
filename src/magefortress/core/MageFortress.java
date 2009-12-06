@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.input.MFInputManager;
 import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -76,7 +77,7 @@ public class MageFortress extends JFrame implements Runnable
     GraphicsDevice graphicsDevice = environment.getDefaultScreenDevice();
     if (graphicsDevice.isFullScreenSupported()) {
       try {
-        graphicsDevice.setFullScreenWindow(this);
+        //graphicsDevice.setFullScreenWindow(this);
 
         // Macht, dass Becci super is!
         while(null != (currentScreen = screenStack.peek())) {
@@ -121,6 +122,8 @@ public class MageFortress extends JFrame implements Runnable
         graphicsDevice.setFullScreenWindow(null);
       }
     }
+
+    System.exit(0);
   }
 
   /**
@@ -141,10 +144,11 @@ public class MageFortress extends JFrame implements Runnable
     this.setTitle("Mage Fortress v" + VERSION);
     this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     this.setResizable(false);
-    //this.setUndecorated(true);
+    this.setUndecorated(true);
     canvas = new Canvas();
     canvas.setSize(800, 600);
     canvas.setIgnoreRepaint(false);
+    MFInputManager.getInstance().setMainContainer(canvas);
     this.getContentPane().add(canvas);
     this.pack();
 

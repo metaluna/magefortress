@@ -22,25 +22,21 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.channel;
 
 /**
- * Encapsulates a message. At the moment only notifications about available jobs
- * are sent over the communication channels.
- * 
+ * Declares methods needed to receive messages over a communication channel.
+ *
+ * @see MFCommunicationChannel
+ * @see MFChannelMessage
+ * @see MFIChannelSender
  */
-public class MFChannelMessage
+public interface MFIChannelSubscriber
 {
-  /** The object which sent the message */
-  protected MFIChannelSender sender;
-
   /**
-   * Constructor
-   * @param _sender The object which sent the message.
+   * This method will be called by the message dispatcher. It only contains the
+   * sender, so that the subscriber can poll him for more information.
+   * @param message The message containing the owner.
    */
-  public MFChannelMessage(MFIChannelSender _sender)
-  {
-    this.sender = _sender;
-  }
-
+  public void update(MFChannelMessage message);
 }

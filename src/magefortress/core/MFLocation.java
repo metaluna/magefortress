@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2009 Simon Hardijanto
- *
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,31 +22,57 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.gui;
-
-import magefortress.input.MFInputManager;
-import java.awt.Graphics2D;
+package magefortress.core;
 
 /**
- * Used to display various screens of the game.
- * 
+ * A 3-dimensional position
  */
-public abstract class MFScreen
+public class MFLocation
 {
-  private MFInputManager inputManager;
+  public int x, y, z;
 
-  public MFScreen()
+  public MFLocation(int _x, int _y, int _z)
   {
-    this.inputManager = MFInputManager.getInstance();
+    this.x = _x;
+    this.y = _y;
+    this.z = _z;
   }
 
-  final MFInputManager getInputManager()
+  public MFLocation(MFLocation _other)
   {
-    return this.inputManager;
+    this(_other.x, _other.y, _other.z);
   }
 
-  public abstract void initialize();
-  public abstract void deinitialize();
-  public abstract void update();
-  public abstract void paint(Graphics2D _g);
+  @Override
+  public String toString()
+  {
+    return "" + x + "/" + y + "/" + z;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    
+    final MFLocation other = (MFLocation) obj;
+    if (this.x != other.x || y != other.y || this.z != other.z) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int hash = 7;
+    hash = 41 * hash + this.x;
+    hash = 41 * hash + this.y;
+    hash = 41 * hash + this.z;
+    return hash;
+  }
 }
