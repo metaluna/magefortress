@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2009 Simon Hardijanto
- *
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -24,43 +24,57 @@
  */
 package magefortress.core;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 
-public class MFCommunicationChannelTest {
-
-  private MFCommunicationChannel testChannel;
-  private MFIChannelSubscriber mockSubscriber;
-  private MFChannelMessage mockMessage;
-
+public class MFLocationTest
+{
+  private MFLocation location;
+  private final int X = 1;
+  private final int Y = 2;
+  private final int Z = 3;
+  
   @Before
   public void setUp()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    mockMessage = mock(MFChannelMessage.class);
-    testChannel.subscribe(mockSubscriber);
+    location = new MFLocation(X, Y, Z);
   }
 
   @Test
-  public void shouldNotifySubscribers()
+  public void shouldPrintString()
   {
-    mockMessage = mock(MFChannelMessage.class);
-
-    testChannel.enqueueMessage(mockMessage);
-    testChannel.notifySubscribers();
-
-    verify(mockSubscriber).update(mockMessage);
+    String expString = "1/2/3";
+    String gotString = location.toString();
+    assertEquals(expString, gotString);
   }
 
   @Test
-  public void shouldNotNotifyUnsubscribedSubscribers()
+  public void shouldEqual()
   {
-    testChannel.unsubscribe(mockSubscriber);
-    testChannel.enqueueMessage(mockMessage);
+    MFLocation eqlLocation = new MFLocation(X, Y, Z);
+    MFLocation eql2Location = new MFLocation(X, Y, Z);
 
-    verify(mockSubscriber, never()).update(mockMessage);
+    // reflexive
+    assertEquals(location, location);
+    // symmetric
+    assertEquals(location, eqlLocation);
+    assertEquals(eqlLocation, location);
+    // transitive
+    assertEquals(location, eqlLocation);
+    assertEquals(eqlLocation, eql2Location);
+    assertEquals(location, eql2Location);
+    // null is false
+    assertFalse(location.equals(null));
   }
 
+  @Test
+  public void shouldNotEqual()
+  {
+    MFLocation uneqlLocation = new MFLocation(X+1, Y+2, Z+3);
+
+    assertFalse(location.equals(uneqlLocation));
+  }
 }
