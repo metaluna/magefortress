@@ -59,41 +59,28 @@ public class MFGame implements MFIMouseListener, MFIKeyListener
 
   public void update()
   {
-    // process enqueued actions
-    for (MFInputAction action : this.inputActionQueue) {
-      action.execute();
-    }
-    // process channels
-    for (MFCommunicationChannel channel : this.channels) {
-      channel.update();
-    }
+    processInput();
+    processCommunicationChannels();
 
     // TODO process creatures
   }
 
   public void paint(Graphics2D _g)
   {
-    markMovedTile(_g);
-    markClickedTile(_g);
+    // TODO paint map
+    // TODO paint objects - move to map.paint()?
+    // TODO paint creatures - move to map.paint()?
+    paintMovedTile(_g);
+    paintClickedTile(_g);
   }
 
-  public void mouseClicked(int _x, int _y)
+  /**
+   * The size of a map tile
+   * @return The size of a map tile
+   */
+  public int getTilesize()
   {
-    this.clicked = this.map.convertToTilespace(_x, _y);
-  }
-
-  public void mouseMoved(int _x, int _y)
-  {
-    this.mouseMoved = this.map.convertToTilespace(_x, _y);
-  }
-
-  public void keyPressed(int _keyCode)
-  {
-    // beware of teh b0xing
-    final MFInputAction action = this.keyMappings.get(_keyCode);
-    if (action != null) {
-      this.enqueueInputAction(action);
-    }
+    return MFMap.TILESIZE;
   }
 
   /**
@@ -115,16 +102,33 @@ public class MFGame implements MFIMouseListener, MFIKeyListener
     MFScreensManager.getInstance().pop();
   }
 
+  public void mouseClicked(int _x, int _y)
+  {
+    this.clicked = this.map.convertToTilespace(_x, _y);
+  }
+
+  public void mouseMoved(int _x, int _y)
+  {
+    this.mouseMoved = this.map.convertToTilespace(_x, _y);
+  }
+
+  public void keyPressed(int _keyCode)
+  {
+    // beware of teh b0xing
+    final MFInputAction action = this.keyMappings.get(_keyCode);
+    if (action != null) {
+      this.enqueueInputAction(action);
+    }
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   /** The map */
   private MFMap map;
-
   /** Key mappings */
   private HashMap<Integer, MFInputAction> keyMappings;
   /** Player's input actions */
   private Queue<MFInputAction> inputActionQueue;
-
   /** Communications channels*/
   private final ArrayList<MFCommunicationChannel> channels;
 
@@ -140,7 +144,7 @@ public class MFGame implements MFIMouseListener, MFIKeyListener
     this.keyMappings.put(KeyEvent.VK_Q, new MFQuitInputAction(this));
   }
 
-  private void markClickedTile(Graphics2D _g)
+  private void paintClickedTile(Graphics2D _g)
   {
     if (this.clicked == null)
       return;
@@ -151,7 +155,7 @@ public class MFGame implements MFIMouseListener, MFIKeyListener
     _g.fillRect(pos.x, pos.y, MFMap.TILESIZE, MFMap.TILESIZE);
   }
 
-  private void markMovedTile(Graphics2D _g)
+  private void paintMovedTile(Graphics2D _g)
   {
     if (this.mouseMoved == null)
       return;
@@ -163,9 +167,22 @@ public class MFGame implements MFIMouseListener, MFIKeyListener
     _g.drawString("" + this.mouseMoved.x + "/" + this.mouseMoved.y, 2, 13);
   }
 
-  public int getTilesize()
+  private void processCommunicationChannels()
   {
-    return MFMap.TILESIZE;
+    // process channels
+    for (MFCommunicationChannel channel : this.channels) {
+      channel.update();
+    }
+  }
+
+  private void processInput()
+  {
+    // process enqueued actions
+    for (MFInputAction action : this.inputActionQueue) {
+      action.execute();
+    }
+    // clear queue
+    this.inputActionQueue.clear();
   }
 
 }

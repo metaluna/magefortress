@@ -80,11 +80,13 @@ public class MFInputManager extends MouseAdapter implements KeyListener
     this.mainContainer = _mainContainer;
 
     // (re-)register event listeners with the new container
-    if (hasMouseListeners) {
-      this.activateMouseListening();
-    }
-    if (hasKeyListeners) {
-      this.activateKeyListening();
+    if (this.mainContainer != null) {
+      if (hasMouseListeners) {
+        this.activateMouseListening();
+      }
+      if (hasKeyListeners) {
+        this.activateKeyListening();
+      }
     }
   }
 

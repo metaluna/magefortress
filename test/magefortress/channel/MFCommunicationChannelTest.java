@@ -133,4 +133,40 @@ public class MFCommunicationChannelTest {
     verify(mockSender, never()).newSubscriber(mockSubscriber);
 
   }
+
+  @Test
+  public void shouldRemoveMessagesFromQueue()
+  {
+    testChannel = new MFCommunicationChannel("Test Channel");
+    mockSubscriber = mock(MFIChannelSubscriber.class);
+    testMessage = mock(MFChannelMessage.class);
+    testMessage = mock(MFChannelMessage.class);
+
+    testChannel.subscribe(mockSubscriber);
+    testChannel.enqueueMessage(testMessage);
+
+    testChannel.update();
+    verify(mockSubscriber).update(testMessage);
+
+    testChannel.update();
+    verifyNoMoreInteractions(mockSubscriber);
+  }
+
+  @Test
+  public void shouldRemoveNewSubscribersFromQueue()
+  {
+    testChannel = new MFCommunicationChannel("Test Channel");
+    mockSubscriber = mock(MFIChannelSubscriber.class);
+    testMessage = mock(MFChannelMessage.class);
+    mockSender = mock(MFIChannelSender.class);
+
+    testChannel.subscribeSender(mockSender);
+    testChannel.subscribe(mockSubscriber);
+
+    testChannel.update();
+    verify(mockSender).newSubscriber(mockSubscriber);
+
+    testChannel.update();
+    verifyNoMoreInteractions(mockSender);
+  }
 }
