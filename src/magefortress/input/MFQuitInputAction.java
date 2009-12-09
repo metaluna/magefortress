@@ -22,9 +22,10 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.input;
 
-import magefortress.input.MFInputAction;
+import magefortress.input.*;
+import magefortress.core.MFGame;
 
 /**
  * Quits the current game

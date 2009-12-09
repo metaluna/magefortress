@@ -77,7 +77,7 @@ public class MageFortress extends JFrame implements Runnable
     GraphicsDevice graphicsDevice = environment.getDefaultScreenDevice();
     if (graphicsDevice.isFullScreenSupported()) {
       try {
-        //graphicsDevice.setFullScreenWindow(this);
+        graphicsDevice.setFullScreenWindow(this);
 
         // Macht, dass Becci super is!
         while(null != (currentScreen = screenStack.peek())) {
@@ -90,7 +90,7 @@ public class MageFortress extends JFrame implements Runnable
           // render
           try {
             g = (Graphics2D) buffer.getDrawGraphics();
-            currentScreen.paint(g);
+            currentScreen.paint(g, canvas.getWidth(), canvas.getHeight());
           } catch (Exception e) {
             e.printStackTrace();
           } finally {

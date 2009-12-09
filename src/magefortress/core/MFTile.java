@@ -24,20 +24,20 @@
  */
 package magefortress.core;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+
 /**
  *
  * 
  */
-public class MFTile
+public class MFTile implements MFIPaintable
 {
   /** Saves the type of corner */
   public enum Corner {NONE,VERTICAL,HORIZONTAL,BOTH};
+  /** Size of one tile. */
+  public final static int TILESIZE = 48;
 
-  private int posX, posY, posZ;
-  private boolean isUnderground;
-  private boolean isDugOut;
-  private boolean wallN, wallE, wallS, wallW;
-  private boolean floor;
   /**
    * The type of corner is calculated according to the presence of the
    * surrounding walls.
@@ -71,7 +71,7 @@ public class MFTile
    * @param _wallS Wall status
    * @param _wallW Wall status
    * @param _floor Floor status
-   * @param _isUnderground Is it underground?
+   * @param _isUnderground Is or was it underground?
    */
   public MFTile(int _posX, int _posY, int _posZ, boolean _isDugOut,
           boolean _wallN, boolean _wallE, boolean _wallS, boolean _wallW,
@@ -233,6 +233,11 @@ public class MFTile
     this.isDugOut = dugOut;
   }
 
+  public boolean isUnderground()
+  {
+    return this.isUnderground;
+  }
+
   public boolean hasWallNorth()
   {
     return wallN;
@@ -311,7 +316,34 @@ public class MFTile
     return cornerSW;
   }
 
+  public void update()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void paint(Graphics2D _g, int _x_translation, int _y_translation)
+  {
+    if (this.isUnderground()) {
+      _g.setColor(Color.GREEN);
+    } else if (this.isDugOut()){
+      _g.setColor(Color.LIGHT_GRAY);
+    } else {
+      _g.setColor(Color.BLACK);
+    }
+
+    _g.fillRect(posX*TILESIZE + _x_translation,
+                posY*TILESIZE + _y_translation,
+                TILESIZE, TILESIZE);
+
+    //TODO paint objects placed on the tile
+  }
+  
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private int posX, posY, posZ;
+  private boolean isUnderground;
+  private boolean isDugOut;
+  private boolean wallN, wallE, wallS, wallW;
+  private boolean floor;
 
   private void setPosX(int posX)
   {

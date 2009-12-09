@@ -24,35 +24,82 @@
  */
 package magefortress.core;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 /**
  * Contains the tiles.
  */
 public class MFMap
 {
-  public final static int TILESIZE = 48;
 
-  public MFMap(int width, int height, int levels)
+  public MFMap(int _width, int _height, int _levels)
   {
-    this.map = new MFTile[levels][width][height];
+    this.map = new MFTile[_levels][_width][_height];
+
+    for (int z = 0; z < _levels; ++z) {
+      for (int x = 0; x < _width; ++x) {
+        for (int y = 0; y < _height; ++y) {
+          this.map[z][x][y] = new MFTile(x,y,z);
+        }
+      }
+    }
   }
 
-  public MFLocation convertToTilespace(final int _x, final int _y)
+  public static MFLocation convertToTilespace(int _x,int _y, int _z,
+                                        int _x_translation, int _y_translation)
   {
-    int tileX = _x / TILESIZE;
-    int tileY = _y / TILESIZE;
-    int tileZ = 0;
+    int tileX = (int) Math.floor((_x-_x_translation) / (double)MFTile.TILESIZE);
+    int tileY = (int) Math.floor((_y-_y_translation) / (double)MFTile.TILESIZE);
+    int tileZ = _z;
 
     return new MFLocation(tileX, tileY, tileZ);
   }
 
-  public Point convertFromTilespace(final int _x, final int _y)
+  public static Point convertFromTilespace(int _x,int _y)
   {
-    int screenX = _x * TILESIZE;
-    int screenY = _y * TILESIZE;
+    int screenX = _x * MFTile.TILESIZE;
+    int screenY = _y * MFTile.TILESIZE;
 
     return new Point(screenX, screenY);
+  }
+
+  /**
+   * Updates all animated sprites.
+   */
+  public void update()
+  {
+  }
+
+  /**
+   * Paints the map.
+   * @param _g The canvas
+   * @param _level The currently visible level of the map
+   * @param _clippingRect The clipping rectangle.
+   */
+  public void paint(Graphics2D _g, int _level, Rectangle _clippingRect)
+  {
+    // select which tiles are visible
+    // start of visible tiles
+    MFLocation start = convertToTilespace(0, 0, _level,
+                                          _clippingRect.x, _clippingRect.y);
+    // end of visible tiles
+    MFLocation end = convertToTilespace(_clippingRect.width-1, _clippingRect.height-1,
+                                      _level, _clippingRect.x, _clippingRect.y);
+
+    // only necessary if we don't stop scrolling at the edges of the map
+    int startX = Math.max(start.x, 0);
+    int startY = Math.max(start.y, 0);
+    int endX = Math.min(end.x, this.map[_level].length-1);
+    int endY = Math.min(end.y, this.map[_level][0].length-1);
+
+    // render all visible tiles
+    for (int y = startY; y <= endY; ++y) {
+      for (int x = startX; x <= endX; ++x) {
+        map[_level][x][y].paint(_g, _clippingRect.x, _clippingRect.y);
+      }
+    }
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

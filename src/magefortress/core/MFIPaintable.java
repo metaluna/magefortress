@@ -1,6 +1,6 @@
 /*
  *  Copyright (c) 2009 Simon Hardijanto
- *
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -22,49 +22,15 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.gui;
+package magefortress.core;
 
-import magefortress.input.MFInputManager;
 import java.awt.Graphics2D;
 
 /**
- * Used to display various screens of the game.
- * 
+ *
  */
-public abstract class MFScreen
+public interface MFIPaintable
 {
-  private MFInputManager inputManager;
-
-  public MFScreen()
-  {
-    this.inputManager = MFInputManager.getInstance();
-  }
-
-  final MFInputManager getInputManager()
-  {
-    return this.inputManager;
-  }
-
-  /**
-   * Called when the screen becomes the top of the screens stack. This happens
-   * when the screen is first pushed on the stack and when the screen was
-   * covered by other screens and the covering screens were all closed.
-   */
-  public abstract void initialize();
-  /**
-   * Called when the screen is covered by another screen and when the screen
-   * is closed.
-   */
-  public abstract void deinitialize();
-  /**
-   * Called when the game tells the screen to update its contents.
-   */
-  public abstract void update();
-  /**
-   * Called when the game tells the screen to display its contents.
-   * @param _g The canvas
-   * @param _width The horizontal size of the canvas
-   * @param _height The vertical size of the canvas
-   */
-  public abstract void paint(Graphics2D _g, int _width, int _height);
+  public void update();
+  public void paint(Graphics2D g, int x_translation, int y_translation);
 }

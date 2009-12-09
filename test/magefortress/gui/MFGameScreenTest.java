@@ -22,59 +22,60 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.gui;
 
-import java.awt.Component;
-import magefortress.gui.MFScreen;
-import magefortress.gui.MFScreensManager;
-import magefortress.input.MFInputManager;
-import org.junit.AfterClass;
+import magefortress.core.MFGame;
+import magefortress.input.MFInputAction;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
+import org.mockito.InOrder;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class MFGameTest
+public class MFGameScreenTest
 {
-  private MFGame game;
+  private MFGameScreen gameScreen;
 
-  @BeforeClass
-  public static void setUpClass()
+  public MFGameScreenTest()
   {
-    MFInputManager.getInstance().setMainContainer(mock(Component.class));
-  }
 
-  @AfterClass
-  public static void tearDownClass()
-  {
-    MFInputManager.getInstance().setMainContainer(null);
   }
 
   @Before
   public void setUp()
   {
-    game = new MFGame();
+    this.gameScreen = new MFGameScreen(mock(MFGame.class));
   }
 
   @Test
-  public void shouldGetTilesize()
+  public void shouldExecuteInputActions()
   {
-    int expSize = MFTile.TILESIZE;
-    int gotSize = game.getTileSize();
-    
-    assertEquals(expSize, gotSize);
+    MFInputAction mockAction1 = mock(MFInputAction.class);
+    MFInputAction mockAction2 = mock(MFInputAction.class);
+    MFInputAction mockAction3 = mock(MFInputAction.class);
+    InOrder inOrder = inOrder(mockAction1, mockAction2, mockAction3);
+
+    gameScreen.enqueueInputAction(mockAction1);
+    gameScreen.enqueueInputAction(mockAction2);
+    gameScreen.enqueueInputAction(mockAction3);
+    verifyZeroInteractions(mockAction1, mockAction2, mockAction3);
+
+    gameScreen.update();
+    inOrder.verify(mockAction1).execute();
+    inOrder.verify(mockAction2).execute();
+    inOrder.verify(mockAction3).execute();
   }
 
   @Test
-  public void shouldQuit()
+  public void shouldRemoveExecutedActionsFromQueue()
   {
-    MFScreen mockScreen = mock(MFScreen.class);
-    MFScreensManager.getInstance().push(mockScreen);
+    MFInputAction mockAction = mock(MFInputAction.class);
+    gameScreen.enqueueInputAction(mockAction);
 
-    game.quit();
-    verify(mockScreen).deinitialize();
+    gameScreen.update();
+    verify(mockAction).execute();
+    gameScreen.update();
+    verifyNoMoreInteractions(mockAction);
   }
 
 }

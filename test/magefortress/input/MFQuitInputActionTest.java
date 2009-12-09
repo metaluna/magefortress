@@ -22,59 +22,25 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.input;
 
-import java.awt.Component;
-import magefortress.gui.MFScreen;
-import magefortress.gui.MFScreensManager;
-import magefortress.input.MFInputManager;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import magefortress.core.MFGame;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class MFGameTest
+public class MFQuitInputActionTest
 {
-  private MFGame game;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    MFInputManager.getInstance().setMainContainer(mock(Component.class));
-  }
-
-  @AfterClass
-  public static void tearDownClass()
-  {
-    MFInputManager.getInstance().setMainContainer(null);
-  }
-
-  @Before
-  public void setUp()
-  {
-    game = new MFGame();
-  }
+  private MFQuitInputAction inputAction;
 
   @Test
-  public void shouldGetTilesize()
+  public void shouldQuitGame()
   {
-    int expSize = MFTile.TILESIZE;
-    int gotSize = game.getTileSize();
-    
-    assertEquals(expSize, gotSize);
-  }
+    MFGame mockGame = mock(MFGame.class);
+    this.inputAction = new MFQuitInputAction(mockGame);
 
-  @Test
-  public void shouldQuit()
-  {
-    MFScreen mockScreen = mock(MFScreen.class);
-    MFScreensManager.getInstance().push(mockScreen);
-
-    game.quit();
-    verify(mockScreen).deinitialize();
+    this.inputAction.execute();
+    verify(mockGame).quit();
   }
 
 }
