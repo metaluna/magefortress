@@ -25,16 +25,28 @@
 package magefortress.core;
 
 import java.awt.Point;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class MFMapTest
 {
+  private MFMap map;
 
   public MFMapTest()
   {
+  }
+
+  @Before
+  public void setUp()
+  {
+    this.map = new MFMap(5,5,1);
+    MFTile[][] level = this.map.getLevelMap(0);
+    for (MFTile[] cols : level) {
+      for (MFTile tile : cols) {
+        tile.setDugOut(true);
+      }
+    }
   }
 
   @Test
@@ -87,6 +99,46 @@ public class MFMapTest
     expPoint = new Point(-MFTile.TILESIZE, -MFTile.TILESIZE);
     gotPoint = MFMap.convertFromTilespace(-1, -1);
     assertEquals(expPoint, gotPoint);
+  }
+
+  @Test
+  public void shouldCalculateClearanceValuesOnEmptyMap()
+  {
+    map.calculateClearanceValues(MFEMovementType.WALK);
+
+    for (MFTile[] cols : map.getLevelMap(0)) {
+      for (MFTile tile : cols) {
+        //System.out.println("Testing tile " + tile.getPosX() + "/" + tile.getPosY() + "/" + tile.getPosZ());
+        int expClearance = cols.length - Math.max(tile.getPosX(), tile.getPosY());
+        assertEquals(expClearance, tile.getClearance(MFEMovementType.WALK));
+      }
+    }
+  }
+
+  @Test
+  public void shouldCalculateClearanceWithObstacles()
+  {
+    //setup
+    MFTile[][] level = map.getLevelMap(0);
+    level[2][2].setDugOut(false);
+
+    map.calculateClearanceValues(MFEMovementType.WALK);
+
+    int expClearance = 0;
+    int gotClearance = level[2][2].getClearance(MFEMovementType.WALK);
+    assertEquals(expClearance, gotClearance);
+
+    expClearance = 2;
+    gotClearance = level[0][0].getClearance(MFEMovementType.WALK);
+    assertEquals(expClearance, gotClearance);
+
+    expClearance = 1;
+    gotClearance = level[1][1].getClearance(MFEMovementType.WALK);
+    assertEquals(expClearance, gotClearance);
+
+    expClearance = 2;
+    gotClearance = level[3][3].getClearance(MFEMovementType.WALK);
+    assertEquals(expClearance, gotClearance);
   }
 
 }

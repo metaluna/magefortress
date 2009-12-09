@@ -126,13 +126,13 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
 
     final int scrollSpeed = MFTile.TILESIZE/2;
     if (_keyCode == KeyEvent.VK_LEFT || _keyCode == KeyEvent.VK_KP_LEFT) {
-      this.clippingRect.x-=scrollSpeed;
-    } else if (_keyCode == KeyEvent.VK_RIGHT || _keyCode == KeyEvent.VK_KP_RIGHT) {
       this.clippingRect.x+=scrollSpeed;
+    } else if (_keyCode == KeyEvent.VK_RIGHT || _keyCode == KeyEvent.VK_KP_RIGHT) {
+      this.clippingRect.x-=scrollSpeed;
     } else if (_keyCode == KeyEvent.VK_UP || _keyCode == KeyEvent.VK_KP_UP) {
-      this.clippingRect.y-=scrollSpeed;
-    } else if (_keyCode == KeyEvent.VK_DOWN || _keyCode == KeyEvent.VK_KP_DOWN) {
       this.clippingRect.y+=scrollSpeed;
+    } else if (_keyCode == KeyEvent.VK_DOWN || _keyCode == KeyEvent.VK_KP_DOWN) {
+      this.clippingRect.y-=scrollSpeed;
     }
   }
 

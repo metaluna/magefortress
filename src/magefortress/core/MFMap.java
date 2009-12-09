@@ -47,6 +47,8 @@ public class MFMap
     }
   }
 
+  //---vvv---      STATIC METHODS      ---vvv---
+
   public static MFLocation convertToTilespace(int _x,int _y, int _z,
                                         int _x_translation, int _y_translation)
   {
@@ -63,6 +65,18 @@ public class MFMap
     int screenY = _y * MFTile.TILESIZE;
 
     return new Point(screenX, screenY);
+  }
+
+  //---vvv---      PUBLIC METHODS      ---vvv---
+
+  /**
+   * The tiles of the specified level
+   * @param _level The level
+   * @return The map
+   */
+  MFTile[][] getLevelMap(int _level)
+  {
+    return this.map[_level];
   }
 
   /**
@@ -102,7 +116,61 @@ public class MFMap
     }
   }
 
+  void calculateClearanceValues(MFEMovementType _movementType)
+  {
+    for (MFTile[][] levels : this.map) {
+      for (MFTile[] rows : levels) {
+        for (MFTile tile : rows) {
+          int clearance = calculateClearance(tile, _movementType, 1);
+          tile.setClearance(_movementType, clearance);
+        }
+      }
+    }
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   private MFTile[][][] map;
+
+  private int calculateClearance(MFTile _tile, MFEMovementType _movementType,
+                                                                  int _clearance)
+  {
+    // abort if clearance is the size of the map
+    if (_clearance > this.map[0].length - _tile.getPosX() ||
+        _clearance > this.map[0][0].length - _tile.getPosY()) {
+      return _clearance-1;
+    }
+
+    if (_clearance == 1) {
+      if (_tile.isWalkable(_movementType))
+        return calculateClearance(_tile, _movementType, _clearance+1);
+      else
+        return 0;
+    }
+
+    // test new row of tiles below the current one
+    final int startx = _tile.getPosX();
+    final int endx   = startx + _clearance;
+    int y = _tile.getPosY() + _clearance - 1;
+    for (int x = startx; x < endx; ++x) {
+      MFTile neighbor = this.map[_tile.getPosZ()][x][y];
+      if (!neighbor.isWalkable(_movementType) ||
+           neighbor.hasWallNorth()) {
+        return _clearance - 1;
+      }
+    }
+    // test new column of tiles
+    final int starty = _tile.getPosY();
+    final int endy   = starty + _clearance;
+    int x = _tile.getPosX() + _clearance - 1;
+    for (y = starty; y < endy; ++y) {
+      MFTile neighbor = this.map[_tile.getPosZ()][x][y];
+      if (!neighbor.isWalkable(_movementType) ||
+           neighbor.hasWallWest()) {
+        return _clearance - 1;
+      }
+    }
+
+    return calculateClearance(_tile, _movementType, _clearance+1);
+  }
 }

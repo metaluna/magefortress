@@ -26,6 +26,9 @@ package magefortress.core;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.EnumMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -44,11 +47,6 @@ public class MFTile implements MFIPaintable
    * @Transient
    */
   private Corner cornerNW, cornerNE, cornerSE, cornerSW;
-
-  /**
-   * Empty constructor
-   */
-  public MFTile() {}
 
   /**
    * Convenience constructor creating an underground tile with no walls.
@@ -81,13 +79,16 @@ public class MFTile implements MFIPaintable
     this.posY = _posY;
     this.posZ = _posZ;
     this.isDugOut = _isDugOut;
+    this.isUnderground = _isUnderground;
     setWalls(_wallN, _wallE, _wallS, _wallW);
     this.floor = _floor;
-    this.isUnderground = _isUnderground;
     this.cornerNE = Corner.NONE;
     this.cornerNW = Corner.NONE;
     this.cornerSE = Corner.NONE;
     this.cornerSW = Corner.NONE;
+
+    // init clearance values
+    this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
   }
 
   /**
@@ -316,6 +317,33 @@ public class MFTile implements MFIPaintable
     return cornerSW;
   }
 
+  public void setClearance(MFEMovementType _movementType, int _clearance)
+  {
+    this.clearanceValues.put(_movementType, _clearance);
+  }
+
+  public int getClearance(MFEMovementType _movementType)
+  {
+    Integer result = this.clearanceValues.get(_movementType);
+    if (result == null) {
+      String msg = "Tile " + posX +"/"+ posY + "/" + posZ +
+                    ": Must set clearance value for " + _movementType.toString() +
+                    " before trying to get it.";
+      Logger.getLogger(MFTile.class.getName()).log(Level.WARNING, msg);
+      throw new IllegalArgumentException(msg);
+    }
+    return result;
+  }
+
+  boolean isWalkable(MFEMovementType _movementType)
+  {
+    switch (_movementType) {
+      case WALK : return isDugOut();
+      case FLY  : return isDugOut();
+      default   : return false;
+    }
+  }
+
   public void update()
   {
     throw new UnsupportedOperationException("Not supported yet.");
@@ -344,6 +372,8 @@ public class MFTile implements MFIPaintable
   private boolean isDugOut;
   private boolean wallN, wallE, wallS, wallW;
   private boolean floor;
+  private EnumMap<MFEMovementType, Integer> clearanceValues;
+
 
   private void setPosX(int posX)
   {

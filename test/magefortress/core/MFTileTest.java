@@ -302,6 +302,30 @@ public class MFTileTest
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerSE());
   }
 
+  @Test
+  public void shouldHaveClearanceValue()
+  {
+    MFTile tile = new MFTile(0,0,0);
+
+    int walkValue = 1;
+    int flyValue = 2;
+    tile.setClearance(MFEMovementType.WALK, walkValue);
+    tile.setClearance(MFEMovementType.FLY, flyValue);
+
+    assertEquals(walkValue, tile.getClearance(MFEMovementType.WALK));
+    assertEquals(flyValue, tile.getClearance(MFEMovementType.FLY));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotHaveClearanceValue()
+  {
+    MFTile tile = new MFTile(0,0,0);
+
+    tile.getClearance(MFEMovementType.WALK);
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  
   /**
    * Creates a dug out underground tile with no walls.
    * @param x Position on the map

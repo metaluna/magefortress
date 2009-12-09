@@ -22,26 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.input;
-
-import magefortress.core.MFGame;
+package magefortress.core;
 
 /**
- * Quits the current game
+ *
  */
-public class MFQuitInputAction extends MFInputAction
+public enum MFEMovementType
 {
-  public MFQuitInputAction(MFGame _game)
-  {
-    super(_game);
-  }
-
-  @Override
-  public void execute()
-  {
-    this.game.quit();
-  }
-
-    //---vvv---      PRIVATE METHODS      ---vvv---
-
+  WALK, FLY;
 }
