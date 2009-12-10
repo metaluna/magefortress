@@ -107,6 +107,16 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     this.tileClicked = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
     this.tileClicked.z = this.currentLevel;
+
+    // dig out tile if it's inside the map and not dug out
+    MFTile[][] tiles = this.game.getLevelMap(currentLevel);
+    if (0 <= tileClicked.x && tileClicked.x < tiles.length &&
+        0 <= tileClicked.y && tileClicked.y < tiles[0].length &&
+        tiles[tileClicked.x][tileClicked.y].isDugOut() == false) {
+      MFLocation[] locations = {new MFLocation(this.tileClicked)};
+      MFDigInputAction digAction = new MFDigInputAction(this.game, locations);
+      this.enqueueInputAction(digAction);
+    }
   }
 
   public void mouseMoved(int _x, int _y)
@@ -162,7 +172,7 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     pos.translate(this.clippingRect.x, this.clippingRect.y);
 
     _g.setColor(Color.GREEN);
-    _g.fillRect(pos.x, pos.y, MFTile.TILESIZE, MFTile.TILESIZE);
+    _g.drawRect(pos.x, pos.y, MFTile.TILESIZE, MFTile.TILESIZE);
   }
 
   private void paintMovedTile(Graphics2D _g)
@@ -174,7 +184,7 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     pos.translate(this.clippingRect.x, this.clippingRect.y);
     
     _g.setColor(Color.MAGENTA);
-    _g.fillRect(pos.x, pos.y, MFTile.TILESIZE, MFTile.TILESIZE);
+    _g.drawRect(pos.x, pos.y, MFTile.TILESIZE, MFTile.TILESIZE);
     _g.setColor(Color.GRAY);
     _g.drawString("" + this.tileMouseMoved.x + "/" + this.tileMouseMoved.y, 2, 13);
   }

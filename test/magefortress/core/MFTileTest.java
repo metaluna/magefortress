@@ -63,17 +63,17 @@ public class MFTileTest
   }
 
   @Test
-  public void shouldHaveNoCornersWhenAllWallsArePresent()
+  public void shouldHaveInwardCornersWhenAllWallsArePresent()
   {
     MFTile testedTile = tiles[1][1];
     testedTile.setWalls(true, true, true, true);
 
     testedTile.calculateCorners(tiles);
 
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNW());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNE());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSE());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNE());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSE());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSW());
   }
 
   @Test
@@ -220,8 +220,8 @@ public class MFTileTest
 
     testedTile.calculateCorners(tiles);
 
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNW());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNE());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNE());
 
   }
 
@@ -245,8 +245,8 @@ public class MFTileTest
 
     testedTile.calculateCorners(tiles);
 
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSW());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSE());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSE());
   }
 
   @Test
@@ -271,8 +271,8 @@ public class MFTileTest
 
     testedTile.calculateCorners(tiles);
 
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNW());
-    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNW());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSW());
   }
 
   @Test
@@ -298,8 +298,21 @@ public class MFTileTest
 
     testedTile.calculateCorners(tiles);
 
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerNE());
+    assertEquals(MFTile.Corner.INWARD, testedTile.getCornerSE());
+  }
+
+  @Test
+  public void shouldNotCalculateCorners()
+  {
+    MFTile testedTile = tiles[2][2];
+    testedTile.setWalls(true, true, true, true);
+    testedTile.setDugOut(false);
+    testedTile.calculateCorners(tiles);
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerNE());
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerSE());
+    assertEquals(MFTile.Corner.NONE, testedTile.getCornerSW());
+    assertEquals(MFTile.Corner.NONE, testedTile.getCornerNW());
   }
 
   @Test
