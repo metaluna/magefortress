@@ -24,13 +24,10 @@
  */
 package magefortress.core;
 
-import java.awt.Component;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
 import magefortress.input.MFInputManager;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -47,11 +44,6 @@ public class MFGameTest
   {
     mockMap = mock(MFMap.class);
     game = new MFGame(mockMap);
-    // mock the screens manager because we can't verify if close() was called on
-    // the screen any other way because the method is final
-    mockScreensManager = mock(MFScreensManager.class);
-    MFGameScreen gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
-    game.setScreen(gameScreen);
   }
 
   @Test
@@ -66,8 +58,22 @@ public class MFGameTest
   @Test
   public void shouldQuit()
   {
+    // mock the screens manager because we can't verify if close() was called on
+    // the screen any other way because the method is final
+    mockScreensManager = mock(MFScreensManager.class);
+    MFGameScreen gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
+    game.setScreen(gameScreen);
+    when(mockScreensManager.peek()).thenReturn(gameScreen);
+
     game.quit();
     verify(mockScreensManager).pop();
+  }
+
+  @Test(expected=NullPointerException.class)
+  public void shouldNotQuit()
+  {
+    game.quit();
+    verify(mockScreensManager, never()).pop();
   }
 
 }
