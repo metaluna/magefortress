@@ -26,6 +26,7 @@ package magefortress.gui;
 
 import magefortress.core.MFGame;
 import magefortress.input.MFInputAction;
+import magefortress.input.MFInputManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.*;
 public class MFGameScreenTest
 {
   private MFGameScreen gameScreen;
+  private MFScreensManager mockScreensManager;
 
   public MFGameScreenTest()
   {
@@ -44,7 +46,8 @@ public class MFGameScreenTest
   @Before
   public void setUp()
   {
-    this.gameScreen = new MFGameScreen(mock(MFGame.class));
+    mockScreensManager = mock(MFScreensManager.class);
+    this.gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, mock(MFGame.class));
   }
 
   @Test
@@ -66,6 +69,12 @@ public class MFGameScreenTest
     inOrder.verify(mockAction3).execute();
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotEnqueueInputActions()
+  {
+    gameScreen.enqueueInputAction(null);
+  }
+
   @Test
   public void shouldRemoveExecutedActionsFromQueue()
   {
@@ -76,6 +85,24 @@ public class MFGameScreenTest
     verify(mockAction).execute();
     gameScreen.update();
     verifyNoMoreInteractions(mockAction);
+  }
+
+  @Test
+  public void shouldCloseTheScreen()
+  {
+    when(mockScreensManager.peek()).thenReturn(gameScreen);
+
+    gameScreen.close();
+    verify(mockScreensManager).pop();
+  }
+
+  @Test(expected=IllegalAccessError.class)
+  public void shouldNotCloseTheScreen()
+  {
+    when(mockScreensManager.peek()).thenReturn(null);
+    
+    gameScreen.close();
+    verify(mockScreensManager, never()).pop();
   }
 
 }

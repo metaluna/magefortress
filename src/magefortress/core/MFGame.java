@@ -27,9 +27,10 @@ package magefortress.core;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import magefortress.channel.MFCommunicationChannel;
-import magefortress.gui.MFScreensManager;
+import magefortress.gui.MFScreen;
 
 /**
  * Single place for all game data.
@@ -79,20 +80,36 @@ public class MFGame
   }
 
   /**
+   * Important! Set this after you've initialized the view.
+   * @param _screen The view of the game
+   */
+  public void setScreen(MFScreen _screen)
+  {
+    this.screen = _screen;
+  }
+  /**
    * Removes the newest screen from the screens stack, which should be an
    * instance of this game's game screen.
    */
   public void quit()
   {
-    MFScreensManager.getInstance().pop();
+    if (this.screen == null) {
+      String msg = "Game: Can't call close() without a screen. Set it!";
+      logger.log(Level.SEVERE, msg);
+      throw new NullPointerException(msg);
+    }
+    this.screen.close();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-
+  /** The view on the game */
+  private MFScreen screen;
   /** The map */
   private MFMap map;
   /** Communications channels*/
   private final ArrayList<MFCommunicationChannel> channels;
+  /** The logger */
+  private static final Logger logger = Logger.getLogger(MFGame.class.getName());
 
   private void processCommunicationChannels()
   {

@@ -26,6 +26,8 @@ package magefortress.gui;
 
 import magefortress.input.MFInputManager;
 import java.awt.Graphics2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Used to display various screens of the game.
@@ -34,15 +36,43 @@ import java.awt.Graphics2D;
 public abstract class MFScreen
 {
   private MFInputManager inputManager;
+  private MFScreensManager screensManager;
+  final static Logger logger = Logger.getLogger(MFScreen.class.getName());
 
-  public MFScreen()
+  public MFScreen(MFInputManager _inputManager, MFScreensManager _screensManager)
   {
-    this.inputManager = MFInputManager.getInstance();
+    if (_inputManager == null) {
+      String msg = "Screen: InputManager must not be null. Can't instantiate screen.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_screensManager == null) {
+      String msg = "Screen: ScreensManager must not be null. Can't instantiate screen.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.inputManager = _inputManager;
+    this.screensManager = _screensManager;
   }
 
   final MFInputManager getInputManager()
   {
     return this.inputManager;
+  }
+
+  /**
+   * Closes the screen by popping it of the screen manager's stack. If it's the
+   * last screen, the application exits.
+   */
+  final public void close()
+  {
+    if (this.screensManager.peek() != this) {
+      String msg = "Screen: Tried to close screen but different screen is on top.";
+      logger.log(Level.WARNING, msg);
+      throw new IllegalAccessError(msg);
+    }
+
+    this.screensManager.pop();
   }
 
   /**

@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.logging.Level;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import magefortress.core.MFMap;
@@ -44,8 +45,14 @@ import magefortress.input.*;
 public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyListener
 {
 
-  public MFGameScreen(MFGame _game)
+  public MFGameScreen(MFInputManager _inputManager, MFScreensManager _screensManager, MFGame _game)
   {
+    super(_inputManager, _screensManager);
+    if (_inputManager == null) {
+      String msg = "Screen: Game must not be null. Can't instantiate game screen.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.game = _game;
     this.currentLevel = 0;
     this.clippingRect = new Rectangle(0,0,1,1);
@@ -62,6 +69,11 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
    */
   public void enqueueInputAction(MFInputAction _action)
   {
+    if (_action == null) {
+      String msg = "GameScreen: Can't enqueue action if it's null.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.inputActionQueue.add(_action);
   }
 

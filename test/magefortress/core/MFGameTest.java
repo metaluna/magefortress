@@ -25,7 +25,7 @@
 package magefortress.core;
 
 import java.awt.Component;
-import magefortress.gui.MFScreen;
+import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
 import magefortress.input.MFInputManager;
 import org.junit.AfterClass;
@@ -40,24 +40,18 @@ public class MFGameTest
 {
   private MFGame game;
   private MFMap mockMap;
-
-  @BeforeClass
-  public static void setUpClass()
-  {
-    MFInputManager.getInstance().setMainContainer(mock(Component.class));
-  }
-
-  @AfterClass
-  public static void tearDownClass()
-  {
-    MFInputManager.getInstance().setMainContainer(null);
-  }
+  private MFScreensManager mockScreensManager;
 
   @Before
   public void setUp()
   {
     mockMap = mock(MFMap.class);
     game = new MFGame(mockMap);
+    // mock the screens manager because we can't verify if close() was called on
+    // the screen any other way because the method is final
+    mockScreensManager = mock(MFScreensManager.class);
+    MFGameScreen gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
+    game.setScreen(gameScreen);
   }
 
   @Test
@@ -72,11 +66,8 @@ public class MFGameTest
   @Test
   public void shouldQuit()
   {
-    MFScreen mockScreen = mock(MFScreen.class);
-    MFScreensManager.getInstance().push(mockScreen);
-
     game.quit();
-    verify(mockScreen).deinitialize();
+    verify(mockScreensManager).pop();
   }
 
 }
