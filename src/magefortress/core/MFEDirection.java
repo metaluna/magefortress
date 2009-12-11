@@ -24,10 +24,22 @@
  */
 package magefortress.core;
 
+import java.util.EnumSet;
+
 /**
  * Directions in-game
  */
 public enum MFEDirection
 {
   N, NE, E, SE, S, SW, W, NW;
+
+  public static EnumSet<MFEDirection> diagonals()
+  {
+    return EnumSet.of(NE, SE, SW, NW);
+  }
+
+  public static EnumSet<MFEDirection> straight()
+  {
+    return EnumSet.complementOf(diagonals());
+  }
 }

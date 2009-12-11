@@ -42,13 +42,6 @@ public class MFTile implements MFIPaintable
   public final static int TILESIZE = 48;
 
   /**
-   * The type of corner is calculated according to the presence of the
-   * surrounding walls.
-   * @Transient
-   */
-  private Corner cornerNW, cornerNE, cornerSE, cornerSW;
-
-  /**
    * Convenience constructor creating an underground tile with no walls.
    * @param _posX Position on the map
    * @param _posY Position on the map
@@ -82,161 +75,14 @@ public class MFTile implements MFIPaintable
     this.isUnderground = _isUnderground;
     setWalls(_wallN, _wallE, _wallS, _wallW);
     this.floor = _floor;
-    this.cornerNE = Corner.NONE;
-    this.cornerNW = Corner.NONE;
-    this.cornerSE = Corner.NONE;
-    this.cornerSW = Corner.NONE;
+    this.corners = new EnumMap<MFEDirection, Corner>(MFEDirection.class);
+    this.setCorner(MFEDirection.NE, Corner.NONE);
+    this.setCorner(MFEDirection.SE, Corner.NONE);
+    this.setCorner(MFEDirection.SW, Corner.NONE);
+    this.setCorner(MFEDirection.NW, Corner.NONE);
 
     // init clearance values
     this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
-  }
-
-  /**
-   * Calculates the types of corner.
-   * Only horizontal wall on the tile -> horizontal corner
-   * Only vertical wall on the tile -> vertical corner
-   * No adjacent walls on the tile
-   * AND no adjacent walls on surrounding tiles -> no corner
-   * Otherwise -> both
-   */
-  public void calculateCorners(MFTile[][] tiles)
-  {
-    if (!this.isDugOut) {
-      logger.log(Level.WARNING, "Tile " + this.toString() + 
-                                ": Trying to calculate corners on solid tile");
-      return;
-    }
-    boolean isFirstRow = (this.posY == 0);
-    boolean isFirstColumn = (this.posX == 0);
-    boolean isLastRow = (this.posY == tiles[0].length-1);
-    boolean isLastColumn = (this.posX == tiles.length-1);
-    
-    MFTile neighborN = null;
-    if (!isFirstRow) {
-      neighborN = tiles[this.getPosX()][this.getPosY()-1];
-    }
-    MFTile neighborE = null;
-    if (!isLastColumn) {
-      neighborE = tiles[this.getPosX()+1][this.getPosY()];
-    }
-    MFTile neighborS = null;
-    if (!isLastRow) {
-      neighborS = tiles[this.getPosX()][this.getPosY()+1];
-    }
-    MFTile neighborW = null;
-    if (!isFirstColumn) {
-      neighborW = tiles[this.getPosX()-1][this.getPosY()];
-    }
-
-    boolean _wallN = isFirstRow || this.hasWallNorth();
-    boolean _wallE = isLastColumn || this.hasWallEast();
-    boolean _wallS = isLastRow || this.hasWallSouth();
-    boolean _wallW = isFirstColumn || this.hasWallWest();
-    boolean wallAboveW = isFirstRow ||
-                          (neighborN.isDugOut() && neighborN.hasWallWest());
-    boolean wallAboveE = isFirstRow ||
-                          (neighborN.isDugOut() && neighborN.hasWallEast());
-    boolean wallRightN = isLastColumn ||
-                          (neighborE.isDugOut() && neighborE.hasWallNorth());
-    boolean wallRightS = isLastColumn ||
-                          (neighborE.isDugOut() && neighborE.hasWallSouth());
-    boolean wallBelowE = isLastRow ||
-                          (neighborS.isDugOut() && neighborS.hasWallEast());
-    boolean wallBelowW = isLastRow ||
-                          (neighborS.isDugOut() && neighborS.hasWallWest());
-    boolean wallLeftS  = isFirstColumn ||
-                          (neighborW.isDugOut() && neighborW.hasWallSouth());
-    boolean wallLeftN  = isFirstColumn ||
-                          (neighborW.isDugOut() && neighborW.hasWallNorth());
-
-    // NW
-    if (_wallN && _wallW)
-    {
-      setCornerNW(Corner.INWARD);
-    }
-    else if (_wallN)
-    {
-      setCornerNW(Corner.HORIZONTAL);
-    }
-    else if (_wallW)
-    {
-      setCornerNW(Corner.VERTICAL);
-    }
-    else if (wallLeftN || wallAboveW)
-    {
-      setCornerNW(Corner.BOTH);
-    }
-    else
-    {
-      setCornerNW(Corner.NONE);
-    }
-
-    // NE
-    if (_wallN && _wallE)
-    {
-      setCornerNE(Corner.INWARD);
-    }
-    else if (_wallN)
-    {
-      setCornerNE(Corner.HORIZONTAL);
-    }
-    else if (_wallE)
-    {
-      setCornerNE(Corner.VERTICAL);
-    }
-    else if (wallAboveE || wallRightN)
-    {
-      setCornerNE(Corner.BOTH);
-    }
-    else
-    {
-      setCornerNE(Corner.NONE);
-    }
-    
-    // SE
-    if (_wallS && _wallE)
-    {
-      setCornerSE(Corner.INWARD);
-    }
-    else if (_wallS)
-    {
-      setCornerSE(Corner.HORIZONTAL);
-    }
-    else if (_wallE)
-    {
-      setCornerSE(Corner.VERTICAL);
-    }
-    else if (wallRightS || wallBelowE)
-    {
-      setCornerSE(Corner.BOTH);
-    }
-    else
-    {
-      setCornerSE(Corner.NONE);
-    }
-    
-    // SW
-    if (_wallS && _wallW)
-    {
-      setCornerSW(Corner.INWARD);
-    }
-    else if (_wallS)
-    {
-      setCornerSW(Corner.HORIZONTAL);
-    }
-    else if (_wallW)
-    {
-      setCornerSW(Corner.VERTICAL);
-    }
-    else if (wallLeftS || wallBelowW)
-    {
-      setCornerSW(Corner.BOTH);
-    }
-    else
-    {
-      setCornerSW(Corner.NONE);
-    }
-
   }
 
   public int getPosX()
@@ -329,22 +175,22 @@ public class MFTile implements MFIPaintable
 
   public Corner getCornerNW()
   {
-    return cornerNW;
+    return this.getCorner(MFEDirection.NW);
   }
 
   public Corner getCornerNE()
   {
-    return cornerNE;
+    return this.getCorner(MFEDirection.NE);
   }
 
   public Corner getCornerSE()
   {
-    return cornerSE;
+    return this.getCorner(MFEDirection.SE);
   }
 
   public Corner getCornerSW()
   {
-    return cornerSW;
+    return this.getCorner(MFEDirection.SW);
   }
 
   public void setClearance(MFEMovementType _movementType, int _clearance)
@@ -372,6 +218,38 @@ public class MFTile implements MFIPaintable
       case FLY  : return isDugOut();
       default   : return false;
     }
+  }
+
+  /**
+   * Sets the corner type of the specified direction.
+   * @param _direction The direction of the corner
+   * @param corner The type of corner
+   */
+  public void setCorner(MFEDirection _direction, Corner _corner)
+  {
+    if (!MFEDirection.diagonals().contains(_direction)) {
+      String msg = _direction + " is not a valid corner direction.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.corners.put(_direction, _corner);
+  }
+
+  /**
+   * Gets the corner type of the specified direction.
+   * @param _direction The direction of the corner
+   * @return The type of corner
+   */
+  private Corner getCorner(MFEDirection _direction)
+  {
+    if (!MFEDirection.diagonals().contains(_direction)) {
+      String msg = _direction + " is not a valid corner direction.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    return this.corners.get(_direction);
   }
 
   public void update()
@@ -417,58 +295,10 @@ public class MFTile implements MFIPaintable
       }
 
       // paint corners
-//      if (this.cornerNE == Corner.HORIZONTAL) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNE == Corner.VERTICAL) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNE == Corner.NONE) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNE == Corner.BOTH) {
-//        _g.fillArc(x + wallLength + WALL_WIDTH, y - WALL_WIDTH,
-//                  WALL_WIDTH*2, WALL_WIDTH*2, 180, 90);
-//      }
-//
-//      if (this.cornerSE == Corner.HORIZONTAL) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH,
-//                    WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSE == Corner.VERTICAL) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH,
-//                    WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSE == Corner.NONE) {
-//        _g.fillRect(x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH,
-//                    WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSE == Corner.BOTH) {
-//        _g.fillArc(x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH,
-//                  WALL_WIDTH*2, WALL_WIDTH*2, 180, -90);
-//      }
-//
-//      if (this.cornerSW == Corner.HORIZONTAL) {
-//        _g.fillRect(x, y + wallLength + WALL_WIDTH, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSW == Corner.VERTICAL) {
-//        _g.fillRect(x, y + wallLength + WALL_WIDTH, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSW == Corner.NONE) {
-//        _g.fillRect(x, y + wallLength + WALL_WIDTH, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerSW == Corner.BOTH) {
-//        _g.fillArc(x - WALL_WIDTH, y + wallLength + WALL_WIDTH,
-//                  WALL_WIDTH*2, WALL_WIDTH*2, 0, 90);
-//      }
-//
-//      if (this.cornerNW == Corner.HORIZONTAL) {
-//        _g.fillRect(x, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNW == Corner.VERTICAL) {
-//        _g.fillRect(x, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNW == Corner.NONE) {
-//        _g.fillRect(x, y, WALL_WIDTH, WALL_WIDTH);
-//      } else if (this.cornerNW == Corner.BOTH) {
-//        _g.fillArc(x - WALL_WIDTH, y - WALL_WIDTH,
-//                  WALL_WIDTH*2, WALL_WIDTH*2, 0, -90);
-//      }
-
-
-      this.paintCorner(_g, x + wallLength + WALL_WIDTH, y, this.cornerNE, MFEDirection.NE);
-      this.paintCorner(_g, x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH, this.cornerSE, MFEDirection.SE);
-      this.paintCorner(_g, x, y + wallLength + WALL_WIDTH, this.cornerSW, MFEDirection.SW);
-      this.paintCorner(_g, x, y, this.cornerNW, MFEDirection.NW);
+      this.paintCorner(_g, MFEDirection.NE, x + wallLength + WALL_WIDTH, y);
+      this.paintCorner(_g, MFEDirection.SE, x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH);
+      this.paintCorner(_g, MFEDirection.SW, x, y + wallLength + WALL_WIDTH);
+      this.paintCorner(_g, MFEDirection.NW, x, y);
 
     }
 
@@ -490,70 +320,42 @@ public class MFTile implements MFIPaintable
   private boolean wallN, wallE, wallS, wallW;
   private boolean floor;
   private EnumMap<MFEMovementType, Integer> clearanceValues;
-  private static Logger logger = Logger.getLogger(MFTile.class.getName());
+  private static final Logger logger = Logger.getLogger(MFTile.class.getName());
+  /**
+   * The type of corner is calculated according to the presence of the
+   * surrounding walls.
+   * @Transient
+   */
+  private EnumMap<MFEDirection, Corner> corners;
 
-  private void setPosX(int posX)
+  private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {
-    this.posX = posX;
-  }
-
-  private void setPosY(int posY)
-  {
-    this.posY = posY;
-  }
-
-  private void setPosZ(int posZ)
-  {
-    this.posZ = posZ;
-  }
-
-  private void setCornerNW(Corner cornerNW)
-  {
-    this.cornerNW = cornerNW;
-  }
-
-  private void setCornerNE(Corner cornerNE)
-  {
-    this.cornerNE = cornerNE;
-  }
-
-  private void setCornerSE(Corner cornerSE)
-  {
-    this.cornerSE = cornerSE;
-  }
-
-  private void setCornerSW(Corner cornerSW)
-  {
-    this.cornerSW = cornerSW;
-  }
-
-  private void paintCorner(Graphics2D _g, int _x, int _y, Corner _corner, MFEDirection _direction)
-  {
-      if (_corner == Corner.HORIZONTAL) {
-        _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-      } else if (_corner == Corner.VERTICAL) {
-        _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-      } else if (_corner == Corner.INWARD) {
-        _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-      } else if (_corner == Corner.BOTH) {
-        int startAngle = 0;
-        if (_direction == MFEDirection.NE || _direction == MFEDirection.SE) {
-          startAngle = 180;
-        }
-
-        int arc = 90;
-        if (_direction == MFEDirection.NW || _direction == MFEDirection.SE) {
-          arc *= -1;
-        }
-
-        if (_direction == MFEDirection.NW || _direction == MFEDirection.SW) {
-          _x -=WALL_WIDTH;
-        }
-        if (_direction == MFEDirection.NW || _direction == MFEDirection.NE) {
-          _y -=WALL_WIDTH;
-        }
-
-        _g.fillArc(_x, _y, WALL_WIDTH*2, WALL_WIDTH*2, startAngle, arc);
+    final Corner corner = this.getCorner(_direction);
+    if (corner == Corner.HORIZONTAL) {
+      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
+    } else if (corner == Corner.VERTICAL) {
+      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
+    } else if (corner == Corner.INWARD) {
+      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
+    } else if (corner == Corner.BOTH) {
+      int startAngle = 0;
+      if (_direction == MFEDirection.NE || _direction == MFEDirection.SE) {
+        startAngle = 180;
       }
+
+      int arc = 90;
+      if (_direction == MFEDirection.NW || _direction == MFEDirection.SE) {
+        arc *= -1;
+      }
+
+      if (_direction == MFEDirection.NW || _direction == MFEDirection.SW) {
+        _x -=WALL_WIDTH;
+      }
+      if (_direction == MFEDirection.NW || _direction == MFEDirection.NE) {
+        _y -=WALL_WIDTH;
+      }
+
+      _g.fillArc(_x, _y, WALL_WIDTH*2, WALL_WIDTH*2, startAngle, arc);
+    }
   }
 }

@@ -39,6 +39,7 @@ import static org.mockito.Mockito.*;
 public class MFGameTest
 {
   private MFGame game;
+  private MFMap mockMap;
 
   @BeforeClass
   public static void setUpClass()
@@ -55,7 +56,8 @@ public class MFGameTest
   @Before
   public void setUp()
   {
-    game = new MFGame();
+    mockMap = mock(MFMap.class);
+    game = new MFGame(mockMap);
   }
 
   @Test

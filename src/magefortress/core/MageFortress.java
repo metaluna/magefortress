@@ -131,7 +131,8 @@ public class MageFortress extends JFrame implements Runnable
    */
   private void loadGame()
   {
-    MFGame game = new MFGame();
+    MFMap map = MFMap.createRandomMap(30, 30, 1);
+    MFGame game = new MFGame(map);
     MFScreen gameScreen = new MFGameScreen(game);
     screenStack.push(gameScreen);
   }

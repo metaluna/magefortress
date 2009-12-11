@@ -106,13 +106,12 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   {
     this.tileClicked = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
-    this.tileClicked.z = this.currentLevel;
 
     // dig out tile if it's inside the map and not dug out
-    MFTile[][] tiles = this.game.getLevelMap(currentLevel);
-    if (0 <= tileClicked.x && tileClicked.x < tiles.length &&
-        0 <= tileClicked.y && tileClicked.y < tiles[0].length &&
-        tiles[tileClicked.x][tileClicked.y].isDugOut() == false) {
+    MFMap map = this.game.getMap();
+    if (0 <= tileClicked.x && tileClicked.x < map.getWidth() &&
+        0 <= tileClicked.y && tileClicked.y < map.getHeight() &&
+        map.getTile(tileClicked.x, tileClicked.y, tileClicked.z).isDugOut() == false) {
       MFLocation[] locations = {new MFLocation(this.tileClicked)};
       MFDigInputAction digAction = new MFDigInputAction(this.game, locations);
       this.enqueueInputAction(digAction);
@@ -123,7 +122,6 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   {
     this.tileMouseMoved = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
-    this.tileMouseMoved.z = this.currentLevel;
   }
 
   public void keyPressed(int _keyCode)

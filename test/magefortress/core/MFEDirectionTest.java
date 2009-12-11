@@ -24,55 +24,26 @@
  */
 package magefortress.core;
 
-/**
- * A 3-dimensional position
- */
-public class MFLocation
+import java.util.EnumSet;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static magefortress.core.MFEDirection.*;
+
+public class MFEDirectionTest
 {
-  public final int x, y, z;
 
-  public MFLocation(int _x, int _y, int _z)
+  @Test
+  public void shouldReturnDiagonals()
   {
-    this.x = _x;
-    this.y = _y;
-    this.z = _z;
+    EnumSet<MFEDirection> expDirections = EnumSet.of(NE, SE, SW, NW);
+    assertEquals(expDirections, MFEDirection.diagonals());
   }
 
-  public MFLocation(MFLocation _other)
+  @Test
+  public void shouldReturnStraight()
   {
-    this(_other.x, _other.y, _other.z);
+    EnumSet<MFEDirection> expDirections = EnumSet.of(N, S, W, E);
+    assertEquals(expDirections, MFEDirection.straight());
   }
 
-  @Override
-  public String toString()
-  {
-    return "" + x + "/" + y + "/" + z;
-  }
-
-  @Override
-  public boolean equals(Object obj)
-  {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    
-    final MFLocation other = (MFLocation) obj;
-    if (this.x != other.x || y != other.y || this.z != other.z) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode()
-  {
-    int hash = 7;
-    hash = 41 * hash + this.x;
-    hash = 41 * hash + this.y;
-    hash = 41 * hash + this.z;
-    return hash;
-  }
 }
