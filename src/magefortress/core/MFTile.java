@@ -27,6 +27,7 @@ package magefortress.core;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.EnumMap;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -83,6 +84,10 @@ public class MFTile implements MFIPaintable
 
     // init clearance values
     this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
+
+    // init listener lists
+    this.constructionsListeners = new LinkedList<MFITileConstructionsListener>();
+    this.room = null;
   }
 
   public int getPosX()
@@ -211,7 +216,7 @@ public class MFTile implements MFIPaintable
     return result;
   }
 
-  boolean isWalkable(MFEMovementType _movementType)
+  public boolean isWalkable(MFEMovementType _movementType)
   {
     switch (_movementType) {
       case WALK : return isDugOut();
@@ -241,7 +246,7 @@ public class MFTile implements MFIPaintable
    * @param _direction The direction of the corner
    * @return The type of corner
    */
-  private Corner getCorner(MFEDirection _direction)
+  public Corner getCorner(MFEDirection _direction)
   {
     if (!MFEDirection.diagonals().contains(_direction)) {
       String msg = _direction + " is not a valid corner direction.";
@@ -250,6 +255,47 @@ public class MFTile implements MFIPaintable
     }
 
     return this.corners.get(_direction);
+  }
+
+  /**
+   * Sets the room this tile currently belongs to. Set to <code>null</code> to detach
+   * the tile from the room.
+   * @param _room The new room or <code>null</code>
+   */
+  public void setRoom(MFRoom _room)
+  {
+    this.room = _room;
+  }
+
+  /**
+   * Gets the room the tile currently belongs to. May be <code>null</code> if
+   * the tile belongs to no room.
+   * @return The parent room or <code>null</code>
+   */
+  public MFRoom getRoom()
+  {
+    return this.room;
+  }
+
+  /**
+   * Adds a listener who wants to be notified when walls or floors have been
+   * built or were removed from the tile. Supposed to be used mainly by entrance
+   * nodes and creatures following a path over this node, so that they are able
+   * to re-calculate paths.
+   * @param _listener The new listener
+   */
+  public void subscribeConstructionsListener(MFITileConstructionsListener _listener)
+  {
+    this.constructionsListeners.add(_listener);
+  }
+
+  /**
+   * Removes a listener
+   * @param _listener The listener to remove
+   */
+  public void unsubscribeConstructionsListener(MFITileConstructionsListener _listener)
+  {
+    this.constructionsListeners.remove(_listener);
   }
 
   public void update()
@@ -313,20 +359,23 @@ public class MFTile implements MFIPaintable
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final int WALL_WIDTH = 12;
+  private static final int WALL_WIDTH = 12;
+  private static final Logger logger = Logger.getLogger(MFTile.class.getName());
+
   private int posX, posY, posZ;
   private boolean isUnderground;
   private boolean isDugOut;
   private boolean wallN, wallE, wallS, wallW;
   private boolean floor;
-  private EnumMap<MFEMovementType, Integer> clearanceValues;
-  private static final Logger logger = Logger.getLogger(MFTile.class.getName());
-  /**
-   * The type of corner is calculated according to the presence of the
-   * surrounding walls.
-   * @Transient
-   */
+  /**The types of corners. Automatically calculated
+   * @Transient */
   private EnumMap<MFEDirection, Corner> corners;
+  /** Saves how big a creature can stand on this and the surrounding tiles. */
+  private EnumMap<MFEMovementType, Integer> clearanceValues;
+  /** The room to which the tile belongs, if any.*/
+  private MFRoom room;
+  /** Wall and floor construction listeners */
+  private LinkedList<MFITileConstructionsListener> constructionsListeners;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {
