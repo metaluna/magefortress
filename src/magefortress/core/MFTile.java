@@ -74,6 +74,11 @@ public class MFTile implements MFIPaintable
     this.posZ = _posZ;
     this.isDugOut = _isDugOut;
     this.isUnderground = _isUnderground;
+
+    // init listener lists
+    this.constructionsListeners = new LinkedList<MFITileConstructionsListener>();
+    this.room = null;
+
     setWalls(_wallN, _wallE, _wallS, _wallW);
     this.floor = _floor;
     this.corners = new EnumMap<MFEDirection, Corner>(MFEDirection.class);
@@ -82,12 +87,12 @@ public class MFTile implements MFIPaintable
     this.setCorner(MFEDirection.SW, Corner.NONE);
     this.setCorner(MFEDirection.NW, Corner.NONE);
 
+    // init placed objects
+    this.placedObject = null;
+
     // init clearance values
     this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
 
-    // init listener lists
-    this.constructionsListeners = new LinkedList<MFITileConstructionsListener>();
-    this.room = null;
   }
 
   public int getPosX()
@@ -162,10 +167,18 @@ public class MFTile implements MFIPaintable
 
   public void setWalls(boolean n, boolean e, boolean s, boolean w)
   {
+    boolean oldWallN = this.wallN;
+    boolean oldWallE = this.wallE;
+    boolean oldWallS = this.wallS;
+    boolean oldWallW = this.wallW;
     this.wallN = n;
     this.wallE = e;
     this.wallS = s;
     this.wallW = w;
+
+    if (oldWallN != n || oldWallE != e || oldWallS != s || oldWallW != w) {
+      this.notifyConstructionsListeners();
+    }
   }
 
   public boolean hasFloor()
@@ -175,7 +188,11 @@ public class MFTile implements MFIPaintable
 
   public void setFloor(boolean floor)
   {
+    boolean oldFloor = this.floor;
     this.floor = floor;
+    if (oldFloor != floor) {
+      this.notifyConstructionsListeners();
+    }
   }
 
   public Corner getCornerNW()
@@ -219,7 +236,7 @@ public class MFTile implements MFIPaintable
   public boolean isWalkable(MFEMovementType _movementType)
   {
     switch (_movementType) {
-      case WALK : return isDugOut();
+      case WALK : return isDugOut() && hasFloor();
       case FLY  : return isDugOut();
       default   : return false;
     }
@@ -296,6 +313,26 @@ public class MFTile implements MFIPaintable
   public void unsubscribeConstructionsListener(MFITileConstructionsListener _listener)
   {
     this.constructionsListeners.remove(_listener);
+  }
+
+  /**
+   * Sets the placed object. May be set to <code>null</code> to remove the object.
+   * @param _item The object placed on the tile. May be set to <code>null</code>
+   *              to remove it.
+   */
+  public void setObject(MFItem _item)
+  {
+    this.placedObject = _item;
+    this.notifyRoom();
+  }
+
+  /**
+   * Gets the object that is currently placed on the tile.
+   * @return The object placed on the tile. May be <code>null</code>.
+   */
+  public MFItem getObject()
+  {
+    return this.placedObject;
   }
 
   public void update()
@@ -376,6 +413,8 @@ public class MFTile implements MFIPaintable
   private MFRoom room;
   /** Wall and floor construction listeners */
   private LinkedList<MFITileConstructionsListener> constructionsListeners;
+  /** Items placed on the tile like furniture, food or dropped clothes */
+  private MFItem placedObject;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {
@@ -405,6 +444,20 @@ public class MFTile implements MFIPaintable
       }
 
       _g.fillArc(_x, _y, WALL_WIDTH*2, WALL_WIDTH*2, startAngle, arc);
+    }
+  }
+
+  private void notifyRoom()
+  {
+    if (this.room != null) {
+      this.room.tileObjectsChanged();
+    }
+  }
+
+  private void notifyConstructionsListeners()
+  {
+    for (MFITileConstructionsListener listener : this.constructionsListeners) {
+      listener.tileConstructionsChanged(this);
     }
   }
 }

@@ -24,24 +24,26 @@
  */
 package magefortress.core;
 
+import java.util.HashSet;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class MFTileTest
 {
-  MFTile[][] tiles;
+  private MFTile tile;
 
   @Before
   public void setUp()
   {
+    this.tile = new MFTile(0, 0, 0);
   }
 
   @Test
   public void shouldHaveClearanceValue()
   {
-    MFTile tile = new MFTile(0,0,0);
-
     int walkValue = 1;
     int flyValue = 2;
     tile.setClearance(MFEMovementType.WALK, walkValue);
@@ -54,30 +56,238 @@ public class MFTileTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotHaveClearanceValue()
   {
-    MFTile tile = new MFTile(0,0,0);
-
     tile.getClearance(MFEMovementType.WALK);
   }
 
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  
-  /**
-   * Creates a dug out underground tile with no walls.
-   * @param x Position on the map
-   * @param y Position on the map
-   * @return The created tile
-   */
-  private MFTile createUndergroundTile(int x, int y, int z)
+  @Test
+  public void shouldAddObject()
   {
-    boolean isDugOut = true;
-    boolean hasWallN = y == 0 || false;
-    boolean hasWallE = x == tiles.length || false;
-    boolean hasWallS = y == tiles[0].length || false;
-    boolean hasWallW = x == 0 || false;
-    boolean hasFloor = true;
-    boolean isUnderground = true;
+    MFItem mockItem = mock(MFItem.class);
 
-    return new MFTile(x, y, z, isDugOut, hasWallN, hasWallE, hasWallS, hasWallW,
-                                  hasFloor, isUnderground);
+    tile.setObject(mockItem);
+    MFItem gotItem = tile.getObject();
+    assertEquals(mockItem, gotItem);
   }
+
+  @Test
+  public void shouldRemoveObject()
+  {
+    MFItem mockItem = mock(MFItem.class);
+    tile.setObject(mockItem);
+
+    tile.setObject(null);
+    MFItem gotItem = tile.getObject();
+    assertNull(gotItem);
+  }
+
+  @Test
+  public void shouldBuildWall()
+  {
+    assertFalse(tile.hasWallNorth());
+    assertFalse(tile.hasWallEast());
+    assertFalse(tile.hasWallSouth());
+    assertFalse(tile.hasWallWest());
+
+    tile.setWallNorth(true);
+    assertTrue(tile.hasWallNorth());
+    assertFalse(tile.hasWallEast());
+    assertFalse(tile.hasWallSouth());
+    assertFalse(tile.hasWallWest());
+
+    tile.setWallEast(true);
+    assertTrue(tile.hasWallNorth());
+    assertTrue(tile.hasWallEast());
+    assertFalse(tile.hasWallSouth());
+    assertFalse(tile.hasWallWest());
+
+    tile.setWallSouth(true);
+    assertTrue(tile.hasWallNorth());
+    assertTrue(tile.hasWallEast());
+    assertTrue(tile.hasWallSouth());
+    assertFalse(tile.hasWallWest());
+    
+    tile.setWallWest(true);
+    assertTrue(tile.hasWallNorth());
+    assertTrue(tile.hasWallEast());
+    assertTrue(tile.hasWallSouth());
+    assertTrue(tile.hasWallWest());
+  }
+
+  @Test
+  public void shouldRemoveWall()
+  {
+    tile.setWalls(true, true, true, true);
+    assertTrue(tile.hasWallNorth());
+    assertTrue(tile.hasWallEast());
+    assertTrue(tile.hasWallSouth());
+    assertTrue(tile.hasWallWest());
+
+    tile.setWallNorth(false);
+    assertFalse(tile.hasWallNorth());
+    assertTrue(tile.hasWallEast());
+    assertTrue(tile.hasWallSouth());
+    assertTrue(tile.hasWallWest());
+
+    tile.setWallEast(false);
+    assertFalse(tile.hasWallNorth());
+    assertFalse(tile.hasWallEast());
+    assertTrue(tile.hasWallSouth());
+    assertTrue(tile.hasWallWest());
+
+    tile.setWallSouth(false);
+    assertFalse(tile.hasWallNorth());
+    assertFalse(tile.hasWallEast());
+    assertFalse(tile.hasWallSouth());
+    assertTrue(tile.hasWallWest());
+
+    tile.setWallWest(false);
+    assertFalse(tile.hasWallNorth());
+    assertFalse(tile.hasWallEast());
+    assertFalse(tile.hasWallSouth());
+    assertFalse(tile.hasWallWest());
+  }
+
+  @Test
+  public void shouldBuildFloor()
+  {
+    tile.setFloor(false);
+    assertFalse(tile.hasFloor());
+
+    tile.setFloor(true);
+    assertTrue(tile.hasFloor());
+  }
+
+  @Test
+  public void shouldRemoveFloor()
+  {
+    tile.setFloor(false);
+    assertFalse(tile.hasFloor());
+  }
+
+  @Ignore
+  @Test
+  public void shouldPolishWalls()
+  {
+
+  }
+  
+  @Test
+  public void shouldSetRoom()
+  {
+    assertNull(tile.getRoom());
+
+    MFRoom mockRoom = mock(MFRoom.class);
+    tile.setRoom(mockRoom);
+    MFRoom gotRoom = tile.getRoom();
+    assertEquals(mockRoom, gotRoom);
+  }
+
+  @Test
+  public void shouldUnsetRoom()
+  {
+    MFRoom mockRoom = mock(MFRoom.class);
+
+    tile.setRoom(mockRoom);
+    MFRoom gotRoom = tile.getRoom();
+    assertEquals(mockRoom, gotRoom);
+
+    tile.setRoom(null);
+    assertNull(tile.getRoom());
+  }
+
+  @Test
+  public void shouldNotifyRoomOfChangedObject()
+  {
+    MFItem item = mock(MFItem.class);
+    MFRoom spiedRoom = createSpiedRoom();
+    tile.setRoom(spiedRoom);
+
+    tile.setObject(item);
+    verify(spiedRoom).tileObjectsChanged();
+  }
+
+  @Ignore
+  @Test
+  public void shouldNotifyRoomOfPolishedWalls()
+  {
+    
+  }
+
+  @Test
+  public void shouldNotifySubscribersOfWallsBuilt()
+  {
+    MFRoom room = createSpiedRoom();
+    
+    tile.setWallNorth(true);
+    verify(room).tileConstructionsChanged(tile);
+  }
+
+  @Test
+  public void shouldNotNotifySubscribersOfAlreadyBuiltWalls()
+  {
+    tile.setWallNorth(true);
+    assertTrue(tile.hasWallNorth());
+    MFRoom room = createSpiedRoom();
+
+    tile.setWallNorth(true);
+    verify(room, never()).tileConstructionsChanged(tile);
+  }
+
+  @Test
+  public void shouldNotifySubscribersOfWallsRemoved()
+  {
+    tile.setWallEast(true);
+    assertTrue(tile.hasWallEast());
+    MFRoom room = createSpiedRoom();
+
+    tile.setWallEast(false);
+    verify(room).tileConstructionsChanged(tile);
+  }
+
+  @Test
+  public void shouldNotifySubscribersOfFloorBuilt()
+  {
+    tile.setFloor(false);
+    assertFalse(tile.hasFloor());
+    MFRoom room = createSpiedRoom();
+
+    tile.setFloor(true);
+    verify(room).tileConstructionsChanged(tile);
+  }
+
+  @Test
+  public void shouldNotNotifySubscribersOfAlreadyBuiltFloor()
+  {
+    assertTrue(tile.hasFloor());
+    MFRoom room = createSpiedRoom();
+
+    tile.setFloor(true);
+    verify(room, never()).tileConstructionsChanged(tile);
+  }
+
+  @Test
+  public void shouldNotifySubscribersOfFloorRemoved()
+  {
+    assertTrue(tile.hasFloor());
+    MFRoom room = createSpiedRoom();
+
+    tile.setFloor(false);
+    verify(room).tileConstructionsChanged(tile);
+  }
+  
+  //---vvv---      PRIVATE METHODS      ---vvv---
+
+  private MFRoom createSpiedRoom()
+  {
+    HashSet<MFTile> newTiles = new HashSet<MFTile>(1);
+    newTiles.add(mock(MFTile.class));
+    MFRoom realRoom = new MFRoomMock(newTiles);
+    realRoom.addTiles(newTiles);
+    MFRoom result = spy(realRoom);
+    HashSet<MFTile> tiles = new HashSet<MFTile>(1);
+    tiles.add(tile);
+    result.addTiles(tiles);
+    return result;
+  }
+
 }

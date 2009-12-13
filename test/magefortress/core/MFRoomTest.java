@@ -215,7 +215,7 @@ public class MFRoomTest
   }
 
   @Test
-  public void shouldCallTileAdded()
+  public void shouldNotifySubclassOfAddedTile()
   {
     // setup spy
     MFRoom spiedRoom = createSpiedRoom();
@@ -234,7 +234,7 @@ public class MFRoomTest
   }
 
   @Test
-  public void shouldNotCallTileAdded()
+  public void shouldNotNotifySubclassOfAddedTile()
   {
     // setup spy
     MFRoom spiedRoom = createSpiedRoom();
@@ -254,7 +254,7 @@ public class MFRoomTest
   }
 
   @Test
-  public void shouldCallTileRemoved()
+  public void shouldNotifySubclassOfRemovedTile()
   {
     // setup spy
     MFRoom spiedRoom = createSpiedRoom();
@@ -274,7 +274,7 @@ public class MFRoomTest
   }
 
   @Test
-  public void shouldNotCallTileRemoved()
+  public void shouldNotNotifySubclassOfRemovedTile()
   {
     // setup spy
     MFRoom spiedRoom = createSpiedRoom();
@@ -294,6 +294,14 @@ public class MFRoomTest
     verify(spiedRoom).tileRemoved(mockTile3);
   }
 
+  @Test
+  public void shouldNotifySubclassOfUpdatedTile()
+  {
+    MFRoom spiedRoom = createSpiedRoom();
+    spiedRoom.tileObjectsChanged();
+    verify(spiedRoom).tileUpdated();
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   private static MFRoom createSpiedRoom()
@@ -304,19 +312,6 @@ public class MFRoomTest
     MFRoom realRoom = new MFRoomMock(newTiles);
     MFRoom result = spy(realRoom);
     return result;
-  }
-
-  private static class MFRoomMock extends MFRoom
-  {
-
-    public MFRoomMock(Set<MFTile> _tiles)
-    {
-      super(_tiles);
-    }
-
-    public void tileAdded(MFTile _tile){}
-
-    public void tileRemoved(MFTile _tile){}
   }
 
 }

@@ -29,5 +29,6 @@ package magefortress.core;
  */
 public interface MFITileConstructionsListener
 {
-
+  /** Called when a wall or floor was built or removed. */
+  public void tileConstructionsChanged(MFTile _tile);
 }

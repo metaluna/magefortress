@@ -64,6 +64,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
   /**
    * Gets the room's tiles. The returned <code>Set</code> is unmodifiable.
    * @return The room tiles as an unmodifiable set
+   * @see Collections unmodifiableSet()
    */
   final public Set<MFTile> getTiles()
   {
@@ -134,6 +135,28 @@ public abstract class MFRoom implements MFITileConstructionsListener
   }
 
   /**
+   * Callback used by a tile of the room when an object was placed or removed
+   * or a wall was polished. It will trigger a re-calculation of all attribute
+   * values of all tiles. Expensive but ok, because this won't happen often.
+   * <p>
+   * Calling this will trigger a call to {@link tileUpdated()} in the sub-classes.
+   * </p>
+   */
+  final public void tileObjectsChanged()
+  {
+    // notify sub-classes
+    this.tileUpdated();
+    this.calculateLivingValue();
+  }
+
+  final public void tileConstructionsChanged(MFTile _tile)
+  {
+    // notify sub-classes
+    this.tileUpdated();
+    this.calculateLivingValue();
+  }
+
+  /**
    * Called when a tile was added to the room. Can be used to re-calculate the
    * attribute values of the sub-classed room.
    * @param _tile The new tile
@@ -145,6 +168,12 @@ public abstract class MFRoom implements MFITileConstructionsListener
    * @param _tile The removed tile
    */
   public abstract void tileRemoved(MFTile _tile);
+  /**
+   * Called when the contents of a tile of the room changed or a wall/floor was
+   * built or removed. Should be followed by a re-calculation of all values
+   * of all tiles in the room.
+   */
+  public abstract void tileUpdated();
   
   //---vvv---      PRIVATE METHODS      ---vvv---
   private int livingValue;
