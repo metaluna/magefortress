@@ -62,21 +62,21 @@ public class MFTileTest
   @Test
   public void shouldAddObject()
   {
-    MFItem mockItem = mock(MFItem.class);
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
 
     tile.setObject(mockItem);
-    MFItem gotItem = tile.getObject();
+    MFIPlaceable gotItem = tile.getObject();
     assertEquals(mockItem, gotItem);
   }
 
   @Test
   public void shouldRemoveObject()
   {
-    MFItem mockItem = mock(MFItem.class);
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
     tile.setObject(mockItem);
 
     tile.setObject(null);
-    MFItem gotItem = tile.getObject();
+    MFIPlaceable gotItem = tile.getObject();
     assertNull(gotItem);
   }
 
@@ -198,7 +198,8 @@ public class MFTileTest
   @Test
   public void shouldNotifyRoomOfChangedObject()
   {
-    MFItem item = mock(MFItem.class);
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.getLivingValue()).thenReturn(0);
     MFRoom spiedRoom = createSpiedRoom();
     tile.setRoom(spiedRoom);
 

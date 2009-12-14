@@ -161,19 +161,19 @@ public abstract class MFRoom implements MFITileConstructionsListener
    * attribute values of the sub-classed room.
    * @param _tile The new tile
    */
-  public abstract void tileAdded(MFTile _tile);
+  abstract void tileAdded(MFTile _tile);
   /**
    * Called when a tile was removed from the room. Can be used to re-calculate the
    * attribute values of the sub-classed room.
    * @param _tile The removed tile
    */
-  public abstract void tileRemoved(MFTile _tile);
+  abstract void tileRemoved(MFTile _tile);
   /**
    * Called when the contents of a tile of the room changed or a wall/floor was
    * built or removed. Should be followed by a re-calculation of all values
    * of all tiles in the room.
    */
-  public abstract void tileUpdated();
+  abstract void tileUpdated();
   
   //---vvv---      PRIVATE METHODS      ---vvv---
   private int livingValue;
@@ -185,9 +185,15 @@ public abstract class MFRoom implements MFITileConstructionsListener
    */
   private void calculateLivingValue()
   {
+    this.livingValue = 0;
     for (MFTile tile : this.roomTiles) {
-
+      MFIPlaceable item = tile.getObject();
+      // only add living value if there's an item on the tile
+      if (item != null) {
+        this.livingValue += tile.getObject().getLivingValue();
+      }
     }
+
   }
 
   /**

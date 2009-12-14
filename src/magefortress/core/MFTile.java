@@ -317,12 +317,12 @@ public class MFTile implements MFIPaintable
 
   /**
    * Sets the placed object. May be set to <code>null</code> to remove the object.
-   * @param _item The object placed on the tile. May be set to <code>null</code>
+   * @param _placeable The object placed on the tile. May be set to <code>null</code>
    *              to remove it.
    */
-  public void setObject(MFItem _item)
+  public void setObject(MFIPlaceable _placeable)
   {
-    this.placedObject = _item;
+    this.placedObject = _placeable;
     this.notifyRoom();
   }
 
@@ -330,7 +330,7 @@ public class MFTile implements MFIPaintable
    * Gets the object that is currently placed on the tile.
    * @return The object placed on the tile. May be <code>null</code>.
    */
-  public MFItem getObject()
+  public MFIPlaceable getObject()
   {
     return this.placedObject;
   }
@@ -414,7 +414,7 @@ public class MFTile implements MFIPaintable
   /** Wall and floor construction listeners */
   private LinkedList<MFITileConstructionsListener> constructionsListeners;
   /** Items placed on the tile like furniture, food or dropped clothes */
-  private MFItem placedObject;
+  private MFIPlaceable placedObject;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {

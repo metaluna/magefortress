@@ -302,6 +302,77 @@ public class MFRoomTest
     verify(spiedRoom).tileUpdated();
   }
 
+  @Test
+  public void shouldUpdateLivingValueWhenTilesAreAdded()
+  {
+    final int ADDED_LIVING_VALUE = 1;
+
+    // setup item & tile
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
+    when(mockItem.getLivingValue()).thenReturn(ADDED_LIVING_VALUE);
+    MFTile mockTile2 = mock(MFTile.class);
+    when(mockTile2.getObject()).thenReturn(mockItem);
+    Set<MFTile> newTiles = new HashSet<MFTile>(1);
+    newTiles.add(mockTile2);
+
+    int expLivingValue = this.room.getLivingValue() + ADDED_LIVING_VALUE;
+    this.room.addTiles(newTiles);
+    int gotLivingValue = this.room.getLivingValue();
+    assertEquals(expLivingValue, gotLivingValue);
+  }
+
+  @Test
+  public void shouldUpdateLivingValueWhenTilesAreRemoved()
+  {
+    final int REMOVED_LIVING_VALUE = 1;
+    // setup item & tile
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
+    when(mockItem.getLivingValue()).thenReturn(REMOVED_LIVING_VALUE);
+    MFTile mockTile2 = mock(MFTile.class);
+    when(mockTile2.getObject()).thenReturn(mockItem);
+    Set<MFTile> newTiles = new HashSet<MFTile>(1);
+    newTiles.add(mockTile2);
+
+    int expLivingValue = this.room.getLivingValue();
+    this.room.addTiles(newTiles);
+    this.room.removeTiles(newTiles);
+    int gotLivingValue = this.room.getLivingValue();
+    assertEquals(expLivingValue, gotLivingValue);
+  }
+
+  @Test
+  public void shouldUpdateLivingValueWhenObjectsAreAdded()
+  {
+    final int ADDED_LIVING_VALUE = 1;
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
+    when(mockItem.getLivingValue()).thenReturn(ADDED_LIVING_VALUE);
+    when(mockTile.getObject()).thenReturn(mockItem);
+
+    int expLivingValue = this.room.getLivingValue() + ADDED_LIVING_VALUE;
+    this.room.tileObjectsChanged();
+    int gotLivingValue = this.room.getLivingValue();
+    assertEquals(expLivingValue, gotLivingValue);
+  }
+
+  @Test
+  public void shouldUpdateLivingValueWhenObjectsAreRemoved()
+  {
+    final int REMOVED_LIVING_VALUE = 1;
+    MFIPlaceable mockItem = mock(MFIPlaceable.class);
+    when(mockItem.getLivingValue()).thenReturn(REMOVED_LIVING_VALUE);
+    when(mockTile.getObject()).thenReturn(mockItem);
+
+    // add item
+    int expLivingValue = this.room.getLivingValue();
+    this.room.tileObjectsChanged();
+
+    // remove item
+    when(mockTile.getObject()).thenReturn(null);
+    this.room.tileObjectsChanged();
+    int gotLivingValue = this.room.getLivingValue();
+    assertEquals(expLivingValue, gotLivingValue);
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   private static MFRoom createSpiedRoom()
