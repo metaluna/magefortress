@@ -481,7 +481,7 @@ public class MFMapTest
     MFTile entrance = this.map.getTile(2, 2, 0);
     entrance.setWalls(true, false, true, false);
 
-    this.map.calculateClearanceValues(MFEMovementType.WALK);
+    //this.map.calculateClearanceValues(MFEMovementType.WALK);
     List<MFSectionEntrance> entrances = this.map.findEntrances();
     assertEquals(1, entrances.size());
     MFLocation expLocation = entrance.getLocation();
@@ -490,7 +490,7 @@ public class MFMapTest
   }
 
   @Test
-  public void shouldFindEntrances2()
+  public void shouldFindTwoEntrances()
   {
     this.map = createMap(7, 5, 1);
     /*  _________
@@ -530,12 +530,115 @@ public class MFMapTest
     possibleEntrances.add(new MFLocation(1,2,0));
     possibleEntrances.add(new MFLocation(5,2,0));
 
-    this.map.calculateClearanceValues(MFEMovementType.WALK);
+    //this.map.calculateClearanceValues(MFEMovementType.WALK);
     List<MFSectionEntrance> entrances = this.map.findEntrances();
     assertEquals(2, entrances.size());
     for (MFSectionEntrance sectionEntrance : entrances) {
       assertTrue(possibleEntrances.contains(sectionEntrance.getLocation()));
     }
+  }
+
+  @Test
+  public void shouldNotFindEntranceDiagonally()
+  {
+    this.map = createMap(4, 4, 1);
+    /*
+     *  _____
+     * |  |//|
+     * |__|//|
+     * |//|  |
+     * |//|__|
+     */
+    // build top left room
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallSouth(true);
+    this.map.getTile(0, 1, 0).setWallSouth(true);
+    // build bottom right room
+    this.map.getTile(2, 2, 0).setWallWest(true);
+    this.map.getTile(3, 2, 0).setWallWest(true);
+    this.map.getTile(2, 3, 0).setWallNorth(true);
+    this.map.getTile(3, 3, 0).setWallNorth(true);
+    // filll other area
+    for (int x=2; x < 4; ++x) {
+     this.map.getTile(x, 0, 0).setDugOut(false);
+     this.map.getTile(x, 1, 0).setDugOut(false);
+    }
+    for (int x=0; x < 2; ++x) {
+     this.map.getTile(x, 2, 0).setDugOut(false);
+     this.map.getTile(x, 3, 0).setDugOut(false);
+    }
+
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(0, entrances.size());
+  }
+
+  @Test
+  public void shouldFindOneEntrance()
+  {
+    this.map = createMap(4, 4, 1);
+    /*
+     *  ______
+     * |  |//|
+     * |__   |
+     * |//|  |
+     * |//|__|
+     */
+    // build top left room
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallSouth(true);
+    this.map.getTile(0, 1, 0).setWallSouth(true);
+    // build bottom right room
+    this.map.getTile(2, 2, 0).setWallWest(true);
+    this.map.getTile(3, 2, 0).setWallWest(true);
+    this.map.getTile(2, 1, 0).setWallNorth(true);
+    this.map.getTile(3, 1, 0).setWallNorth(true);
+    // filll other area
+    for (int x=2; x < 4; ++x) {
+     this.map.getTile(x, 0, 0).setDugOut(false);
+    }
+    for (int x=0; x < 2; ++x) {
+     this.map.getTile(x, 2, 0).setDugOut(false);
+     this.map.getTile(x, 3, 0).setDugOut(false);
+    }
+
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(1, entrances.size());
+
+    MFLocation possibleEntrance1 = new MFLocation(1, 1, 0);
+    MFLocation possibleEntrance2 = new MFLocation(2, 1, 0);
+    assertTrue(entrances.get(0).getLocation().equals(possibleEntrance1) ||
+               entrances.get(0).getLocation().equals(possibleEntrance2));
+  }
+
+  @Test
+  public void shouldFindEntranceBetweenTilesDividedByWalls()
+  {
+    /*
+     *  _______
+     * |   |   |
+     * |   |   |
+     * |       |
+     * |   |   |
+     * |___|___|
+     */
+    // build wall
+    this.map.getTile(2, 0, 0).setWallEast(true);
+    this.map.getTile(2, 1, 0).setWallEast(true);
+    this.map.getTile(2, 3, 0).setWallEast(true);
+    this.map.getTile(2, 4, 0).setWallEast(true);
+    this.map.getTile(3, 0, 0).setWallWest(true);
+    this.map.getTile(3, 1, 0).setWallWest(true);
+    this.map.getTile(3, 3, 0).setWallWest(true);
+    this.map.getTile(3, 4, 0).setWallWest(true);
+
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(1, entrances.size());
+
+    MFLocation possibleEntrance1 = new MFLocation(2, 2, 0);
+    MFLocation possibleEntrance2 = new MFLocation(3, 2, 0);
+    assertTrue(entrances.get(0).getLocation().equals(possibleEntrance1) ||
+               entrances.get(0).getLocation().equals(possibleEntrance2));
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---

@@ -604,9 +604,28 @@ public class MFMap
     boolean blockedNW = false;
 
     for (MFEDirection direction : MFEDirection.values()) {
-      // walls?
-      boolean walled = MFEDirection.straight().contains(direction) && tile.hasWall(direction);
+      // get the neighboring tile
       MFTile neighbor = this.getNeighbor(tile, direction);
+      // walls?
+      boolean walled = false;
+      if (MFEDirection.straight().contains(direction)) {
+        walled = tile.hasWall(direction);
+      } else if (MFEDirection.diagonals().contains(direction)) {
+        switch (direction) {
+          case NE: walled = tile.hasWallNorth() || tile.hasWallEast() ||
+                            neighbor.hasWallSouth() || neighbor.hasWallWest();
+                   break;
+          case SE: walled = tile.hasWallSouth() || tile.hasWallEast() ||
+                            neighbor.hasWallNorth() || neighbor.hasWallWest();
+                   break;
+          case SW: walled = tile.hasWallSouth() || tile.hasWallWest() ||
+                            neighbor.hasWallNorth() || neighbor.hasWallEast();
+                   break;
+          case NW: walled = tile.hasWallNorth() || tile.hasWallWest() ||
+                            neighbor.hasWallSouth() || neighbor.hasWallEast();
+                   break;
+        }
+      }
       // unreachable or irrelevant or unwalkable tile
       if (walled || neighbor == null || !neighbor.isUnderground() ||
                    !neighbor.isWalkable(MFEMovementType.WALK)) {
