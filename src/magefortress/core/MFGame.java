@@ -24,6 +24,8 @@
  */
 package magefortress.core;
 
+import magefortress.map.MFTile;
+import magefortress.map.MFMap;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;

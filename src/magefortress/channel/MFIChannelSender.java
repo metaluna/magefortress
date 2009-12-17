@@ -34,7 +34,7 @@ import magefortress.jobs.MFJob;
  * grab the job.
  *
  * @see MFCommunicationChannel
- * @see MFMessage
+ * @see MFChannelMessage
  * @see MFIChannelSubscriber
 
  */
@@ -45,7 +45,7 @@ public interface MFIChannelSender
    * available by calling this method.
    * @return Is a job still available?
    */
-  public boolean jobAvailable();
+  public boolean isJobAvailable();
 
   /**
    * When a job applicant has checked if there's still a job available he is

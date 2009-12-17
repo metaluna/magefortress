@@ -24,6 +24,8 @@
  */
 package magefortress.core;
 
+import magefortress.map.MFTile;
+import magefortress.map.MFITileConstructionsListener;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -39,7 +41,7 @@ import java.util.logging.Logger;
  */
 public abstract class MFRoom implements MFITileConstructionsListener
 {
-  public MFRoom(Set<MFTile> _tiles)
+  public MFRoom(String _name, Set<MFTile> _tiles)
   {
     if (_tiles == null || _tiles.size() == 0) {
       String msg = "Room: Cannot create room without tiles.";
@@ -47,6 +49,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
       throw new IllegalArgumentException(msg);
     }
 
+    this.name = _name;
     this.livingValue = 0;
     this.roomTiles = new LinkedHashSet<MFTile>(_tiles.size());
     this.addTiles(_tiles);
@@ -78,6 +81,15 @@ public abstract class MFRoom implements MFITileConstructionsListener
   final public int getSize()
   {
     return this.roomTiles.size();
+  }
+
+  /**
+   * The name of the type of room
+   * @return The name of the type of room
+   */
+  final public String getName()
+  {
+    return this.name;
   }
 
   /**
@@ -178,6 +190,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
   //---vvv---      PRIVATE METHODS      ---vvv---
   private int livingValue;
   private Set<MFTile> roomTiles;
+  private final String name;
   private static final Logger logger = Logger.getLogger(MFRoom.class.getName());
 
   /**

@@ -22,15 +22,23 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import magefortress.core.MFTile.Corner;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFEMovementType;
+import magefortress.core.MFLocation;
+import magefortress.map.MFTile.Corner;
 
 /**
  * Contains the tiles.
@@ -179,12 +187,12 @@ public class MFMap
   }
 
   /**
-   * Gets a tile of map. Throws an <code>IndexOutOfBoundsException</code> if the
-   * given coordinates are not inside the map.
+   * Gets a tile of this map.
    * @param x x position
    * @param y y position
    * @param z z position
    * @return The tile
+   * @throws IndexOutOfBoundsException If the given coordinates are not on the map
    */
   public MFTile getTile(int x, int y, int z)
   {
@@ -192,11 +200,21 @@ public class MFMap
     try {
       result = this.map[z][x][y];
     } catch (IndexOutOfBoundsException e) {
-      logger.log(Level.SEVERE, "Coordinates have to be inside the map: " +
-                                x + "/" + y + "/" + z, e);
+      logger.severe("Coordinates have to be inside the map: " +
+                                x + "/" + y + "/" + z);
       throw e;
     }
     return result;
+  }
+
+  /**
+   * Gets a tile of this map. Overloaded {@link getTile(int, int, int)}.
+   * @param _location the location of the tile
+   * @return the tile
+   */
+  public MFTile getTile(MFLocation _location)
+  {
+    return this.getTile(_location.x, _location.y, _location.z);
   }
 
   /**
@@ -236,18 +254,6 @@ public class MFMap
     }
   }
 
-  void calculateClearanceValues(MFEMovementType _movementType)
-  {
-    for (MFTile[][] levels : this.map) {
-      for (MFTile[] rows : levels) {
-        for (MFTile tile : rows) {
-          int clearance = calculateClearance(tile, _movementType, 1);
-          tile.setClearance(_movementType, clearance);
-        }
-      }
-    }
-  }
-
   /**
    * Digs out the tile at the specified location. The tile specified has to be
    * solid otherwise an <code>IllegalArgumentException</code> will be thrown.
@@ -260,13 +266,13 @@ public class MFMap
     if (_location == null) {
       String msg = "Map: Location to dig must not be null.";
       logger.log(Level.SEVERE, msg);
-      throw new NullPointerException(msg);
+      throw new IllegalArgumentException(msg);
     }
     // error if location isn't inside the map bounds
     if (0 > _location.z || _location.z >= this.depth ||
         0 > _location.x || _location.x >= this.width ||
         0 > _location.y || _location.y >= this.height) {
-      String msg = "Map: Illegal location to dig: " + _location;
+      String msg = "Map@" + _location + ": Illegal location to dig.";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
@@ -275,13 +281,13 @@ public class MFMap
 
     // error if tile is not underground
     if (!tile.isUnderground()) {
-      String msg = "Map: Tile to dig out has to be underground.";
+      String msg = "Map@" + _location + ": Tile to dig out has to be underground.";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
     // error if the tile is already clear
     if (tile.isDugOut()) {
-      String msg = "Map: Tile to dig out must not be dug out";
+      String msg = "Map@" + _location + ": Tile to dig out must not be dug out";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
@@ -339,6 +345,61 @@ public class MFMap
     }
 
     this.calculateCorners(tile);
+  }
+
+  //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
+  /**
+   * Calculates all clearance values and stores them inside the tiles. For
+   * navigational use.
+   * @param _movementType The type of movement
+   */
+  void calculateClearanceValues(MFEMovementType _movementType)
+  {
+    for (MFTile[][] levels : this.map) {
+      for (MFTile[] rows : levels) {
+        for (MFTile tile : rows) {
+          int clearance = calculateClearance(tile, _movementType, 1);
+          tile.setClearance(_movementType, clearance);
+        }
+      }
+    }
+  }
+
+  /**
+   * Scans the map and detects all tiles which might define an entrance. For
+   * navigational use.
+   * @return the list of entrances found
+   */
+  List<MFSectionEntrance> findEntrances()
+  {
+    final HashMap<MFLocation, MFSectionEntrance> entrances = new HashMap<MFLocation, MFSectionEntrance>();
+
+    for (final MFTile[][] levels : this.map) {
+      for (final MFTile[] rows : levels) {
+        for (final MFTile tile : rows) {
+          // skip if tile is not underground or not dug out or without a floor
+          if (!tile.isUnderground() || !tile.isDugOut() || !tile.hasFloor()) {
+            continue;
+          }
+          // skip if clearance > 1
+          //if (tile.getClearance(MFEMovementType.WALK) > 1){
+          //  continue;
+          //}
+          // skip if a neighbor is an entrance
+          if (hasNeighboringEntrance(tile, entrances)) {
+            continue;
+          }
+          // skip this tile if it doesn't divide two groups
+          if (dividesGroups(tile)) {
+            continue;
+          }
+          // all tests passed - entrance found!
+          entrances.put(tile.getLocation(), new MFSectionEntrance(tile.getLocation()));
+        }
+      }
+    }
+    List<MFSectionEntrance> result = this.collapseCloseEntrances(entrances);
+    return result;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -508,5 +569,129 @@ public class MFMap
       corner = Corner.BOTH;
     }
     _tile.setCorner(_direction, corner);
+  }
+
+  /**
+   * Checks if a neighbor is already defined as an entrance.
+   * @param tile the tile to check
+   * @param entrances the list of entrances
+   * @return <code>true</true> if a neighbor is an entrance
+   */
+  private boolean hasNeighboringEntrance(final MFTile tile, final HashMap<MFLocation, MFSectionEntrance> entrances)
+  {
+    for (MFEDirection direction : MFEDirection.values()) {
+      MFTile neighbor = this.getNeighbor(tile, direction);
+      if (neighbor != null && entrances.containsKey(neighbor.getLocation())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Checks if a tile divides at least two groups of tiles, one consisting of
+   * at least 2 tiles.
+   * @param tile the tile to check
+   * @return <code>true</true> if the tile divides multiple groups
+   */
+  private boolean dividesGroups(MFTile tile)
+  {
+    int biggestGroupSize = 0;
+    int currentGroupSize = 0;
+    int blockedStretchesCount = 0;
+    boolean blockedStretch = false;
+    boolean blockedN = false;
+    boolean blockedNW = false;
+
+    for (MFEDirection direction : MFEDirection.values()) {
+      // walls?
+      boolean walled = MFEDirection.straight().contains(direction) && tile.hasWall(direction);
+      MFTile neighbor = this.getNeighbor(tile, direction);
+      // unreachable or irrelevant or unwalkable tile
+      if (walled || neighbor == null || !neighbor.isUnderground() ||
+                   !neighbor.isWalkable(MFEMovementType.WALK)) {
+        // switch to empty stretch
+        if (blockedStretch == false) {
+          if (currentGroupSize > biggestGroupSize) {
+            biggestGroupSize = currentGroupSize;
+          }
+          currentGroupSize = 0;
+          ++blockedStretchesCount;
+          blockedStretch = true;
+        }
+      // neighbor is walkable and reachable
+      } else if (neighbor.isWalkable(MFEMovementType.WALK)) {
+        ++currentGroupSize;
+        blockedStretch = false;
+      } else {
+        String msg = "Map: error calculating entrance for " + tile + "/neighbor: " + neighbor;
+        logger.warning(msg);
+      }
+      
+      // save for wrap test
+      if (direction == MFEDirection.N) {
+        blockedN = blockedStretch;
+      } else if (direction == MFEDirection.NW) {
+        blockedNW = blockedStretch;
+      }
+    }
+    // final check for biggest group
+    if (currentGroupSize > biggestGroupSize) {
+      biggestGroupSize = currentGroupSize;
+    }
+    // wrap empty stretches blocks
+    if (blockedN && blockedNW) {
+      --blockedStretchesCount;
+    }
+
+    if (blockedStretchesCount < 2 || biggestGroupSize < 2) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Moves all entrances lying two tiles apart into one if possible.
+   * @param entrances list of entrances
+   * @return collapsed list of entrances
+   */
+  private List<MFSectionEntrance> collapseCloseEntrances(final HashMap<MFLocation, MFSectionEntrance> entrances)
+  {
+    List<MFSectionEntrance> result = new LinkedList<MFSectionEntrance>();
+    List<MFSectionEntrance> removedEntrances = new LinkedList<MFSectionEntrance>();
+
+    Iterator<MFSectionEntrance> it1 = entrances.values().iterator();
+    while (it1.hasNext()) {
+
+      MFSectionEntrance start = it1.next();
+      if (removedEntrances.contains(start))
+        continue;
+
+      MFSectionEntrance add = start;
+      for (MFSectionEntrance goal : entrances.values()) {
+
+        MFLocation startLoc = start.getLocation();
+        MFLocation goalLoc = goal.getLocation();
+        // found potentially collapsable locations
+        if (startLoc.distanceTo(goalLoc) == 2) {
+
+          MFEDirection dir = startLoc.directionOf(goalLoc);
+          MFTile middle = this.getNeighbor(this.getTile(startLoc), dir);
+          // check if tile can be connected
+          if (middle.isWalkable(MFEMovementType.WALK) && middle.isUnderground()) {
+            add = new MFSectionEntrance(middle.getLocation());
+            removedEntrances.add(goal);
+            break;
+
+          } //-- connectable
+        } //-- potentially collapsable
+      } //-- inner loop
+      
+      result.add(add);
+      if (start != add) {
+        it1.remove();
+      }
+    } //-- outer loop
+    return result;
   }
 }

@@ -22,10 +22,15 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map;
 
 import java.awt.Point;
+import java.util.LinkedList;
+import java.util.List;
+import magefortress.core.MFEMovementType;
+import magefortress.core.MFLocation;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -43,20 +48,7 @@ public class MFMapTest
   @Before
   public void setUp()
   {
-    this.map = new MFMap(WIDTH, HEIGHT, DEPTH);
-    for (int x = 0; x < WIDTH; ++x) {
-      for (int y = 0; y < HEIGHT; ++y) {
-        for (int z = 0; z < DEPTH; ++z) {
-          boolean hasWallN = y == 0 || false;
-          boolean hasWallE = x == WIDTH || false;
-          boolean hasWallS = y == HEIGHT || false;
-          boolean hasWallW = x == 0 || false;
-          MFTile tile = this.map.getTile(x, y, z);
-          tile.setDugOut(true);
-          tile.setWalls(hasWallN, hasWallE, hasWallS, hasWallW);
-        }
-      }
-    }
+    this.map = createMap(WIDTH, HEIGHT, DEPTH);
   }
 
   @Test
@@ -452,5 +444,118 @@ public class MFMapTest
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerSE());
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerSW());
     assertEquals(MFTile.Corner.NONE, testedTile.getCornerNW());
+  }
+
+  @Test
+  public void shouldNotFindEntrances()
+  {
+    this.map.calculateClearanceValues(MFEMovementType.WALK);
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(0, entrances.size());
+  }
+
+  @Test
+  public void shouldFindCollapsableEntrance()
+  {
+    /* _________
+     * |  |/|  |
+     * |  |/|  |
+     * |   _   |
+     * |  |/|  |
+     * |__|/|__|
+     */
+    // build central wall
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallEast(true);
+    this.map.getTile(1, 3, 0).setWallEast(true);
+    this.map.getTile(1, 4, 0).setWallEast(true);
+    this.map.getTile(2, 0, 0).setDugOut(false);
+    this.map.getTile(2, 1, 0).setDugOut(false);
+    this.map.getTile(2, 3, 0).setDugOut(false);
+    this.map.getTile(2, 4, 0).setDugOut(false);
+    this.map.getTile(3, 0, 0).setWallWest(true);
+    this.map.getTile(3, 1, 0).setWallWest(true);
+    this.map.getTile(3, 3, 0).setWallWest(true);
+    this.map.getTile(3, 4, 0).setWallWest(true);
+    // build corridor
+    MFTile entrance = this.map.getTile(2, 2, 0);
+    entrance.setWalls(true, false, true, false);
+
+    this.map.calculateClearanceValues(MFEMovementType.WALK);
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(1, entrances.size());
+    MFLocation expLocation = entrance.getLocation();
+    MFLocation gotLocation = entrances.get(0).getLocation();
+    assertEquals(expLocation, gotLocation);
+  }
+
+  @Test
+  public void shouldFindEntrances2()
+  {
+    this.map = createMap(7, 5, 1);
+    /*  _________
+     * |  |///|  |
+     * |  |///|  |
+     * |   ___   |
+     * |  |///|  |
+     * |__|///|__|
+     */
+    // build central wall
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallEast(true);
+    this.map.getTile(1, 3, 0).setWallEast(true);
+    this.map.getTile(1, 4, 0).setWallEast(true);
+    for (int x=2; x < 5; ++x) {
+     this.map.getTile(x, 0, 0).setDugOut(false);
+     this.map.getTile(x, 1, 0).setDugOut(false);
+     this.map.getTile(x, 3, 0).setDugOut(false);
+     this.map.getTile(x, 4, 0).setDugOut(false);
+    }
+    this.map.getTile(5, 0, 0).setWallWest(true);
+    this.map.getTile(5, 1, 0).setWallWest(true);
+    this.map.getTile(5, 3, 0).setWallWest(true);
+    this.map.getTile(5, 4, 0).setWallWest(true);
+    // build corridor
+    MFTile entrance1 = this.map.getTile(2, 2, 0);
+    entrance1.setWalls(true, false, true, false);
+    MFTile tunnel = this.map.getTile(3, 2, 0);
+    tunnel.setWalls(true, false, true, false);
+    MFTile entrance2 = this.map.getTile(4, 2, 0);
+    entrance2.setWalls(true, false, true, false);
+
+    List<MFLocation> possibleEntrances = new LinkedList<MFLocation>();
+    possibleEntrances.add(entrance1.getLocation());
+    possibleEntrances.add(entrance2.getLocation());
+    // other possible entrances
+    possibleEntrances.add(new MFLocation(1,2,0));
+    possibleEntrances.add(new MFLocation(5,2,0));
+
+    this.map.calculateClearanceValues(MFEMovementType.WALK);
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(2, entrances.size());
+    for (MFSectionEntrance sectionEntrance : entrances) {
+      assertTrue(possibleEntrances.contains(sectionEntrance.getLocation()));
+    }
+  }
+
+  //---vvv---     PRIVATE METHODS    ---vvv---
+  
+  private static MFMap createMap(int _width, int _height, int _depth)
+  {
+    MFMap result = new MFMap(_width, _height, _depth);
+    for (int x = 0; x < _width; ++x) {
+      for (int y = 0; y < _height; ++y) {
+        for (int z = 0; z < _depth; ++z) {
+          boolean hasWallN = y == 0 || false;
+          boolean hasWallE = x == _width-1 || false;
+          boolean hasWallS = y == _height-1 || false;
+          boolean hasWallW = x == 0 || false;
+          MFTile tile = result.getTile(x, y, z);
+          tile.setDugOut(true);
+          tile.setWalls(hasWallN, hasWallE, hasWallS, hasWallW);
+        }
+      }
+    }
+    return result;
   }
 }

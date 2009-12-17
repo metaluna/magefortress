@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.map.MFTile;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Before;

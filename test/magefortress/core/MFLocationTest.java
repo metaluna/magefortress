@@ -24,9 +24,7 @@
  */
 package magefortress.core;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -41,6 +39,120 @@ public class MFLocationTest
   public void setUp()
   {
     location = new MFLocation(X, Y, Z);
+  }
+
+  @Test
+  public void shouldBeNeighbors()
+  {
+    MFLocation neighbor = new MFLocation(X, Y-1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+1, Y-1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+1, Y, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+1, Y+1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X, Y+1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-1, Y+1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-1, Y, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-1, Y-1, Z);
+    assertTrue(location.isNeighborOf(neighbor));
+  }
+
+  @Test
+  public void shouldNotBeNeighbors()
+  {
+    MFLocation neighbor = new MFLocation(X, Y-2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+1, Y-2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+2, Y-2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+2, Y-1, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+2, Y, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+2, Y+1, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+2, Y+2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X+1, Y+2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X, Y+2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-1, Y+2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-2, Y+2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-2, Y+1, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-2, Y, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-2, Y-1, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-2, Y-2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+    neighbor = new MFLocation(X-1, Y-2, Z);
+    assertFalse(location.isNeighborOf(neighbor));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotGetDirection()
+  {
+    location.directionOf(null);
+  }
+
+  @Test
+  public void shouldReturnNoDirectionWhenIdentical()
+  {
+    assertNull(location.directionOf(location));
+  }
+
+  @Test
+  public void shouldFindDirections()
+  {
+    MFLocation n = new MFLocation(location.x, location.y-1, location.z);
+    MFEDirection expDir = MFEDirection.N;
+    MFEDirection gotDir = location.directionOf(n);
+    assertEquals(expDir, gotDir);
+
+    MFLocation ne = new MFLocation(location.x+1, location.y-1, location.z);
+    expDir = MFEDirection.NE;
+    gotDir = location.directionOf(ne);
+    assertEquals(expDir, gotDir);
+
+    MFLocation e = new MFLocation(location.x+1, location.y, location.z);
+    expDir = MFEDirection.E;
+    gotDir = location.directionOf(e);
+    assertEquals(expDir, gotDir);
+
+    MFLocation se = new MFLocation(location.x+1, location.y+1, location.z);
+    expDir = MFEDirection.SE;
+    gotDir = location.directionOf(se);
+    assertEquals(expDir, gotDir);
+
+    MFLocation s = new MFLocation(location.x, location.y+1, location.z);
+    expDir = MFEDirection.S;
+    gotDir = location.directionOf(s);
+    assertEquals(expDir, gotDir);
+
+    MFLocation sw = new MFLocation(location.x-1, location.y+1, location.z);
+    expDir = MFEDirection.SW;
+    gotDir = location.directionOf(sw);
+    assertEquals(expDir, gotDir);
+
+    MFLocation w = new MFLocation(location.x-1, location.y, location.z);
+    expDir = MFEDirection.W;
+    gotDir = location.directionOf(w);
+    assertEquals(expDir, gotDir);
+
+    MFLocation nw = new MFLocation(location.x-1, location.y-1, location.z);
+    expDir = MFEDirection.NW;
+    gotDir = location.directionOf(nw);
+    assertEquals(expDir, gotDir);
   }
 
   @Test

@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -30,6 +30,12 @@ import java.util.EnumMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFEMovementType;
+import magefortress.core.MFIPaintable;
+import magefortress.core.MFIPlaceable;
+import magefortress.core.MFLocation;
+import magefortress.core.MFRoom;
 
 /**
  *
@@ -110,14 +116,14 @@ public class MFTile implements MFIPaintable
     return posZ;
   }
 
+  public MFLocation getLocation()
+  {
+    return new MFLocation(this.posX, this.posY, this.posZ);
+  }
+
   public boolean isDugOut()
   {
     return isDugOut;
-  }
-
-  public void setDugOut(boolean dugOut)
-  {
-    this.isDugOut = dugOut;
   }
 
   public boolean isUnderground()
@@ -130,19 +136,9 @@ public class MFTile implements MFIPaintable
     return wallN;
   }
 
-  public void setWallNorth(boolean wallNorth)
-  {
-    setWalls(wallNorth, wallE, wallS, wallW);
-  }
-
   public boolean hasWallEast()
   {
     return wallE;
-  }
-
-  public void setWallEast(boolean wallEast)
-  {
-    setWalls(wallN, wallEast, wallS, wallW);
   }
 
   public boolean hasWallSouth()
@@ -150,87 +146,31 @@ public class MFTile implements MFIPaintable
     return wallS;
   }
 
-  public void setWallSouth(boolean wallSouth)
-  {
-    setWalls(wallN, wallE, wallSouth, wallW);
-  }
-
   public boolean hasWallWest()
   {
     return wallW;
   }
 
-  public void setWallWest(boolean wallWest)
+  public boolean hasWall(MFEDirection _direction)
   {
-    setWalls(wallN, wallE, wallS, wallWest);
-  }
+    if (!MFEDirection.straight().contains(_direction)) {
+      String msg = "Tile: Cannot get wall. Illegal direction: " + _direction;
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
 
-  public void setWalls(boolean n, boolean e, boolean s, boolean w)
-  {
-    boolean oldWallN = this.wallN;
-    boolean oldWallE = this.wallE;
-    boolean oldWallS = this.wallS;
-    boolean oldWallW = this.wallW;
-    this.wallN = n;
-    this.wallE = e;
-    this.wallS = s;
-    this.wallW = w;
-
-    if (oldWallN != n || oldWallE != e || oldWallS != s || oldWallW != w) {
-      this.notifyConstructionsListeners();
+    switch (_direction) {
+      case N: return this.hasWallNorth();
+      case E: return this.hasWallEast();
+      case S: return this.hasWallSouth();
+      case W: return this.hasWallWest();
+      default: return false;
     }
   }
 
   public boolean hasFloor()
   {
     return floor;
-  }
-
-  public void setFloor(boolean floor)
-  {
-    boolean oldFloor = this.floor;
-    this.floor = floor;
-    if (oldFloor != floor) {
-      this.notifyConstructionsListeners();
-    }
-  }
-
-  public Corner getCornerNW()
-  {
-    return this.getCorner(MFEDirection.NW);
-  }
-
-  public Corner getCornerNE()
-  {
-    return this.getCorner(MFEDirection.NE);
-  }
-
-  public Corner getCornerSE()
-  {
-    return this.getCorner(MFEDirection.SE);
-  }
-
-  public Corner getCornerSW()
-  {
-    return this.getCorner(MFEDirection.SW);
-  }
-
-  public void setClearance(MFEMovementType _movementType, int _clearance)
-  {
-    this.clearanceValues.put(_movementType, _clearance);
-  }
-
-  public int getClearance(MFEMovementType _movementType)
-  {
-    Integer result = this.clearanceValues.get(_movementType);
-    if (result == null) {
-      String msg = "Tile " + this.toString() +
-                    ": Must set clearance value for " + _movementType.toString() +
-                    " before trying to get it.";
-      logger.log(Level.WARNING, msg);
-      throw new IllegalArgumentException(msg);
-    }
-    return result;
   }
 
   public boolean isWalkable(MFEMovementType _movementType)
@@ -240,38 +180,6 @@ public class MFTile implements MFIPaintable
       case FLY  : return isDugOut();
       default   : return false;
     }
-  }
-
-  /**
-   * Sets the corner type of the specified direction.
-   * @param _direction The direction of the corner
-   * @param corner The type of corner
-   */
-  public void setCorner(MFEDirection _direction, Corner _corner)
-  {
-    if (!MFEDirection.diagonals().contains(_direction)) {
-      String msg = _direction + " is not a valid corner direction.";
-      logger.log(Level.SEVERE, msg);
-      throw new IllegalArgumentException(msg);
-    }
-
-    this.corners.put(_direction, _corner);
-  }
-
-  /**
-   * Gets the corner type of the specified direction.
-   * @param _direction The direction of the corner
-   * @return The type of corner
-   */
-  public Corner getCorner(MFEDirection _direction)
-  {
-    if (!MFEDirection.diagonals().contains(_direction)) {
-      String msg = _direction + " is not a valid corner direction.";
-      logger.log(Level.SEVERE, msg);
-      throw new IllegalArgumentException(msg);
-    }
-
-    return this.corners.get(_direction);
   }
 
   /**
@@ -394,6 +302,162 @@ public class MFTile implements MFIPaintable
   {
     return "" + posX + "/" + posY + "/" + posZ;
   }
+
+  //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
+  void setWallNorth(boolean wallNorth)
+  {
+    setWalls(wallNorth, wallE, wallS, wallW);
+  }
+
+  void setWallEast(boolean wallEast)
+  {
+    setWalls(wallN, wallEast, wallS, wallW);
+  }
+
+  void setWallSouth(boolean wallSouth)
+  {
+    setWalls(wallN, wallE, wallSouth, wallW);
+  }
+
+  void setWallWest(boolean wallWest)
+  {
+    setWalls(wallN, wallE, wallS, wallWest);
+  }
+
+  void setWalls(boolean n, boolean e, boolean s, boolean w)
+  {
+    boolean oldWallN = this.wallN;
+    boolean oldWallE = this.wallE;
+    boolean oldWallS = this.wallS;
+    boolean oldWallW = this.wallW;
+    this.wallN = n;
+    this.wallE = e;
+    this.wallS = s;
+    this.wallW = w;
+
+    if (oldWallN != n || oldWallE != e || oldWallS != s || oldWallW != w) {
+      this.notifyConstructionsListeners();
+    }
+  }
+
+  void setFloor(boolean floor)
+  {
+    boolean oldFloor = this.floor;
+    this.floor = floor;
+    if (oldFloor != floor) {
+      this.notifyConstructionsListeners();
+    }
+  }
+
+  void setDugOut(boolean dugOut)
+  {
+    this.isDugOut = dugOut;
+  }
+
+  /**
+   * Sets the size of the biggest creature which can pass the tile.
+   * @param _movementType The type of movement
+   * @param _clearance The size of the creature
+   */
+  void setClearance(MFEMovementType _movementType, int _clearance)
+  {
+    this.clearanceValues.put(_movementType, _clearance);
+  }
+
+  /**
+   * Gets the size of the biggest creature which can pass the tile.
+   * @param _movementType The movement type
+   * @return The size of the creature
+   */
+  int getClearance(MFEMovementType _movementType)
+  {
+    Integer result = this.clearanceValues.get(_movementType);
+    if (result == null) {
+      String msg = "Tile " + this.toString() +
+                    ": Must set clearance value for " + _movementType.toString() +
+                    " before trying to get it.";
+      logger.log(Level.WARNING, msg);
+      throw new IllegalArgumentException(msg);
+    }
+    return result;
+  }
+
+  /**
+   * Sets the corner type of the specified direction.
+   * @param _direction The direction of the corner
+   * @param corner The type of corner
+   */
+  void setCorner(MFEDirection _direction, Corner _corner)
+  {
+    if (!MFEDirection.diagonals().contains(_direction)) {
+      String msg = _direction + " is not a valid corner direction.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.corners.put(_direction, _corner);
+  }
+
+  Corner getCornerNW()
+  {
+    return this.getCorner(MFEDirection.NW);
+  }
+
+  Corner getCornerNE()
+  {
+    return this.getCorner(MFEDirection.NE);
+  }
+
+  Corner getCornerSE()
+  {
+    return this.getCorner(MFEDirection.SE);
+  }
+
+  Corner getCornerSW()
+  {
+    return this.getCorner(MFEDirection.SW);
+  }
+
+  /**
+   * Gets the corner type of the specified direction.
+   * @param _direction The direction of the corner
+   * @return The type of corner
+   * @throws IllegalArgumentException If the direction is not diagonal
+   */
+  Corner getCorner(MFEDirection _direction)
+  {
+    if (!MFEDirection.diagonals().contains(_direction)) {
+      String msg = _direction + " is not a valid corner direction.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    return this.corners.get(_direction);
+  }
+
+  /**
+   * Sets the section the tile belongs to. For navigational use.
+   * @param _section The parent section.
+   */
+  void setParentSection(MFSection _section)
+  {
+    if (_section == null) {
+      String msg = "Tile: Cannot set parent section to null.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.parentSection = _section;
+  }
+
+  /**
+   * Gets the section the tile belongs to. For navigational use. May be
+   * <code>null</code> if it was not set yet.
+   * @return The parent section
+   */
+  MFSection getParentSection()
+  {
+    return this.parentSection;
+  }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final int WALL_WIDTH = 12;
@@ -407,7 +471,8 @@ public class MFTile implements MFIPaintable
   /**The types of corners. Automatically calculated
    * @Transient */
   private EnumMap<MFEDirection, Corner> corners;
-  /** Saves how big a creature can stand on this and the surrounding tiles. */
+  /** Saves how big a creature can stand on this and the surrounding tiles.
+   * @Transient */
   private EnumMap<MFEMovementType, Integer> clearanceValues;
   /** The room to which the tile belongs, if any.*/
   private MFRoom room;
@@ -415,6 +480,9 @@ public class MFTile implements MFIPaintable
   private LinkedList<MFITileConstructionsListener> constructionsListeners;
   /** Items placed on the tile like furniture, food or dropped clothes */
   private MFIPlaceable placedObject;
+  /** The parent navigational section
+   * @Transient */
+  private MFSection parentSection;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {

@@ -24,6 +24,8 @@
  */
 package magefortress.core;
 
+import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
 import magefortress.input.MFInputManager;

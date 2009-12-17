@@ -34,8 +34,8 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
-import magefortress.core.MFMap;
-import magefortress.core.MFTile;
+import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 import magefortress.input.*;
 
 /**

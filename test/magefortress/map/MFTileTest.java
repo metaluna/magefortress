@@ -22,9 +22,14 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map;
 
+import magefortress.map.MFTile;
 import java.util.HashSet;
+import magefortress.core.MFEMovementType;
+import magefortress.core.MFIPlaceable;
+import magefortress.core.MFRoom;
+import magefortress.core.MFRoomMock;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

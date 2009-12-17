@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.map.MFMap;
 import magefortress.input.MFInputManager;
 import java.awt.Canvas;
 import java.awt.Graphics2D;

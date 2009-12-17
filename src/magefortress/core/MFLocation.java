@@ -24,6 +24,8 @@
  */
 package magefortress.core;
 
+import java.util.logging.Logger;
+
 /**
  * A 3-dimensional position
  */
@@ -43,6 +45,61 @@ public class MFLocation
     this(_other.x, _other.y, _other.z);
   }
 
+  public boolean isNeighborOf(MFLocation _other)
+  {
+    return distanceTo(_other) == 1;
+  }
+
+  public int distanceTo(MFLocation _other)
+  {
+    int x_distance = Math.abs(x - _other.x);
+    int y_distance = Math.abs(y - _other.y);
+    int z_distance = Math.abs(z - _other.z);
+    int result = Math.max(x_distance, y_distance);
+    result = Math.max(result, z_distance);
+    return result;
+  }
+
+  /**
+   * Calculates the direction of one location to another one a plain.
+   * @param _other the location to get the direction to
+   * @return which way to go to reach the other location. Returns <code>null</code>
+   * if the other location is the same as this location.
+   */
+  public MFEDirection directionOf(MFLocation _other)
+  {
+    if (_other == null) {
+      String msg = "Location: Cannot find out direction of null location.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    if (this.equals(_other)) {
+      return null;
+    }
+    
+    MFEDirection result = null;
+    
+    if (_other.x == this.x && _other.y < this.y) {
+      result = MFEDirection.N;
+    } else if (_other.x > this.x && _other.y < this.y) {
+      result = MFEDirection.NE;
+    } else if (_other.x > this.x && _other.y == this.y) {
+      result = MFEDirection.E;
+    } else if (_other.x > this.x && _other.y > this.y) {
+      result = MFEDirection.SE;
+    } else if (_other.x == this.x && _other.y > this.y) {
+      result = MFEDirection.S;
+    } else if (_other.x < this.x && _other.y > this.y) {
+      result = MFEDirection.SW;
+    } else if (_other.x < this.x && _other.y == this.y) {
+      result = MFEDirection.W;
+    } else if (_other.x < this.x && _other.y < this.y) {
+      result = MFEDirection.NW;
+    }
+
+    return result;
+  }
   @Override
   public String toString()
   {
@@ -75,4 +132,6 @@ public class MFLocation
     hash = 41 * hash + this.z;
     return hash;
   }
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private final static Logger logger = Logger.getLogger(MFLocation.class.getName());
 }
