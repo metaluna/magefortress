@@ -534,7 +534,8 @@ public class MFMapTest
     List<MFSectionEntrance> entrances = this.map.findEntrances();
     assertEquals(2, entrances.size());
     for (MFSectionEntrance sectionEntrance : entrances) {
-      assertTrue(possibleEntrances.contains(sectionEntrance.getLocation()));
+      assertTrue("Incorrect location. Found " + sectionEntrance.getLocation(),
+                  possibleEntrances.contains(sectionEntrance.getLocation()));
     }
   }
 
@@ -556,9 +557,9 @@ public class MFMapTest
     this.map.getTile(0, 1, 0).setWallSouth(true);
     // build bottom right room
     this.map.getTile(2, 2, 0).setWallWest(true);
-    this.map.getTile(3, 2, 0).setWallWest(true);
-    this.map.getTile(2, 3, 0).setWallNorth(true);
-    this.map.getTile(3, 3, 0).setWallNorth(true);
+    this.map.getTile(2, 3, 0).setWallWest(true);
+    this.map.getTile(2, 2, 0).setWallNorth(true);
+    this.map.getTile(3, 2, 0).setWallNorth(true);
     // filll other area
     for (int x=2; x < 4; ++x) {
      this.map.getTile(x, 0, 0).setDugOut(false);
@@ -590,7 +591,7 @@ public class MFMapTest
     this.map.getTile(0, 1, 0).setWallSouth(true);
     // build bottom right room
     this.map.getTile(2, 2, 0).setWallWest(true);
-    this.map.getTile(3, 2, 0).setWallWest(true);
+    this.map.getTile(2, 3, 0).setWallWest(true);
     this.map.getTile(2, 1, 0).setWallNorth(true);
     this.map.getTile(3, 1, 0).setWallNorth(true);
     // filll other area
@@ -607,7 +608,8 @@ public class MFMapTest
 
     MFLocation possibleEntrance1 = new MFLocation(1, 1, 0);
     MFLocation possibleEntrance2 = new MFLocation(2, 1, 0);
-    assertTrue(entrances.get(0).getLocation().equals(possibleEntrance1) ||
+    assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
+               entrances.get(0).getLocation().equals(possibleEntrance1) ||
                entrances.get(0).getLocation().equals(possibleEntrance2));
   }
 
@@ -637,8 +639,42 @@ public class MFMapTest
 
     MFLocation possibleEntrance1 = new MFLocation(2, 2, 0);
     MFLocation possibleEntrance2 = new MFLocation(3, 2, 0);
-    assertTrue(entrances.get(0).getLocation().equals(possibleEntrance1) ||
+    assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
+               entrances.get(0).getLocation().equals(possibleEntrance1) ||
                entrances.get(0).getLocation().equals(possibleEntrance2));
+  }
+
+  @Test
+  public void shouldFindNoEntranceAroundIsland()
+  {
+    this.map = createMap(6, 6, 1);
+    /*
+     *  ________
+     * |        |
+     * |   __   |
+     * |  |//|  |
+     * |  |//|  |
+     * |        |
+     * |________|
+     */
+
+    // build island
+    this.map.getTile(2, 2, 0).setDugOut(false);
+    this.map.getTile(2, 3, 0).setDugOut(false);
+    this.map.getTile(3, 2, 0).setDugOut(false);
+    this.map.getTile(3, 3, 0).setDugOut(false);
+    // build walls around it
+    this.map.getTile(2, 1, 0).setWallSouth(true);
+    this.map.getTile(3, 1, 0).setWallSouth(true);
+    this.map.getTile(4, 2, 0).setWallWest(true);
+    this.map.getTile(4, 3, 0).setWallWest(true);
+    this.map.getTile(3, 4, 0).setWallNorth(true);
+    this.map.getTile(2, 4, 0).setWallNorth(true);
+    this.map.getTile(1, 3, 0).setWallEast(true);
+    this.map.getTile(1, 2, 0).setWallEast(true);
+
+    List<MFSectionEntrance> entrances = this.map.findEntrances();
+    assertEquals(0, entrances.size());
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---
