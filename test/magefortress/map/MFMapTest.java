@@ -25,12 +25,9 @@
 package magefortress.map;
 
 import java.awt.Point;
-import java.util.LinkedList;
-import java.util.List;
-import magefortress.core.MFEMovementType;
+import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -134,47 +131,6 @@ public class MFMapTest
     expPoint = new Point(-MFTile.TILESIZE, -MFTile.TILESIZE);
     gotPoint = MFMap.convertFromTilespace(-1, -1);
     assertEquals(expPoint, gotPoint);
-  }
-
-  @Test
-  public void shouldCalculateClearanceValuesOnEmptyMap()
-  {
-    map.calculateClearanceValues(MFEMovementType.WALK);
-
-    for (int x = 0; x < WIDTH; ++x) {
-      for (int y = 0; y < HEIGHT; ++y) {
-        for (int z = 0; z < DEPTH; ++z) {
-        //System.out.println("Testing tile " + tile.getPosX() + "/" + tile.getPosY() + "/" + tile.getPosZ());
-        int expClearance = Math.min(WIDTH, HEIGHT) - Math.max(x, y);
-        assertEquals(expClearance, this.map.getTile(x, y, z).getClearance(MFEMovementType.WALK));
-        }
-      }
-    }
-  }
-
-  @Test
-  public void shouldCalculateClearanceWithObstacles()
-  {
-    //setup
-    this.map.getTile(2, 2, 0).setDugOut(false);
-
-    map.calculateClearanceValues(MFEMovementType.WALK);
-
-    int expClearance = 0;
-    int gotClearance = this.map.getTile(2, 2, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = 2;
-    gotClearance = this.map.getTile(0, 0, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = 1;
-    gotClearance = this.map.getTile(1, 1, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = Math.max(WIDTH, HEIGHT) - 3;
-    gotClearance = this.map.getTile(3, 3, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
   }
 
   @Test
@@ -447,234 +403,78 @@ public class MFMapTest
   }
 
   @Test
-  public void shouldNotFindEntrances()
+  public void shouldNotGetNeighborOnEdges()
   {
-    this.map.calculateClearanceValues(MFEMovementType.WALK);
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(0, entrances.size());
+    MFTile testedTile = this.map.getTile(0, 0, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.W));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.N));
+
+    testedTile = this.map.getTile(2, 0, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NE));
+
+    testedTile = this.map.getTile(4, 0, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.N));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.E));
+
+    testedTile = this.map.getTile(4, 2, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NE));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.E));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SE));
+
+    testedTile = this.map.getTile(4, 4, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.E));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SE));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.S));
+
+    testedTile = this.map.getTile(2, 4, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SE));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.S));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SW));
+
+    testedTile = this.map.getTile(0, 4, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.S));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.W));
+
+    testedTile = this.map.getTile(0, 2, 0);
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.SW));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.W));
+    assertNull(this.map.getNeighbor(testedTile, MFEDirection.NW));
   }
 
   @Test
-  public void shouldFindCollapsableEntrance()
+  public void shouldGetAllNeighbors()
   {
-    /* _________
-     * |  |/|  |
-     * |  |/|  |
-     * |   _   |
-     * |  |/|  |
-     * |__|/|__|
-     */
-    // build central wall
-    this.map.getTile(1, 0, 0).setWallEast(true);
-    this.map.getTile(1, 1, 0).setWallEast(true);
-    this.map.getTile(1, 3, 0).setWallEast(true);
-    this.map.getTile(1, 4, 0).setWallEast(true);
-    this.map.getTile(2, 0, 0).setDugOut(false);
-    this.map.getTile(2, 1, 0).setDugOut(false);
-    this.map.getTile(2, 3, 0).setDugOut(false);
-    this.map.getTile(2, 4, 0).setDugOut(false);
-    this.map.getTile(3, 0, 0).setWallWest(true);
-    this.map.getTile(3, 1, 0).setWallWest(true);
-    this.map.getTile(3, 3, 0).setWallWest(true);
-    this.map.getTile(3, 4, 0).setWallWest(true);
-    // build corridor
-    MFTile entrance = this.map.getTile(2, 2, 0);
-    entrance.setWalls(true, false, true, false);
-
-    //this.map.calculateClearanceValues(MFEMovementType.WALK);
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(1, entrances.size());
-    MFLocation expLocation = entrance.getLocation();
-    MFLocation gotLocation = entrances.get(0).getLocation();
-    assertEquals(expLocation, gotLocation);
-  }
-
-  @Test
-  public void shouldFindTwoEntrances()
-  {
-    this.map = createMap(7, 5, 1);
-    /*  _________
-     * |  |///|  |
-     * |  |///|  |
-     * |   ___   |
-     * |  |///|  |
-     * |__|///|__|
-     */
-    // build central wall
-    this.map.getTile(1, 0, 0).setWallEast(true);
-    this.map.getTile(1, 1, 0).setWallEast(true);
-    this.map.getTile(1, 3, 0).setWallEast(true);
-    this.map.getTile(1, 4, 0).setWallEast(true);
-    for (int x=2; x < 5; ++x) {
-     this.map.getTile(x, 0, 0).setDugOut(false);
-     this.map.getTile(x, 1, 0).setDugOut(false);
-     this.map.getTile(x, 3, 0).setDugOut(false);
-     this.map.getTile(x, 4, 0).setDugOut(false);
-    }
-    this.map.getTile(5, 0, 0).setWallWest(true);
-    this.map.getTile(5, 1, 0).setWallWest(true);
-    this.map.getTile(5, 3, 0).setWallWest(true);
-    this.map.getTile(5, 4, 0).setWallWest(true);
-    // build corridor
-    MFTile entrance1 = this.map.getTile(2, 2, 0);
-    entrance1.setWalls(true, false, true, false);
-    MFTile tunnel = this.map.getTile(3, 2, 0);
-    tunnel.setWalls(true, false, true, false);
-    MFTile entrance2 = this.map.getTile(4, 2, 0);
-    entrance2.setWalls(true, false, true, false);
-
-    List<MFLocation> possibleEntrances = new LinkedList<MFLocation>();
-    possibleEntrances.add(entrance1.getLocation());
-    possibleEntrances.add(entrance2.getLocation());
-    // other possible entrances
-    possibleEntrances.add(new MFLocation(1,2,0));
-    possibleEntrances.add(new MFLocation(5,2,0));
-
-    //this.map.calculateClearanceValues(MFEMovementType.WALK);
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(2, entrances.size());
-    for (MFSectionEntrance sectionEntrance : entrances) {
-      assertTrue("Incorrect location. Found " + sectionEntrance.getLocation(),
-                  possibleEntrances.contains(sectionEntrance.getLocation()));
-    }
-  }
-
-  @Test
-  public void shouldNotFindEntranceDiagonally()
-  {
-    this.map = createMap(4, 4, 1);
-    /*
-     *  _____
-     * |  |//|
-     * |__|//|
-     * |//|  |
-     * |//|__|
-     */
-    // build top left room
-    this.map.getTile(1, 0, 0).setWallEast(true);
-    this.map.getTile(1, 1, 0).setWallEast(true);
-    this.map.getTile(1, 1, 0).setWallSouth(true);
-    this.map.getTile(0, 1, 0).setWallSouth(true);
-    // build bottom right room
-    this.map.getTile(2, 2, 0).setWallWest(true);
-    this.map.getTile(2, 3, 0).setWallWest(true);
-    this.map.getTile(2, 2, 0).setWallNorth(true);
-    this.map.getTile(3, 2, 0).setWallNorth(true);
-    // filll other area
-    for (int x=2; x < 4; ++x) {
-     this.map.getTile(x, 0, 0).setDugOut(false);
-     this.map.getTile(x, 1, 0).setDugOut(false);
-    }
-    for (int x=0; x < 2; ++x) {
-     this.map.getTile(x, 2, 0).setDugOut(false);
-     this.map.getTile(x, 3, 0).setDugOut(false);
-    }
-
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(0, entrances.size());
-  }
-
-  @Test
-  public void shouldFindOneEntrance()
-  {
-    this.map = createMap(4, 4, 1);
-    /*
-     *  ______
-     * |  |//|
-     * |__   |
-     * |//|  |
-     * |//|__|
-     */
-    // build top left room
-    this.map.getTile(1, 0, 0).setWallEast(true);
-    this.map.getTile(1, 1, 0).setWallSouth(true);
-    this.map.getTile(0, 1, 0).setWallSouth(true);
-    // build bottom right room
-    this.map.getTile(2, 2, 0).setWallWest(true);
-    this.map.getTile(2, 3, 0).setWallWest(true);
-    this.map.getTile(2, 1, 0).setWallNorth(true);
-    this.map.getTile(3, 1, 0).setWallNorth(true);
-    // filll other area
-    for (int x=2; x < 4; ++x) {
-     this.map.getTile(x, 0, 0).setDugOut(false);
-    }
-    for (int x=0; x < 2; ++x) {
-     this.map.getTile(x, 2, 0).setDugOut(false);
-     this.map.getTile(x, 3, 0).setDugOut(false);
-    }
-
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(1, entrances.size());
-
-    MFLocation possibleEntrance1 = new MFLocation(1, 1, 0);
-    MFLocation possibleEntrance2 = new MFLocation(2, 1, 0);
-    assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
-               entrances.get(0).getLocation().equals(possibleEntrance1) ||
-               entrances.get(0).getLocation().equals(possibleEntrance2));
-  }
-
-  @Test
-  public void shouldFindEntranceBetweenTilesDividedByWalls()
-  {
-    /*
-     *  _______
-     * |   |   |
-     * |   |   |
-     * |       |
-     * |   |   |
-     * |___|___|
-     */
-    // build wall
-    this.map.getTile(2, 0, 0).setWallEast(true);
-    this.map.getTile(2, 1, 0).setWallEast(true);
-    this.map.getTile(2, 3, 0).setWallEast(true);
-    this.map.getTile(2, 4, 0).setWallEast(true);
-    this.map.getTile(3, 0, 0).setWallWest(true);
-    this.map.getTile(3, 1, 0).setWallWest(true);
-    this.map.getTile(3, 3, 0).setWallWest(true);
-    this.map.getTile(3, 4, 0).setWallWest(true);
-
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(1, entrances.size());
-
-    MFLocation possibleEntrance1 = new MFLocation(2, 2, 0);
-    MFLocation possibleEntrance2 = new MFLocation(3, 2, 0);
-    assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
-               entrances.get(0).getLocation().equals(possibleEntrance1) ||
-               entrances.get(0).getLocation().equals(possibleEntrance2));
-  }
-
-  @Test
-  public void shouldFindNoEntranceAroundIsland()
-  {
-    this.map = createMap(6, 6, 1);
-    /*
-     *  ________
-     * |        |
-     * |   __   |
-     * |  |//|  |
-     * |  |//|  |
-     * |        |
-     * |________|
-     */
-
-    // build island
-    this.map.getTile(2, 2, 0).setDugOut(false);
-    this.map.getTile(2, 3, 0).setDugOut(false);
-    this.map.getTile(3, 2, 0).setDugOut(false);
-    this.map.getTile(3, 3, 0).setDugOut(false);
-    // build walls around it
-    this.map.getTile(2, 1, 0).setWallSouth(true);
-    this.map.getTile(3, 1, 0).setWallSouth(true);
-    this.map.getTile(4, 2, 0).setWallWest(true);
-    this.map.getTile(4, 3, 0).setWallWest(true);
-    this.map.getTile(3, 4, 0).setWallNorth(true);
-    this.map.getTile(2, 4, 0).setWallNorth(true);
-    this.map.getTile(1, 3, 0).setWallEast(true);
-    this.map.getTile(1, 2, 0).setWallEast(true);
-
-    List<MFSectionEntrance> entrances = this.map.findEntrances();
-    assertEquals(0, entrances.size());
+    MFTile testedTile = this.map.getTile(2, 2, 0);
+    MFTile expTile = this.map.getTile(2, 1, 0);
+    MFTile gotTile = this.map.getNeighbor(testedTile, MFEDirection.N);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(3, 1, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.NE);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(3, 2, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.E);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(3, 3, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.SE);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(2, 3, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.S);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(1, 3, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.SW);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(1, 2, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.W);
+    assertEquals(expTile, gotTile);
+    expTile = this.map.getTile(1, 1, 0);
+    gotTile = this.map.getNeighbor(testedTile, MFEDirection.NW);
+    assertEquals(expTile, gotTile);
+    
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---
