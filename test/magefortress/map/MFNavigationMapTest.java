@@ -94,6 +94,12 @@ public class MFNavigationMapTest
     this.naviMap.updateAllEntrances();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(1, sections.size());
+    int expTileCount = WIDTH*HEIGHT;
+    int gotTileCount = sections.get(0).getSize();
+    assertEquals(expTileCount, gotTileCount);
   }
 
   @Test
@@ -129,6 +135,16 @@ public class MFNavigationMapTest
     MFLocation expLocation = entrance.getLocation();
     MFLocation gotLocation = entrances.get(0).getLocation();
     assertEquals(expLocation, gotLocation);
+    assertEquals(entrances.get(0), entrance.getEntrance());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(2, sections.size());
+    int expTileCount = 2*5+1;
+    int gotTileCount = sections.get(0).getSize();
+    assertEquals(expTileCount, gotTileCount);
+    expTileCount = 2*5;
+    gotTileCount = sections.get(1).getSize();
+    assertEquals(expTileCount, gotTileCount);
   }
 
   @Test
@@ -175,11 +191,15 @@ public class MFNavigationMapTest
     //this.map.calculateClearanceValues(MFEMovementType.WALK);
     this.naviMap.updateAllEntrances();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
-    assertEquals(2, entrances.size());
+    assertEquals("Number of entrances does not match - ", 2, entrances.size());
     for (MFSectionEntrance sectionEntrance : entrances) {
       assertTrue("Incorrect location. Found " + sectionEntrance.getLocation(),
                   possibleEntrances.contains(sectionEntrance.getLocation()));
+      assertEquals(sectionEntrance, this.map.getTile(sectionEntrance.getLocation()).getEntrance());
     }
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals("Number of sections does not match - ", 3, sections.size());
   }
 
   @Test
@@ -216,6 +236,14 @@ public class MFNavigationMapTest
     this.naviMap.updateAllEntrances();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(2, sections.size());
+    int expTileCount = 2*2;
+    int gotTileCount = sections.get(0).getSize();
+    assertEquals(expTileCount, gotTileCount);
+    gotTileCount = sections.get(1).getSize();
+    assertEquals(expTileCount, gotTileCount);
   }
 
   @Test
@@ -251,11 +279,18 @@ public class MFNavigationMapTest
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(1, entrances.size());
 
-    MFLocation possibleEntrance1 = new MFLocation(1, 1, 0);
-    MFLocation possibleEntrance2 = new MFLocation(2, 1, 0);
-    assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
-               entrances.get(0).getLocation().equals(possibleEntrance1) ||
-               entrances.get(0).getLocation().equals(possibleEntrance2));
+    MFLocation entrance = new MFLocation(1, 1, 0);
+    assertEquals(entrance, entrances.get(0).getLocation());
+    assertEquals(entrances.get(0), this.map.getTile(entrances.get(0).getLocation()).getEntrance());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(2, sections.size());
+    int expTileCount = 2*2;
+    int gotTileCount = sections.get(0).getSize();
+    assertEquals(expTileCount, gotTileCount);
+    expTileCount = 2*3;
+    gotTileCount = sections.get(1).getSize();
+    assertEquals(expTileCount, gotTileCount);
   }
 
   @Test
@@ -288,6 +323,10 @@ public class MFNavigationMapTest
     assertTrue("Incorrect location. Found " + entrances.get(0).getLocation(),
                entrances.get(0).getLocation().equals(possibleEntrance1) ||
                entrances.get(0).getLocation().equals(possibleEntrance2));
+    assertEquals(entrances.get(0), this.map.getTile(entrances.get(0).getLocation()).getEntrance());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(2, sections.size());
   }
 
   @Test
@@ -322,6 +361,9 @@ public class MFNavigationMapTest
     this.naviMap.updateAllEntrances();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(1, sections.size());
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---

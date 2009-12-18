@@ -31,6 +31,7 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
+import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
 import magefortress.map.MFTile.Corner;
 
@@ -442,6 +443,62 @@ public class MFMap
     this.calculateCornerType(_tile, MFEDirection.NE, _wallN, _wallE, wallAboveE, wallRightN);
     this.calculateCornerType(_tile, MFEDirection.SE, _wallS, _wallE, wallRightS, wallBelowE);
     this.calculateCornerType(_tile, MFEDirection.SW, _wallS, _wallW, wallLeftS, wallBelowW);
+  }
+
+  /**
+   * Checks if there is a path from two adjacent tiles. This is done by testing
+   * if the neighboring tile is walkable and there are no walls in the way. If
+   * the target tile is <code>null</code> it returns <code>false</code>.
+   * @param _start the start tile
+   * @param _goal the end tile
+   * @param _direction the direction as seen from the start tile
+   * @return <code>true</code> if a creature can walk from start to goal
+   * @throws IllegalArgumentException if the start tile is <code>null</code> or
+   *        if the tiles are not adjacent.
+   */
+  boolean canWalkTo(MFTile _start, MFTile _goal, MFEDirection _direction)
+  {
+    if (_start == null) {
+      String msg = "Map: Cannot test reachability of target tile without start tile.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    
+    if (_goal == null) {
+      return false;
+    }
+
+    if (!_start.getLocation().isNeighborOf(_goal.getLocation())) {
+      String msg = "Map: Cannot test reachability between non-adjacent tiles.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    
+    boolean walled = false;
+    if (MFEDirection.straight().contains(_direction)) {
+      walled = _start.hasWall(_direction);
+    } else if (MFEDirection.diagonals().contains(_direction)) {
+      switch (_direction) {
+        case NE: walled = _start.hasWallNorth() || _start.hasWallEast() ||
+                          _goal.hasWallSouth() || _goal.hasWallWest();
+                 break;
+        case SE: walled = _start.hasWallSouth() || _start.hasWallEast() ||
+                          _goal.hasWallNorth() || _goal.hasWallWest();
+                 break;
+        case SW: walled = _start.hasWallSouth() || _start.hasWallWest() ||
+                          _goal.hasWallNorth() || _goal.hasWallEast();
+                 break;
+        case NW: walled = _start.hasWallNorth() || _start.hasWallWest() ||
+                          _goal.hasWallSouth() || _goal.hasWallEast();
+                 break;
+      }
+    }
+
+    if (walled || !_goal.isWalkable(MFEMovementType.WALK)) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

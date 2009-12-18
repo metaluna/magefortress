@@ -459,6 +459,26 @@ public class MFTile implements MFIPaintable
     return this.parentSection;
   }
   
+  /**
+   * Marks the tile as a section entrance. If set to <code>null</code> the tile
+   * stops being an entrance. For navigational use.
+   * @param _entrance the entrance
+   */
+  void setEntrance(MFSectionEntrance _entrance)
+  {
+    this.entrance = _entrance;
+  }
+
+  MFSectionEntrance getEntrance()
+  {
+    return this.entrance;
+  }
+
+  boolean isEntrance()
+  {
+    return this.entrance != null;
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final int WALL_WIDTH = 12;
   private static final Logger logger = Logger.getLogger(MFTile.class.getName());
@@ -483,6 +503,9 @@ public class MFTile implements MFIPaintable
   /** The parent navigational section
    * @Transient */
   private MFSection parentSection;
+  /** Marks the tile as being an entrance
+   * @Transient */
+  private MFSectionEntrance entrance;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {

@@ -24,10 +24,11 @@
  */
 package magefortress.map;
 
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 
@@ -36,25 +37,52 @@ import magefortress.core.MFLocation;
  */
 class MFSection
 {
-  public MFSection(MFMap _map)
+  /**
+   * Constructor
+   * @param _map the map this section is on
+   * @param _depth the level on which this section lies
+   */
+  public MFSection(MFMap _map, int _depth)
   {
     this.map = _map;
-    this.entrances = new LinkedList<MFSectionEntrance>();
+    this.level = _depth;
+    this.entrances = new HashSet<MFSectionEntrance>();
     this.tiles = new HashMap<MFLocation, MFTile>();
   }
   
+  public int getLevel()
+  {
+    return this.level;
+  }
+
+  public int getSize()
+  {
+    return this.tiles.size();
+  }
+
+  public Set<MFSectionEntrance> getEntrances()
+  {
+    return Collections.unmodifiableSet(this.entrances);
+  }
+
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
 
   /**
    * Adds an entrance that leads to this section.
    * @param _entrance the entrance to this section
    */
-  public void addEntrance(MFSectionEntrance _entrance)
+  void addEntrance(MFSectionEntrance _entrance)
   {
     if (_entrance == null) {
       String msg = "Section: Cannot add null entrance.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
+    }
+    if (this.entrances.contains(_entrance)) {
+      String msg = "Section: Trying to add an entrance already present in " +
+              "this section.";
+      logger.warning(msg);
+      return;
     }
     this.entrances.add(_entrance);
   }
@@ -63,7 +91,7 @@ class MFSection
    * Adds a tile to this section. Its parent section will be set to this section.
    * @param _tile A tile of this section
    */
-  public void addTile(MFTile _tile)
+  void addTile(MFTile _tile)
   {
     if (_tile == null) {
       String msg = "Section: Cannot add null tile.";
@@ -74,9 +102,55 @@ class MFSection
     this.tiles.put(_tile.getLocation(), _tile);
   }
 
+  /**
+   * Creates a union of two sections. The smaller one will be added to the bigger
+   * one.
+   * @param _other the other section
+   * @return the union of the two sections
+   * @throws IllegalArgumentException if the sections refer to the same one
+   */
+  MFSection uniteWith(MFSection _other)
+  {
+    if (_other == null) {
+      String msg = "Section: Cannot unite sections without another one.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_other == this) {
+      String msg = "Section: Cannot unite two sections if they are the same.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    if (_other.getSize() > this.getSize()) {
+      appendSections(this, _other);
+      return _other;
+    } else {
+      appendSections(_other, this);
+      return this;
+    }
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final static Logger logger = Logger.getLogger(MFSection.class.getName());
   private final MFMap map;
-  private final List<MFSectionEntrance> entrances;
+  private final int level;
+  private final Set<MFSectionEntrance> entrances;
   private final Map<MFLocation, MFTile> tiles;
+
+  /**
+   * Appends the tiles and entrances of the source to the target section.
+   * @param _source the source section
+   * @param _target the target section
+   */
+  private static void appendSections(MFSection _source, MFSection _target)
+  {
+    for (MFTile tile : _source.tiles.values()) {
+      _target.addTile(tile);
+    }
+    for (MFSectionEntrance entrance : _source.entrances) {
+      _target.addEntrance(entrance);
+    }
+
+  }
 }

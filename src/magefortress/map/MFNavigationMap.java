@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFEMovementType;
@@ -47,7 +48,7 @@ public class MFNavigationMap
   public MFNavigationMap(MFMap _map)
   {
     this.map = _map;
-    this.entrances = new LinkedList<MFSectionEntrance>();
+    this.entrances = new HashMap<MFLocation, MFSectionEntrance>();
     this.sections = new LinkedList<MFSection>();
   }
 
@@ -58,6 +59,7 @@ public class MFNavigationMap
   public void updateAllEntrances()
   {
     this.entrances.clear();
+    this.sections.clear();
     for (int depth = 0; depth < this.map.getDepth(); ++depth) {
       updateEntrances(depth);
     }
@@ -70,15 +72,23 @@ public class MFNavigationMap
   public void updateEntrances(int _depth)
   {
     // remove all entrances of the specified level before adding new ones
-    Iterator<MFSectionEntrance> it = this.entrances.iterator();
-    while(it.hasNext()) {
-      MFSectionEntrance entrance = it.next();
-      if (entrance.getLocation().z == _depth) {
+    for(Iterator<MFLocation> it = this.entrances.keySet().iterator(); it.hasNext(); ) {
+      MFLocation entrance = it.next();
+      if (entrance.z == _depth) {
+        it.remove();
+      }
+    }
+    // remove all sections of the specified level
+    for(Iterator<MFSection> it = this.sections.iterator(); it.hasNext(); ) {
+      MFSection section = it.next();
+      if (section.getLevel() == _depth) {
         it.remove();
       }
     }
     // find and store the entrances
-    this.entrances.addAll(findEntrances(this.map.getLevelMap(_depth)));
+    final Map<MFLocation, MFSectionEntrance> levelEntrances = findEntrances(this.map.getLevelMap(_depth));
+    this.sections.addAll(findSections(_depth, levelEntrances));
+    this.entrances.putAll(levelEntrances);
   }
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
@@ -90,7 +100,7 @@ public class MFNavigationMap
    */
   List<MFSectionEntrance> getEntrances()
   {
-    return Collections.unmodifiableList(this.entrances);
+    return new LinkedList<MFSectionEntrance>(this.entrances.values());
   }
 
   /**
@@ -123,7 +133,7 @@ public class MFNavigationMap
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final Logger logger = Logger.getLogger(MFNavigationMap.class.getName());
   private final MFMap map;
-  private final List<MFSectionEntrance> entrances;
+  private final Map<MFLocation, MFSectionEntrance> entrances;
   private final List<MFSection> sections;
 
   /**
@@ -180,7 +190,7 @@ public class MFNavigationMap
    * navigational use.
    * @return the list of entrances found
    */
-  private List<MFSectionEntrance> findEntrances(final MFTile[][] _tiles)
+  private Map<MFLocation, MFSectionEntrance> findEntrances(final MFTile[][] _tiles)
   {
     final HashMap<MFLocation, MFSectionEntrance> potentialEntrances =
                                   new HashMap<MFLocation, MFSectionEntrance>();
@@ -204,10 +214,12 @@ public class MFNavigationMap
           continue;
         }
         // all tests passed - entrance found!
-        potentialEntrances.put(tile.getLocation(), new MFSectionEntrance(tile.getLocation()));
+        MFSectionEntrance entrance = new MFSectionEntrance(tile.getLocation());
+        potentialEntrances.put(tile.getLocation(), entrance);
+        tile.setEntrance(entrance);
       }
     }
-    List<MFSectionEntrance> result = this.collapseCloseEntrances(potentialEntrances);
+    Map<MFLocation, MFSectionEntrance> result = this.collapseCloseEntrances(potentialEntrances);
     return result;
   }
 
@@ -247,29 +259,10 @@ public class MFNavigationMap
     for (MFEDirection direction : MFEDirection.values()) {
       // get the neighboring tile
       MFTile neighbor = this.map.getNeighbor(_tile, direction);
-      // walls?
-      boolean walled = false;
-      if (MFEDirection.straight().contains(direction)) {
-        walled = _tile.hasWall(direction);
-      } else if (MFEDirection.diagonals().contains(direction)) {
-        switch (direction) {
-          case NE: walled = _tile.hasWallNorth() || _tile.hasWallEast() ||
-                            neighbor.hasWallSouth() || neighbor.hasWallWest();
-                   break;
-          case SE: walled = _tile.hasWallSouth() || _tile.hasWallEast() ||
-                            neighbor.hasWallNorth() || neighbor.hasWallWest();
-                   break;
-          case SW: walled = _tile.hasWallSouth() || _tile.hasWallWest() ||
-                            neighbor.hasWallNorth() || neighbor.hasWallEast();
-                   break;
-          case NW: walled = _tile.hasWallNorth() || _tile.hasWallWest() ||
-                            neighbor.hasWallSouth() || neighbor.hasWallEast();
-                   break;
-        }
-      }
+      boolean reachable = this.map.canWalkTo(_tile, neighbor, direction);
+
       // unreachable or irrelevant or unwalkable tile
-      if (walled || neighbor == null || !neighbor.isUnderground() ||
-                   !neighbor.isWalkable(MFEMovementType.WALK)) {
+      if (!reachable || !neighbor.isUnderground()) {
         // switch to empty stretch
         if (blockedStretch == false) {
           if (currentGroupSize > biggestGroupSize) {
@@ -315,10 +308,10 @@ public class MFNavigationMap
    * @param _entrances list of entrances
    * @return collapsed list of entrances
    */
-  private List<MFSectionEntrance> collapseCloseEntrances(
+  private Map<MFLocation, MFSectionEntrance> collapseCloseEntrances(
                         final HashMap<MFLocation, MFSectionEntrance> _entrances)
   {
-    List<MFSectionEntrance> result = new LinkedList<MFSectionEntrance>();
+    Map<MFLocation, MFSectionEntrance> result = new HashMap<MFLocation, MFSectionEntrance>();
     List<MFSectionEntrance> removedEntrances = new LinkedList<MFSectionEntrance>();
 
     Iterator<MFSectionEntrance> it1 = _entrances.values().iterator();
@@ -341,18 +334,129 @@ public class MFNavigationMap
           // check if tile can be connected
           if (middle.isWalkable(MFEMovementType.WALK) && middle.isUnderground()) {
             add = new MFSectionEntrance(middle.getLocation());
+            middle.setEntrance(add);
             removedEntrances.add(goal);
+            // TODO beautify me
+            this.map.getTile(goal.getLocation()).setEntrance(null);
             break;
 
           } //-- connectable
         } //-- potentially collapsable
       } //-- inner loop
 
-      result.add(add);
+      result.put(add.getLocation(), add);
       if (start != add) {
         it1.remove();
+        // TODO beautify me
+        this.map.getTile(start.getLocation()).setEntrance(null);
       }
     } //-- outer loop
+    return result;
+  }
+
+  /**
+   * Assigns all tiles of a level to exactly one newly created section.
+   * @param _depth which level to scan for sections
+   * @param _entrances the list of entrances on this level
+   * @return a list of sections
+   */
+  private List<MFSection> findSections(final int _depth,
+                                      final Map<MFLocation, MFSectionEntrance> _entrances)
+  {
+    final List<MFSection> result = new LinkedList<MFSection>();
+
+    for (MFTile[] row : this.map.getLevelMap(_depth)) {
+      for (MFTile tile : row) {
+        // skip tiles that are not underground or blocked
+        if (!tile.isUnderground() || !tile.isWalkable(MFEMovementType.WALK) || tile.isEntrance()) {
+          continue;
+        }
+
+        // get top and left neighbors
+        final MFTile neighborN = this.map.getNeighbor(tile, MFEDirection.N);
+        final MFTile neighborW = this.map.getNeighbor(tile, MFEDirection.W);
+        boolean hasNeighborN = this.map.canWalkTo(tile, neighborN, MFEDirection.N);
+        boolean hasNeighborW = this.map.canWalkTo(tile, neighborW, MFEDirection.W);
+        // get the reachable surrounding entrances
+        MFSectionEntrance entranceN = null;
+        MFSectionEntrance entranceW = null;
+        if (hasNeighborN) entranceN = neighborN.getEntrance();
+        if (hasNeighborW) entranceW = neighborW.getEntrance();
+        hasNeighborN &= (entranceN == null);
+        hasNeighborW &= (entranceW == null);
+
+        // tile has no neighbors -> start a new section
+        if (!hasNeighborN && !hasNeighborW) {
+          MFSection section = new MFSection(this.map, _depth);
+          section.addTile(tile);
+          result.add(section);
+        // tile is connected to two neighbors -> check if they belong to different
+        // sections
+        } else if (hasNeighborN && hasNeighborW) {
+          MFSection sectionN = neighborN.getParentSection();
+          MFSection sectionW = neighborW.getParentSection();
+          // same sections -> add tile to it
+          if (sectionN == sectionW) {
+            sectionN.addTile(tile);
+          // different sections -> tile connects both sections -> unite them
+          } else {
+            MFSection union = sectionN.uniteWith(sectionW);
+            union.addTile(tile);
+            // remove empty section
+            if (sectionN.getSize() == 0) {
+              result.remove(sectionN);
+            } else {
+              result.remove(sectionW);
+            }
+          }
+        // tile is connected to one neighbor -> add tile to neighbor's section
+        } else {
+          MFTile neighbor = (hasNeighborN ? neighborN : neighborW);
+          MFSection section = neighbor.getParentSection();
+          section.addTile(tile);
+        }
+
+        // add entrances to the section
+        MFSectionEntrance entranceS = null;
+        MFSectionEntrance entranceE = null;
+        final MFTile neighborS = this.map.getNeighbor(tile, MFEDirection.S);
+        final MFTile neighborE = this.map.getNeighbor(tile, MFEDirection.E);
+        if (this.map.canWalkTo(tile, neighborS, MFEDirection.S)) {
+          entranceS = neighborS.getEntrance();
+        }
+        if (this.map.canWalkTo(tile, neighborE, MFEDirection.E)) {
+          entranceE = neighborE.getEntrance();
+        }
+
+        final MFSection currentSection = tile.getParentSection();
+        if (entranceN != null) {
+          currentSection.addEntrance(entranceN);
+          if (neighborN.getParentSection() == null) {
+            currentSection.addTile(neighborN);
+          }
+        }
+        if (entranceE != null) {
+          currentSection.addEntrance(entranceE);
+          if (neighborE.getParentSection() == null) {
+            currentSection.addTile(neighborE);
+          }
+        }
+        if (entranceS != null) {
+          currentSection.addEntrance(entranceS);
+          if (neighborS.getParentSection() == null) {
+            currentSection.addTile(neighborS);
+          }
+        }
+        if (entranceW != null) {
+          currentSection.addEntrance(entranceW);
+          if (neighborW.getParentSection() == null) {
+            currentSection.addTile(neighborW);
+          }
+        }
+
+      }//-- column loop
+    }//-- row loop
+    
     return result;
   }
 

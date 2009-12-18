@@ -91,6 +91,12 @@ class MFSectionEntrance
     return this.location;
   }
 
+  @Override
+  public String toString()
+  {
+    return this.location.toString();
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final static Logger logger = Logger.getLogger(MFSectionEntrance.class.getName());
   private final MFLocation location;
