@@ -366,6 +366,36 @@ public class MFNavigationMapTest
     assertEquals(1, sections.size());
   }
 
+  @Test
+  public void shouldFindOneSection()
+  {
+    this.naviMap = createMap(5, 5, 1);
+    /*
+     *  _______
+     * |  |/|  |
+     * |  |/|  |
+     * |       |
+     * |_______|
+     */
+
+    this.map.getTile(2, 0, 0).setDugOut(false);
+    this.map.getTile(2, 1, 0).setDugOut(false);
+
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallEast(true);
+    this.map.getTile(2, 2, 0).setWallNorth(true);
+    this.map.getTile(3, 0, 0).setWallWest(true);
+    this.map.getTile(3, 1, 0).setWallWest(true);
+
+    this.naviMap.updateAllEntrances();
+    List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
+    assertEquals(0, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(1, sections.size());
+    assertEquals(5*5-2, sections.get(0).getSize());
+  }
+
   //---vvv---     PRIVATE METHODS    ---vvv---
 
   private MFNavigationMap createMap(int _width, int _height, int _depth)

@@ -79,8 +79,8 @@ class MFSection
       throw new IllegalArgumentException(msg);
     }
     if (this.entrances.contains(_entrance)) {
-      String msg = "Section: Trying to add an entrance already present in " +
-              "this section.";
+      String msg = "Section: Trying to add an entrance (" +  _entrance.getLocation() +
+                   ") already present in this section.";
       logger.warning(msg);
       return;
     }
@@ -97,6 +97,12 @@ class MFSection
       String msg = "Section: Cannot add null tile.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
+    }
+    if (this.tiles.containsKey(_tile.getLocation())) {
+      String msg = "Section: Trying to add a tile (" +  _tile.getLocation() +
+                   ") already present in this section.";
+      logger.warning(msg);
+      return;
     }
     _tile.setParentSection(this);
     this.tiles.put(_tile.getLocation(), _tile);
@@ -123,10 +129,10 @@ class MFSection
     }
 
     if (_other.getSize() > this.getSize()) {
-      appendSections(this, _other);
+      _other.appendSection(this);
       return _other;
     } else {
-      appendSections(_other, this);
+      this.appendSection(_other);
       return this;
     }
   }
@@ -139,18 +145,19 @@ class MFSection
   private final Map<MFLocation, MFTile> tiles;
 
   /**
-   * Appends the tiles and entrances of the source to the target section.
-   * @param _source the source section
-   * @param _target the target section
+   * Moves the tiles and entrances of the source to the target section.
+   * @param _other the source section
    */
-  private static void appendSections(MFSection _source, MFSection _target)
+  private void appendSection(MFSection _other)
   {
-    for (MFTile tile : _source.tiles.values()) {
-      _target.addTile(tile);
+    for (MFTile tile : _other.tiles.values()) {
+      this.addTile(tile);
     }
-    for (MFSectionEntrance entrance : _source.entrances) {
-      _target.addEntrance(entrance);
+    for (MFSectionEntrance entrance : _other.entrances) {
+      this.addEntrance(entrance);
     }
-
+    // empty lists
+    _other.tiles.clear();
+    _other.entrances.clear();
   }
 }
