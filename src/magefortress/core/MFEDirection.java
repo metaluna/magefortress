@@ -42,4 +42,9 @@ public enum MFEDirection
   {
     return EnumSet.complementOf(diagonals());
   }
+
+  public static EnumSet<MFEDirection> plain()
+  {
+    return EnumSet.of(N, NE, E, SE, S, SW, W, NW);
+  }
 }

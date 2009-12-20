@@ -27,6 +27,7 @@ package magefortress.map;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.EnumSet;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -446,34 +447,55 @@ public class MFMap
   }
 
   /**
-   * Checks if there is a path from two adjacent tiles. This is done by testing
-   * if the neighboring tile is walkable and there are no walls in the way. If
-   * the target tile is <code>null</code> it returns <code>false</code>.
+   * Checks if there is a path from two adjacent tiles for a 1-tile sized,
+   * walking creature. This is done by testing if the neighboring tile is
+   * walkable for the giving clearance and capabilities and there are no
+   * walls in the way. If the target tile is <code>null</code> it returns
+   * <code>false</code>.
    * @param _start the start tile
    * @param _goal the end tile
    * @param _direction the direction as seen from the start tile
+   * @param _clearance the size of the moving creature
+   * @param _capabilities the movement types the creature can use
    * @return <code>true</code> if a creature can walk from start to goal
    * @throws IllegalArgumentException if the start tile is <code>null</code> or
-   *        if the tiles are not adjacent.
+   *        if the tiles are not adjacent or if the clearance is smaller one or
+   *        if there are no capabilities given.
    */
-  boolean canWalkTo(MFTile _start, MFTile _goal, MFEDirection _direction)
+  boolean canMoveTo(MFTile _start, MFTile _goal, MFEDirection _direction,
+          int _clearance, EnumSet<MFEMovementType> _capabilities)
   {
     if (_start == null) {
       String msg = "Map: Cannot test reachability of target tile without start tile.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    
+
     if (_goal == null) {
       return false;
     }
 
     if (!_start.getLocation().isNeighborOf(_goal.getLocation())) {
-      String msg = "Map: Cannot test reachability between non-adjacent tiles.";
+      String msg = "Map: Cannot test reachability between non-adjacent tiles from " +
+                    _start.getLocation() + " towards " + _direction;
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    
+
+    if (_clearance < 1) {
+      String msg = "Map: Cannot test reachability for a clearance < 1 from " +
+              _start.getLocation() + " towards " + _direction;
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    if (_capabilities == null || _capabilities.size() == 0) {
+      String msg = "Map: Cannot test reachability without knowing the capabilities " +
+              _start.getLocation() + " towards " + _direction;
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
     boolean walled = false;
     if (MFEDirection.straight().contains(_direction)) {
       walled = _start.hasWall(_direction);
@@ -494,11 +516,40 @@ public class MFMap
       }
     }
 
-    if (walled || !_goal.isWalkable(MFEMovementType.WALK)) {
+    boolean walkable = false;
+
+    // only need to check walkability if there are no walls
+    if (!walled) {
+      for (MFEMovementType movement : _capabilities) {
+        if (_goal.getClearance(movement) >= _clearance && _goal.isWalkable(movement)) {
+          walkable = true;
+          break;
+        }
+      }
+    }
+
+    if (walled || !walkable) {
       return false;
     } else {
       return true;
     }
+  }
+
+  /**
+   * Checks if there is a path from two adjacent tiles for a 1-tile sized, 
+   * walking creature. This is done by testing if the neighboring tile is
+   * walkable and there are no walls in the way. If the target tile is
+   * <code>null</code> it returns <code>false</code>.
+   * @param _start the start tile
+   * @param _goal the end tile
+   * @param _direction the direction as seen from the start tile
+   * @return <code>true</code> if a creature can walk from start to goal
+   * @throws IllegalArgumentException if the start tile is <code>null</code> or
+   *        if the tiles are not adjacent.
+   */
+  boolean canWalkTo(MFTile _start, MFTile _goal, MFEDirection _direction)
+  {
+    return this.canMoveTo(_start, _goal, _direction, 1, EnumSet.of(MFEMovementType.WALK));
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

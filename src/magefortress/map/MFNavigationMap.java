@@ -52,6 +52,11 @@ public class MFNavigationMap
     this.sections = new LinkedList<MFSection>();
   }
 
+  public MFMap getMap()
+  {
+    return this.map;
+  }
+
   /**
    * Clears the list of entrances and re-calculates them for all depth levels
    * of the map.

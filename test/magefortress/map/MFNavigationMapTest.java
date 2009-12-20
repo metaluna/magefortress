@@ -400,7 +400,7 @@ public class MFNavigationMapTest
 
   private MFNavigationMap createMap(int _width, int _height, int _depth)
   {
-    final MFMap result = new MFMap(_width, _height, _depth);
+    this.map = new MFMap(_width, _height, _depth);
     for (int x = 0; x < _width; ++x) {
       for (int y = 0; y < _height; ++y) {
         for (int z = 0; z < _depth; ++z) {
@@ -408,13 +408,14 @@ public class MFNavigationMapTest
           boolean hasWallE = x == _width-1 || false;
           boolean hasWallS = y == _height-1 || false;
           boolean hasWallW = x == 0 || false;
-          MFTile tile = result.getTile(x, y, z);
+          MFTile tile = this.map.getTile(x, y, z);
           tile.setDugOut(true);
           tile.setWalls(hasWallN, hasWallE, hasWallS, hasWallW);
         }
       }
     }
-    this.map = result;
-    return new MFNavigationMap(result);
+    MFNavigationMap result = new MFNavigationMap(this.map);
+    result.updateClearanceValues(MFEMovementType.WALK);
+    return new MFNavigationMap(map);
   }
 }
