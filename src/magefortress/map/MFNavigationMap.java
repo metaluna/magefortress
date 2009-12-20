@@ -27,10 +27,12 @@ package magefortress.map;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFEMovementType;
@@ -51,6 +53,10 @@ public class MFNavigationMap
     this.map = _map;
     this.entrances = new HashMap<MFLocation, MFSectionEntrance>();
     this.sections = new LinkedList<MFSection>();
+    this.movementCombinations = new HashMap<Integer, Set<EnumSet<MFEMovementType>>>();
+    Set<EnumSet<MFEMovementType>> setForClearance = new HashSet<EnumSet<MFEMovementType>>();
+    setForClearance.add(DEFAULT_CAPABILITIES);
+    this.movementCombinations.put(DEFAULT_CLEARANCE, setForClearance);
   }
 
   public MFMap getMap()
@@ -98,7 +104,53 @@ public class MFNavigationMap
     final List<MFSection> levelSections = 
                                this.findSections(_depth, levelEntrances);
     this.sections.addAll(levelSections);
-    this.connectEntrances(levelSections);
+    this.findConnections(levelSections);
+  }
+
+  /**
+   * Adds a combination of clearance and movement types to the list of paths,
+   * that will be searched.
+   */
+  public void addMovementCombination(final int _clearance, final EnumSet<MFEMovementType> _capabilities)
+  {
+    if (_clearance < 1) {
+      String msg = "Navigation Map: Cannot add movement combination with " +
+                    "clearance < 1. Got: " + _clearance;
+      logger.warning(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_capabilities == null || _capabilities.size() == 0) {
+      String msg = "Navigation Map: Cannot add movement combination without " +
+                    "any capabilities";
+      logger.warning(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    Set<EnumSet<MFEMovementType>> setForClearance = this.movementCombinations.get(_clearance);
+    // check if a list for the clearance is already stored
+    if (setForClearance == null) {
+      // create a new list for the specified clearance and store it
+      setForClearance = new HashSet<EnumSet<MFEMovementType>>();
+      this.movementCombinations.put(_clearance, setForClearance);
+    }
+    
+    boolean isDuplicate = setForClearance.contains(_capabilities);
+    
+    // duplicate -> log warning
+    if (isDuplicate) {
+      StringBuilder capabilitiesText = new StringBuilder();
+      for (MFEMovementType type : _capabilities) {
+        capabilitiesText.append(type.toString());
+        capabilitiesText.append(" ");
+      }
+      String msg = "Navigation Map: Trying to add a set of capabilities (" +
+                    capabilitiesText.toString().trim() + ") already stored." ;
+      logger.warning(msg);
+
+    // add the combination to the list
+    } else {
+      setForClearance.add(_capabilities);
+    }
   }
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
@@ -142,11 +194,13 @@ public class MFNavigationMap
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final Logger logger = Logger.getLogger(MFNavigationMap.class.getName());
+  private final static int DEFAULT_CLEARANCE = 1;
+  private final static EnumSet<MFEMovementType> DEFAULT_CAPABILITIES = EnumSet.of(MFEMovementType.WALK);
+
   private final MFMap map;
   private final Map<MFLocation, MFSectionEntrance> entrances;
   private final List<MFSection> sections;
-  private final static int DEFAULT_CLEARANCE = 1;
-  private final static EnumSet<MFEMovementType> DEFAULT_CAPABILITIES = EnumSet.of(MFEMovementType.WALK);
+  private final Map<Integer, Set<EnumSet<MFEMovementType>>> movementCombinations;
 
   /**
    * Calculates the clearance for one tile recursively
@@ -288,7 +342,7 @@ public class MFNavigationMap
         ++currentGroupSize;
         blockedStretch = false;
       } else {
-        String msg = "Map: error calculating entrance for " + _tile + "/neighbor: " + neighbor;
+        String msg = "Navigation Map: error calculating entrance for " + _tile + "/neighbor: " + neighbor;
         logger.warning(msg);
       }
 
@@ -469,14 +523,28 @@ public class MFNavigationMap
   }
 
   /**
-   * Adds connecting edges to all entrances in the same section.
-   * @param _sections the sections which will be used
+   * Adds connecting edges to all entrances in the same section for all possible
+   * combinations specified by earlier configuration.
+   * @param _sections the sections which will be searched for connections
    */
-  private void connectEntrances(final List<MFSection> _sections)
+  private void findConnections(final List<MFSection> _sections)
   {
-    final int clearance = DEFAULT_CLEARANCE;
-    final EnumSet<MFEMovementType> capabilities = DEFAULT_CAPABILITIES;
-    
+    for (int clearance : this.movementCombinations.keySet()) {
+      for (EnumSet<MFEMovementType> capabilities : this.movementCombinations.get(clearance)) {
+        this.connectEntrances(_sections, clearance, capabilities);
+      }
+    }
+  }
+
+  /**
+   * Adds connecting edges to all entrances in the same section for a given
+   * clearance and a set of capabilities.
+   * @param _sections the sections which will be used
+   * @param _clearance the clearance being used to test if a tile is accessible
+   * @param _capabilities the movement types a creature can use to access a tile
+   */
+  private void connectEntrances(final List<MFSection> _sections, final int _clearance, final EnumSet<MFEMovementType> _capabilities)
+  {
     for (MFSection section : _sections) {
       for (MFSectionEntrance startEntrance : section.getEntrances()) {
         for (MFSectionEntrance goalEntrance : section.getEntrances()) {
@@ -488,13 +556,13 @@ public class MFNavigationMap
 
           // initialize search algorithm
           final MFPath path = new MFPath(this.map, startEntrance.getTile(),
-                  goalEntrance.getTile(), clearance, capabilities);
+                  goalEntrance.getTile(), _clearance, _capabilities);
 
           // search!
           boolean foundPath = path.findPath();
 
           if (!foundPath) {
-            String msg = "Path: Unable to connect entrances to the same section. " +
+            String msg = "Navigation Map: Unable to connect entrances to the same section. " +
                           "From " + startEntrance.getLocation() +
                           " to "  + goalEntrance.getLocation();
             logger.severe(msg);
@@ -509,7 +577,7 @@ public class MFNavigationMap
           }
 
           // create the edge
-          MFEdge edge = new MFEdge(startEntrance, goalEntrance, distance, clearance, capabilities);
+          MFEdge edge = new MFEdge(startEntrance, goalEntrance, distance, _clearance, _capabilities);
           startEntrance.addEdge(edge);
         }
       }

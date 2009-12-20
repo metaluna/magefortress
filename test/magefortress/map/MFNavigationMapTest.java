@@ -24,6 +24,7 @@
  */
 package magefortress.map;
 
+import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import magefortress.core.MFEMovementType;
@@ -421,6 +422,38 @@ public class MFNavigationMapTest
     List<MFSection> sections = this.naviMap.getSections();
     assertEquals(1, sections.size());
     assertEquals(5*5-2, sections.get(0).getSize());
+  }
+
+  //--------------------- addMovementCombination() TESTS -----------------------
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAddCombinationWithIllegalClearance()
+  {
+    this.naviMap.addMovementCombination(0, EnumSet.allOf(MFEMovementType.class));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAddCombinationWithoutCapabilities()
+  {
+    this.naviMap.addMovementCombination(1, null);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAddCombinationWithZeroCapabilities()
+  {
+    this.naviMap.addMovementCombination(1, EnumSet.noneOf(MFEMovementType.class));
+  }
+
+  @Test
+  public void shouldAddMovementCombination()
+  {
+    this.naviMap.addMovementCombination(1, EnumSet.allOf(MFEMovementType.class));
+  }
+
+  @Test
+  public void shouldAddDuplicateMovementCombinationWithoutError()
+  {
+    this.naviMap.addMovementCombination(2, EnumSet.allOf(MFEMovementType.class));
+    this.naviMap.addMovementCombination(2, EnumSet.allOf(MFEMovementType.class));
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---
