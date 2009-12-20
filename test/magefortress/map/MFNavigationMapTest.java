@@ -47,6 +47,7 @@ public class MFNavigationMapTest
     this.naviMap = createMap(WIDTH, HEIGHT, DEPTH);
   }
 
+  //--------------------------- CLEARANCE TESTS --------------------------------
   @Test
   public void shouldCalculateClearanceValuesOnEmptyMap()
   {
@@ -88,6 +89,7 @@ public class MFNavigationMapTest
     assertEquals(expClearance, gotClearance);
   }
 
+  //-------------------- ENTRANCES & SECTIONS TEST -----------------------------
   @Test
   public void shouldNotFindEntrances()
   {
@@ -136,6 +138,10 @@ public class MFNavigationMapTest
     MFLocation gotLocation = entrances.get(0).getLocation();
     assertEquals(expLocation, gotLocation);
     assertEquals(entrances.get(0), entrance.getEntrance());
+
+    int expEdgeCount = 0;
+    int gotEdgeCount = entrances.get(0).getEdges().size();
+    assertEquals(expEdgeCount, gotEdgeCount);
 
     List<MFSection> sections = this.naviMap.getSections();
     assertEquals(2, sections.size());
@@ -190,6 +196,8 @@ public class MFNavigationMapTest
 
     //this.map.calculateClearanceValues(MFEMovementType.WALK);
     this.naviMap.updateAllEntrances();
+
+    // check entrances
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals("Number of entrances does not match - ", 2, entrances.size());
     for (MFSectionEntrance sectionEntrance : entrances) {
@@ -197,7 +205,24 @@ public class MFNavigationMapTest
                   possibleEntrances.contains(sectionEntrance.getLocation()));
       assertEquals(sectionEntrance, this.map.getTile(sectionEntrance.getLocation()).getEntrance());
     }
+    // check edges on entrance 1
+    MFSectionEntrance gotEntrance1 = entrances.get(0);
+    MFSectionEntrance gotEntrance2 = entrances.get(1);
+    int expEdgeCount = 1;
+    int gotEdgeCount = gotEntrance1.getEdges().size();
+    assertEquals(expEdgeCount, gotEdgeCount);
 
+    final MFEdge edge1 = gotEntrance1.getEdges().get(0);
+    assertEquals(gotEntrance2, edge1.getTo());
+
+    // check edges on entrance 2
+    gotEdgeCount = gotEntrance2.getEdges().size();
+    assertEquals(expEdgeCount, gotEdgeCount);
+
+    final MFEdge edge2 = gotEntrance2.getEdges().get(0);
+    assertEquals(gotEntrance1, edge2.getTo());
+
+    // check sections
     List<MFSection> sections = this.naviMap.getSections();
     assertEquals("Number of sections does not match - ", 3, sections.size());
   }
@@ -324,6 +349,8 @@ public class MFNavigationMapTest
                entrances.get(0).getLocation().equals(possibleEntrance1) ||
                entrances.get(0).getLocation().equals(possibleEntrance2));
     assertEquals(entrances.get(0), this.map.getTile(entrances.get(0).getLocation()).getEntrance());
+
+    assertEquals(0, entrances.get(0).getEdges().size());
 
     List<MFSection> sections = this.naviMap.getSections();
     assertEquals(2, sections.size());

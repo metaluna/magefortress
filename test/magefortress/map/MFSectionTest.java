@@ -42,6 +42,7 @@ public class MFSectionTest
     this.section = new MFSection(this.mockMap, 0);
   }
 
+  //------------------------ addTile() TESTS -----------------------------------
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddNullTile()
   {
@@ -78,6 +79,8 @@ public class MFSectionTest
     int gotTileCount = this.section.getSize();
     assertEquals(expTileCount, gotTileCount);
   }
+
+  //-------------------------- addEntrance() TESTS -----------------------------
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddNullEntrance()
@@ -116,6 +119,7 @@ public class MFSectionTest
     assertTrue(this.section.getEntrances().contains(mockEntrance));
   }
 
+  //-------------------------------- uniteWith() TESTS -------------------------
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotUniteNullSection()
   {
@@ -183,6 +187,35 @@ public class MFSectionTest
     verify(mockTile2).setParentSection(this.section);
     verify(mockTile3).setParentSection(otherSection);
     verify(mockTile3).setParentSection(this.section);
+  }
+
+  //------------------------------- contains() TESTS ---------------------------
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotContainNoLocation()
+  {
+    this.section.contains(null);
+  }
+
+  @Test
+  public void shouldContainLocation()
+  {
+    MFLocation location = new MFLocation(1, 1, 0);
+    MFTile mockTile = mock(MFTile.class);
+    when(mockTile.getLocation()).thenReturn(location);
+
+    this.section.addTile(mockTile);
+
+    boolean gotResult = this.section.contains(location);
+    assertTrue(gotResult);
+  }
+
+  @Test
+  public void shouldNotContainLocation()
+  {
+    MFLocation location = new MFLocation(1, 1, 0);
+
+    boolean gotResult = this.section.contains(location);
+    assertFalse(gotResult);
   }
 
 }

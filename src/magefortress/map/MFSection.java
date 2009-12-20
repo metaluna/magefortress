@@ -137,6 +137,22 @@ class MFSection
     }
   }
 
+  /**
+   * Tests if a given location is a member of this section.
+   * @param _location the location that may be in this section
+   * @return <code>true</code> if the location is in this section
+   * @throws IllegalArgumentException if the location is <code>null</code>
+   */
+  boolean contains(final MFLocation _location)
+  {
+    if (_location == null) {
+      String msg = "Section: Cannot contain null location.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    return this.tiles.containsKey(_location);
+  }
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final static Logger logger = Logger.getLogger(MFSection.class.getName());
   private final MFMap map;

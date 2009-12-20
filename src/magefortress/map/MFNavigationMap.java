@@ -25,6 +25,7 @@
 package magefortress.map;
 
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -91,9 +92,13 @@ public class MFNavigationMap
       }
     }
     // find and store the entrances
-    final Map<MFLocation, MFSectionEntrance> levelEntrances = findEntrances(this.map.getLevelMap(_depth));
-    this.sections.addAll(findSections(_depth, levelEntrances));
+    final Map<MFLocation, MFSectionEntrance> levelEntrances =
+                               this.findEntrances(this.map.getLevelMap(_depth));
     this.entrances.putAll(levelEntrances);
+    final List<MFSection> levelSections = 
+                               this.findSections(_depth, levelEntrances);
+    this.sections.addAll(levelSections);
+    this.connectEntrances(levelSections);
   }
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
@@ -140,6 +145,8 @@ public class MFNavigationMap
   private final MFMap map;
   private final Map<MFLocation, MFSectionEntrance> entrances;
   private final List<MFSection> sections;
+  private final static int DEFAULT_CLEARANCE = 1;
+  private final static EnumSet<MFEMovementType> DEFAULT_CAPABILITIES = EnumSet.of(MFEMovementType.WALK);
 
   /**
    * Calculates the clearance for one tile recursively
@@ -219,9 +226,8 @@ public class MFNavigationMap
           continue;
         }
         // all tests passed - entrance found!
-        MFSectionEntrance entrance = new MFSectionEntrance(tile.getLocation());
+        MFSectionEntrance entrance = new MFSectionEntrance(tile);
         potentialEntrances.put(tile.getLocation(), entrance);
-        tile.setEntrance(entrance);
       }
     }
     Map<MFLocation, MFSectionEntrance> result = this.collapseCloseEntrances(potentialEntrances);
@@ -338,11 +344,9 @@ public class MFNavigationMap
           MFTile middle = this.map.getNeighbor(this.map.getTile(startLoc), dir);
           // check if tile can be connected
           if (middle.isWalkable(MFEMovementType.WALK) && middle.isUnderground()) {
-            add = new MFSectionEntrance(middle.getLocation());
-            middle.setEntrance(add);
+            add = new MFSectionEntrance(middle);
             removedEntrances.add(goal);
-            // TODO beautify me
-            this.map.getTile(goal.getLocation()).setEntrance(null);
+            goal.getTile().setEntrance(null);
             break;
 
           } //-- connectable
@@ -352,8 +356,7 @@ public class MFNavigationMap
       result.put(add.getLocation(), add);
       if (start != add) {
         it1.remove();
-        // TODO beautify me
-        this.map.getTile(start.getLocation()).setEntrance(null);
+        start.getTile().setEntrance(null);
       }
     } //-- outer loop
     return result;
@@ -465,4 +468,51 @@ public class MFNavigationMap
     return result;
   }
 
+  /**
+   * Adds connecting edges to all entrances in the same section.
+   * @param _sections the sections which will be used
+   */
+  private void connectEntrances(final List<MFSection> _sections)
+  {
+    final int clearance = DEFAULT_CLEARANCE;
+    final EnumSet<MFEMovementType> capabilities = DEFAULT_CAPABILITIES;
+    
+    for (MFSection section : _sections) {
+      for (MFSectionEntrance startEntrance : section.getEntrances()) {
+        for (MFSectionEntrance goalEntrance : section.getEntrances()) {
+
+          // skip id
+          if (startEntrance == goalEntrance) {
+            continue;
+          }
+
+          // initialize search algorithm
+          final MFPath path = new MFPath(this.map, startEntrance.getTile(),
+                  goalEntrance.getTile(), clearance, capabilities);
+
+          // search!
+          boolean foundPath = path.findPath();
+
+          if (!foundPath) {
+            String msg = "Path: Unable to connect entrances to the same section. " +
+                          "From " + startEntrance.getLocation() +
+                          " to "  + goalEntrance.getLocation();
+            logger.severe(msg);
+            throw new RuntimeException(msg);
+          }
+
+          // calculate distance as number of tiles traversed
+          int distance = 0;
+          while(path.hasNext()) {
+            path.next();
+            ++distance;
+          }
+
+          // create the edge
+          MFEdge edge = new MFEdge(startEntrance, goalEntrance, distance, clearance, capabilities);
+          startEntrance.addEdge(edge);
+        }
+      }
+    }
+  }
 }

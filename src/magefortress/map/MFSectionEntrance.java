@@ -38,14 +38,15 @@ import magefortress.core.MFLocation;
 class MFSectionEntrance
 {
 
-  public MFSectionEntrance(MFLocation _location)
+  public MFSectionEntrance(MFTile _tile)
   {
-    if (_location == null) {
-      String msg = "SectionEntrance: Cannot create entrance without a location.";
+    if (_tile == null) {
+      String msg = "SectionEntrance: Cannot create entrance without a tile.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    this.location = _location;
+    this.tile = _tile;
+    _tile.setEntrance(this);
     this.edges = new LinkedList<MFEdge>();
   }
 
@@ -70,6 +71,11 @@ class MFSectionEntrance
     this.edges.add(_edge);
   }
 
+  public MFTile getTile()
+  {
+    return this.tile;
+  }
+
   /**
    * Gets an unmodifiable copy of the list of the edges that connect this
    * entrance to others. Returns a list with no elements if this entrance
@@ -88,17 +94,17 @@ class MFSectionEntrance
    */
   public MFLocation getLocation()
   {
-    return this.location;
+    return this.tile.getLocation();
   }
 
   @Override
   public String toString()
   {
-    return this.location.toString();
+    return this.tile.getLocation().toString();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final static Logger logger = Logger.getLogger(MFSectionEntrance.class.getName());
-  private final MFLocation location;
+  private final MFTile tile;
   private final List<MFEdge> edges;
 }

@@ -44,7 +44,7 @@ class MFEdge
    * @param _clearance the biggest creature that can traverse this edge
    * @param _capabilities the capabilites which are needed to traverse this edge
    */
-  public MFEdge(MFSectionEntrance _from, MFSectionEntrance _to, double _cost, int _clearance, MFEMovementType... _capabilities)
+  public MFEdge(MFSectionEntrance _from, MFSectionEntrance _to, int _cost, int _clearance, EnumSet<MFEMovementType> _capabilities)
   {
     if (_from == null) {
       String msg = "Edge: Cannot create edge without starting node.";
@@ -52,7 +52,8 @@ class MFEdge
       throw new IllegalArgumentException(msg);
     }
     if (_to == null) {
-      String msg = "Edge: Cannot create edge without end node.";
+      String msg = "Edge: Cannot create edge without end node. Start node: " +
+                   _from.getLocation();
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
@@ -74,7 +75,7 @@ class MFEdge
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_capabilities.length == 0) {
+    if (_capabilities == null || _capabilities.size() == 0) {
       String msg = "Edge (" + _from.getLocation() + "->" + _to.getLocation() + 
                    ": Cannot create edge without at least one capability.";
       logger.severe(msg);
@@ -85,11 +86,7 @@ class MFEdge
     this.to = _to;
     this.cost = _cost;
     this.clearance = _clearance;
-    if (_capabilities.length > 1) {
-      this.capabilities = EnumSet.of(_capabilities[0], Arrays.copyOfRange(_capabilities, 1, _capabilities.length-2));
-    } else {
-      this.capabilities = EnumSet.of(_capabilities[0], _capabilities);
-    }
+    this.capabilities = _capabilities;
   }
 
   /**
@@ -141,7 +138,7 @@ class MFEdge
   private static final Logger logger = Logger.getLogger(MFEdge.class.getName());
   private final MFSectionEntrance from;
   private final MFSectionEntrance to;
-  private final double cost;
+  private final int cost;
   private final int clearance;
   private final EnumSet<MFEMovementType> capabilities;
 
