@@ -24,8 +24,8 @@
  */
 package magefortress.core;
 
-import java.util.Queue;
 import java.util.logging.Logger;
+import magefortress.map.MFPath;
 
 /**
  * Base class for all creatures
@@ -93,7 +93,7 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   @Override
-  public Queue<MFEDirection> calculatePath()
+  public MFPath calculatePath()
   {
     return this.moveBehavior.calculatePath();
   }

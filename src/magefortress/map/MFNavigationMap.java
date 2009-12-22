@@ -569,15 +569,9 @@ public class MFNavigationMap
             throw new RuntimeException(msg);
           }
 
-          // calculate distance as number of tiles traversed
-          int distance = 0;
-          while(path.hasNext()) {
-            path.next();
-            ++distance;
-          }
-
           // create the edge
-          MFEdge edge = new MFEdge(startEntrance, goalEntrance, distance, _clearance, _capabilities);
+          MFEdge edge = new MFEdge(startEntrance, goalEntrance,
+                              path.getPathCost(), _clearance, _capabilities);
           startEntrance.addEdge(edge);
         }
       }

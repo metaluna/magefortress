@@ -24,7 +24,6 @@
  */
 package magefortress.map;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.logging.Logger;
@@ -111,7 +110,7 @@ class MFEdge
    * Gets the distance between the start and end node.
    * @return the distance between the end nodes
    */
-  public double getCost()
+  public int getCost()
   {
     return this.cost;
   }

@@ -308,8 +308,8 @@ public class MFPathTest
     assertFalse(success);
 
     // test iterator behavior
-    assertFalse(testPath.hasNext());
-    assertNull(testPath.next());
+    assertFalse(testPath.isPathValid());
+    assertFalse(testPath.wasPathFound());
   }
 
   @Test
@@ -338,8 +338,8 @@ public class MFPathTest
     assertFalse(success);
 
     // test iterator behavior
-    assertFalse(testPath.hasNext());
-    assertNull(testPath.next());
+    assertFalse(testPath.isPathValid());
+    assertFalse(testPath.wasPathFound());
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

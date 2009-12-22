@@ -24,10 +24,10 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.Queue;
 import magefortress.core.MFCreature;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
+import magefortress.map.MFPath;
 
 /**
  * Grabs the current heading from the owner, calculates a path and moves
@@ -69,7 +69,7 @@ public class MFGotoLocationSubtask extends MFSubtask
     // move if it's time to
     if (this.updateCount >= this.getOwner().getSpeed()) {
       // get next tile to move to
-      MFEDirection nextMove = this.path.poll();
+      MFEDirection nextMove = this.path.next();
 
       boolean movedSuccessful = this.getOwner().move(nextMove);
       // reset counter
@@ -83,7 +83,7 @@ public class MFGotoLocationSubtask extends MFSubtask
       }
 
       // check if we made the last move of the path
-      if (this.path.peek() == null) {
+      if (!this.path.hasNext()) {
         // target reached?
         if (this.getOwner().getLocation().equals(this.getOwner().getCurrentHeading())) {
           return true;
@@ -102,7 +102,7 @@ public class MFGotoLocationSubtask extends MFSubtask
   /** Stores the time past since the last move */
   private int updateCount;
   /** The path the creature will take */
-  private Queue<MFEDirection> path;
+  private MFPath path;
 
   /**
    * Calculates a path and resets the update counter so that the next update

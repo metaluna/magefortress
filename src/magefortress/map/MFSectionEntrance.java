@@ -57,7 +57,7 @@ class MFSectionEntrance
   public void addEdge(MFEdge _edge)
   {
     if (_edge == null) {
-      String msg = "SectionEntrance " + this.getLocation() + ": Cannot add null edge";
+      String msg = "SectionEntrance " + this.getLocation() + ": Cannot add null edge.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);      
     }
@@ -69,6 +69,27 @@ class MFSectionEntrance
       throw new IllegalArgumentException(msg);
     }
     this.edges.add(_edge);
+  }
+
+  /**
+   * Removes a connection to another entrance.
+   * @param _edge the edge to remove
+   */
+  public void removeEdge(MFEdge _edge)
+  {
+    if (_edge == null) {
+      String msg = "SectionEntrance " + this.getLocation() + ": Cannot remove null edge.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_edge.getFrom() != this) {
+      String msg = "SectionEntrance " + this.getLocation() + ": Cannot remove an edge " +
+                    "whose target is not this entrance. " +
+                    "Got: " + _edge.getTo().getLocation();
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.edges.remove(_edge);
   }
 
   public MFTile getTile()
@@ -86,6 +107,24 @@ class MFSectionEntrance
   public List<MFEdge> getEdges()
   {
     return Collections.unmodifiableList(edges);
+  }
+
+  /**
+   * Gets the edge which points towards the specified target entrance. Returns
+   * <code>null</code> if no edge was found.
+   * @param _to the target entrance
+   * @return the edge pointing towards the target or <code>null</code> if no edge
+   * like that exists.
+   */
+  public MFEdge getEdge(MFSectionEntrance _to)
+  {
+    for (MFEdge edge : this.edges) {
+      if (edge.getTo() == _to) {
+        return edge;
+      }
+    }
+
+    return null;
   }
 
   /**

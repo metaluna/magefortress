@@ -22,21 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
-
-import magefortress.map.MFPath;
+package magefortress.map;
 
 /**
  *
  */
-public interface MFIMovable
+public interface MFIPathFinderListener
 {
-  public boolean canMove();
-  public boolean move(MFEDirection _direction);
-  public MFPath calculatePath();
-  public void setSpeed(int _speed);
-  public int getSpeed();
-  public void setCurrentHeading(MFLocation _heading);
-  public MFLocation getCurrentHeading();
-  public MFEMovementType getMovementType();
+  public void pathFound(MFPath _path);
 }
