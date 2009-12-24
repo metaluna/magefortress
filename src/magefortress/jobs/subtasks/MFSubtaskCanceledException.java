@@ -29,6 +29,7 @@ package magefortress.jobs.subtasks;
  */
 public class MFSubtaskCanceledException extends Exception
 {
+  private static final long serialVersionUID = 927348798723948L;
 
   public MFSubtaskCanceledException(String message)
   {

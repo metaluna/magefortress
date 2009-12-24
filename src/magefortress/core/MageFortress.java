@@ -45,6 +45,7 @@ import magefortress.gui.MFScreensManager;
  */
 public class MageFortress extends JFrame implements Runnable
 {
+  private static final long serialVersionUID = 927348798723947L;
   private static final String VERSION = "0.1";
   private static final int FPS = 50;
 
