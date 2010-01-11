@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,60 +24,109 @@
  */
 package magefortress.map;
 
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumSet;
-import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.logging.Logger;
+import magefortress.core.MFEDirection;
 import magefortress.core.MFEMovementType;
 
 /**
- *
+ * Encapsulates an hierarchical path.
+ * @see MFHierarchicalAStar
  */
-public class MFHierarchicalPath extends MFAbstractPath implements Iterator<MFSectionEntrance>
+public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
 {
-  public MFHierarchicalPath(MFMap _map, MFTile _start, MFTile _goal,
-                    int _clearance, EnumSet<MFEMovementType> _capabilities)
+  MFHierarchicalPath(final MFTile _start, final MFTile _goal, 
+                 final Deque<MFTile> _path, final int _clearance,
+                 final EnumSet<MFEMovementType> _capabilities, final MFMap _map)
   {
-    super(_map, _start, _goal, _clearance, _capabilities);
+    super(_start, _goal);
+
+    if (_path == null || _path.isEmpty()) {
+      String msg = "Hierarchical Path: Cannot create hierarchical path without" +
+                    "any tiles.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_clearance < 1) {
+      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
+                    "valid clearance. " + _clearance + " < 1";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_capabilities == null || _capabilities.isEmpty()) {
+      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
+                    "any capabilities needed to traverse it.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_map == null) {
+      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
+                    "a copy of the map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    
+    this.path = _path;
+    this.clearance = _clearance;
+    this.capabilities = EnumSet.copyOf(_capabilities);
+    this.map = _map;
+    
+   // start searching for the first two subpaths
+    this.searchNextSubpath();
+    this.searchNextSubpath();
   }
 
   /**
-   * Probes the path to see if there are more steps in it.
-   * @return <code>false</code> if there are no more steps
-   * @throws IllegalStateException if no search was facilitated yet or the path
-   * is invalid.
+   * Checks if this path has currently any steps to read. If there is still
+   * a search for a subpath in progress it returns <code>false</code>.
+   * @return <code>false</code> if there are currently no steps to read
    */
   @Override
   public boolean hasNext()
   {
     if (!this.isPathValid()) {
-      String msg = "Path: Have to search for a path first before testing for " +
-                   "more steps. From " + this.getStart().getLocation() + " to " +
-                   this.getGoal().getLocation();
-      logger.warning(msg);
+      String msg = "Hierarchical Path" + this.getStart().getLocation() + "->" +
+                   this.getGoal().getLocation() + ": Cannot tell if path has " +
+                   "next step when it is invalid.";
+      logger.severe(msg);
       throw new IllegalStateException(msg);
     }
-
-    return !this.path.isEmpty();
+    return this.currentSubpath != null && this.currentSubpath.hasNext();
   }
 
   /**
-   * Gets the next step of the path that was found.
-   * @return The next step of the path or <code>null</code> if there are no
-   * more elements.
-   * @throws IllegalStateException if no search was facilitated yet or the path
-   * is invalid.
+   * Gets the next step of the path.
+   * @return the next step of the path
    */
   @Override
-  public MFSectionEntrance next()
+  public MFEDirection next()
   {
-   if (!this.isPathValid()) {
-      String msg = "Path: Have to search for a path first before trying to get " +
-              "steps. From " + this.getStart().getLocation() + " to " + this.getGoal().getLocation();
-      logger.warning(msg);
+    if (!this.isPathValid()) {
+      String msg = "Hierarchical Path" + this.getStart().getLocation() + "->" +
+                   this.getGoal().getLocation() + ": Cannot get next step " +
+                   "when path is invalid.";
+      logger.severe(msg);
       throw new IllegalStateException(msg);
     }
-    return this.path.poll();
+    final MFEDirection dir = this.currentSubpath.next();
+
+    if (dir == null) {
+      String msg = "Hierarchical Path " + this.getStart().getLocation() + "->" +
+                   this.getGoal().getLocation() + ": No more steps.";
+      logger.severe(msg);
+      throw new NoSuchElementException(msg);
+    }
+
+    // switch to next subpath and search for the next one if we haven't reached the goal
+    if (!this.currentSubpath.hasNext() && this.currentSubpath.getGoal() != this.getGoal()) {
+      this.currentSubpath = this.nextSubpath;
+      this.nextSubpath = null;
+      this.searchNextSubpath();
+    }
+
+    return dir;
   }
 
   /**
@@ -85,190 +134,82 @@ public class MFHierarchicalPath extends MFAbstractPath implements Iterator<MFSec
    * @throws UnsupportedOperationException when called
    */
   @Override
-  public void remove()
+  public final void remove()
   {
-    String msg = "Path: Remove not implemented by Path. Path from "+
-                  this.getStart().getLocation() + " to " + this.getGoal().getLocation();
+    String msg = "Hierarchical Path " + this.getStart().getLocation() + "->" +
+                    this.getGoal().getLocation() + ": Remove not implemented.";
     logger.warning(msg);
     throw new UnsupportedOperationException(msg);
   }
 
-  //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
-
   @Override
-  boolean runSearch()
+  public void pathSearchFinished(MFPath _path)
   {
-    // insert start and goal into the navi map
-    final MFSectionEntrance startEntrance = this.insertTileIntoNavigationMap(this.getStart());
-    // cannot reach start
-    if (startEntrance == null) {
-      return false;
-    }
-
-    final MFSectionEntrance goalEntrance  = this.insertTileIntoNavigationMap(this.getGoal());
-    // cannot reach goal
-    if (goalEntrance == null) {
-      this.removeFromNavigationMap(startEntrance);
-      return false;
-    }
-
-    boolean success = false;
-
-    // begin search
-    while (!this.getOpenList().isEmpty() && !success) {
-
-      // get the next node and remove it from the priority list
-      final MFNode currentNode = this.getOpenList().poll();
-
-      // goal reached
-      if (currentNode.tile == goalEntrance.getTile()) {
-        success = true;
-        this.backtracePath(currentNode);
-        break;
+    // next subpath was found
+    if (_path != null) {
+      if (this.currentSubpath == null) {
+        this.currentSubpath = _path;
+      } else if (this.nextSubpath == null) {
+        this.nextSubpath = _path;
+      } else {
+        String msg = "Hierarchical Path " + this.getStart().getLocation() + "->" +
+                      this.getGoal().getLocation() + ": Received subpath but " +
+                      "already have 2 subpaths stored.";
+        logger.warning(msg);
       }
-
-      // move node to closed list
-      this.getOpenListLocations().remove(currentNode.tile.getLocation());
-      this.getClosedList().put(currentNode.tile.getLocation(), currentNode);
-
-      // add connected tiles to the open list
-      for (MFEdge edge : currentNode.tile.getEntrance().getEdges()) {
-        // extract the entrance
-        final MFSectionEntrance neighbor = edge.getTo();
-
-        // skip if clearance is too big
-        if (edge.getClearance() > this.getClearance()) {
-          continue;
-        }
-        
-        // skip if capabilities are not sufficient
-        if (!this.getCapabilities().containsAll(edge.getCapabilities())) {
-          continue;
-        }
-
-        // skip if already processed
-        if (this.getClosedList().containsKey(neighbor.getLocation())) {
-          continue;
-        }
-
-        this.processNeighbor(currentNode, neighbor.getTile());
-      }
-    }
-
-    // remove start and goal from the map
-    this.removeFromNavigationMap(startEntrance);
-    this.removeFromNavigationMap(goalEntrance);
-
-    if (!success) {
-      this.path = new ArrayDeque<MFSectionEntrance>();
-    }
-
-    return success;
-  }
-
-  @Override
-  int costFunction(final MFTile _start,final MFTile _goal)
-  {
-    final MFEdge edge = _start.getEntrance().getEdge(_goal.getEntrance());
-    return edge.getCost();
-  }
-  
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  private Deque<MFSectionEntrance> path;
-
-  /**
-   * Backtraces from the given node and saves the entrances passed on the way.
-   * @param _start the goal node
-   */
-  private void backtracePath(MFNode _node)
-  {
-    if (_node.tile != this.getGoal()) {
-      String msg = "Path: Last node of backtraced path is not the target tile but " +
-              _node.tile.getLocation();
-      logger.warning(msg);
-    }
-
-    this.path = new ArrayDeque<MFSectionEntrance>();
-
-    // skip goal entrance because it will be removed
-    _node = _node.parent;
-
-    // backtrace the path
-    while (_node.parent != null) {
-      this.path.push(_node.tile.getEntrance());
-      _node = _node.parent;
-    }
-
-    if (_node.tile != this.getStart()) {
-      String msg = "Path: Root of backtraced path is not the starting tile but " +
-                  _node.tile.getLocation();
-      logger.warning(msg);
-    }
-  }
-
-  /**
-   * Inserts the start or goal tile into the navigation map so that the following
-   * search knows how to navigate from the tiles.
-   * @param _tile the tile to insert
-   * @return the entrance or <code>null</code> if no neighboring entrances were found
-   */
-  private MFSectionEntrance insertTileIntoNavigationMap(final MFTile _tile)
-  {
-    // create an entrance node
-    final MFSectionEntrance insertedEntrance = new MFSectionEntrance(_tile);
-    
-    // connect to all neighboring entrances
-    for (MFSectionEntrance neighbor : _tile.getParentSection().getEntrances()) {
-      // create a path finder
-      MFPath pathToNeighbor = new MFPath(this.getMap(), _tile,
-                        neighbor.getTile(), this.getClearance(), this.getCapabilities());
-      // search!
-      boolean success = pathToNeighbor.runSearch();
-
-      if (success) {
-        // add edge to inserted tile
-        MFEdge edgeFrom = new MFEdge(insertedEntrance, neighbor,
-             pathToNeighbor.getPathCost(), this.getClearance(), this.getCapabilities());
-        insertedEntrance.addEdge(edgeFrom);
-
-        // add same edge to neighboring entrance
-        MFEdge edgeTo = new MFEdge(neighbor, insertedEntrance,
-             pathToNeighbor.getPathCost(), this.getClearance(), this.getCapabilities());
-        neighbor.addEdge(edgeTo);
-      }
-    }
-
-    // no edges -> tile lies in isolated region of the map
-    if (insertedEntrance.getEdges().size() == 0) {
-      return null;
+    // no subpath exists
     } else {
-      return insertedEntrance;
+      this.setPathInvalid();
     }
   }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  /** Logger */
+  private static Logger logger = Logger.getLogger(MFAnnotatedPath.class.getName());
+  
+  /** Path */
+  private final Deque<MFTile> path;
+  /** Maximum clearance allowed to traverse this path */
+  private final int clearance;
+  /** Capabilities needed to traverse this path */
+  private final EnumSet<MFEMovementType> capabilities;
+  /** Caches the map */
+  private final MFMap map;
+  
+  /** Current subpath */
+  private MFPath currentSubpath;
+  /** Next subpath */
+  private MFPath nextSubpath;
 
   /**
-   * Removes the start or goal entrance node from the navigation map.
-   * @param _tile the tile to remove
+   * Starts searching for a path between the current head of the path queue and
+   * the following node. Must not be called if there are less than 2 nodes left.
+   * <p>
+   * A successful call to this method removes the first element of the
+   * hierarchical path.
    */
-  private void removeFromNavigationMap(final MFSectionEntrance _entrance)
+  private void searchNextSubpath()
   {
-    if (_entrance == null) {
-      String msg = "Hierarchical Path: Cannot remove null entrance from map";
-      logger.warning(msg);
-      return;
+    if (this.path.size() == 1) {
+      String msg = "Hierarchical  Path " + this.getStart().getLocation() + "->" +
+                   this.getGoal().getLocation() + ": Cannot search next " +
+                   "subpath. Only one tile left.";
+      logger.severe(msg);
+      throw new IllegalStateException(msg);
+    }
+    if (this.path.isEmpty()) {
+      String msg = "HierarchicalPath " + this.getStart().getLocation() + "->" +
+                   this.getGoal().getLocation() + ": Cannot search next " +
+                   "subpath. Path is empty.";
+      logger.severe(msg);
+      throw new IllegalStateException(msg);
     }
 
-    // remove entrance by removing all connections to its neighbors
-    for (MFEdge edgeFrom : _entrance.getEdges()) {
-      _entrance.removeEdge(edgeFrom);
-      // find the corresponding edge at the neighbor and remove it
-      final MFSectionEntrance neighbor = edgeFrom.getTo();
-      for (MFEdge edgeTo : neighbor.getEdges()) {
-        if (edgeTo.getTo() == _entrance) {
-          neighbor.removeEdge(edgeTo);
-          break;
-        }
-      }
-    }
+    final MFTile start = this.path.poll();
+    final MFTile goal  = this.path.peek();
+
+    MFPathFinder.getInstance().enqueuePathSearch(this.map, start, goal,
+                                      this.clearance, this.capabilities, this);
   }
+
 }

@@ -24,8 +24,8 @@
  */
 package magefortress.core;
 
+import java.util.EnumSet;
 import java.util.logging.Logger;
-import magefortress.map.MFPath;
 
 /**
  * Base class for all creatures
@@ -93,12 +93,6 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   @Override
-  public MFPath calculatePath()
-  {
-    return this.moveBehavior.calculatePath();
-  }
-
-  @Override
   public void setSpeed(int _speed)
   {
     this.moveBehavior.setSpeed(_speed);
@@ -135,9 +129,15 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   @Override
-  public MFEMovementType getMovementType()
+  public EnumSet<MFEMovementType> getCapabilities()
   {
-    return this.moveBehavior.getMovementType();
+    return EnumSet.copyOf(this.moveBehavior.getCapabilities());
+  }
+
+  @Override
+  public int getClearance()
+  {
+    return this.moveBehavior.getClearance();
   }
 
   @Override

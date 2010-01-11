@@ -48,7 +48,7 @@ public class MFDiggingJob extends MFJob
   void initJob()
   {
     MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.getOwner());
+    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
     MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
     this.subtaskQueue.add(findNeighbor);
     this.subtaskQueue.add(gotoTile);

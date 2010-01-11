@@ -31,9 +31,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class MFPathTest
+public class MFAnnotatedAStarTest
 {
-  private MFPath path;
+  private MFAnnotatedAStar search;
   private MFMap map;
   private MFNavigationMap naviMap;
   private static final int WIDTH  = 5;
@@ -52,37 +52,37 @@ public class MFPathTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFPath(null, mock(MFTile.class), mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
+    new MFAnnotatedAStar(null, mock(MFTile.class), mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutStartTile()
   {
-    new MFPath(mock(MFMap.class), null, mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
+    new MFAnnotatedAStar(mock(MFMap.class), null, mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutTargetTile()
   {
-    new MFPath(mock(MFMap.class), mock(MFTile.class), null, 1, EnumSet.of(MFEMovementType.WALK));
+    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), null, 1, EnumSet.of(MFEMovementType.WALK));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutClearance()
   {
-    new MFPath(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 0, EnumSet.of(MFEMovementType.WALK));
+    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 0, EnumSet.of(MFEMovementType.WALK));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutCapabilities()
   {
-    new MFPath(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, null);
+    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, null);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithZeroCapabilities()
   {
-    new MFPath(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, EnumSet.noneOf(MFEMovementType.class));
+    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, EnumSet.noneOf(MFEMovementType.class));
   }
 
   //-------------------- PATH START CONDITIONS TESTS ---------------------------
@@ -97,8 +97,8 @@ public class MFPathTest
     when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
     when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
 
-    this.path = new MFPath(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
-    path.findPath();
+    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
+    search.findPath();
   }
 
   @Test(expected=IllegalStateException.class)
@@ -111,8 +111,8 @@ public class MFPathTest
     when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(2);
     when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
 
-    this.path = new MFPath(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
-    path.findPath();
+    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
+    search.findPath();
   }
 
   @Test(expected=IllegalStateException.class)
@@ -125,8 +125,8 @@ public class MFPathTest
     when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
     when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(false);
 
-    this.path = new MFPath(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
-    path.findPath();
+    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
+    search.findPath();
   }
 
   @Test(expected=IllegalStateException.class)
@@ -139,37 +139,8 @@ public class MFPathTest
     when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
     when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
 
-    this.path = new MFPath(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
-    path.findPath();
-  }
-
-  //------------------------ITERATOR BEHAVIOR TESTS ----------------------------
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotHaveNext()
-  {
-    MFPath testPath = new MFPath(mock(MFMap.class), mock(MFTile.class),
-                      mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
-
-    testPath.next();
-  }
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotTellHaveNext()
-  {
-    MFPath testPath = new MFPath(mock(MFMap.class), mock(MFTile.class),
-                      mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
-
-    testPath.hasNext();
-  }
-
-  @Test(expected=UnsupportedOperationException.class)
-  public void shouldNotSupportRemove()
-  {
-    MFPath testPath = new MFPath(mock(MFMap.class), mock(MFTile.class),
-                      mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
-
-    testPath.remove();
+    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
+    search.findPath();
   }
 
   //---------------------------- PATH TESTS ------------------------------------
@@ -190,14 +161,14 @@ public class MFPathTest
      * |_______|
      */
 
-    MFPath testPath = new MFPath(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
 
-    boolean success = testPath.findPath();
-    assertTrue(success);
+    MFPath path = testPath.findPath();
+    assertNotNull(path);
 
     int gotPathLength = 0;
-    while(testPath.hasNext()) {
-      testPath.next();
+    while(path.hasNext()) {
+      path.next();
       ++gotPathLength;
     }
     assertEquals(expPathLength, gotPathLength);
@@ -226,14 +197,14 @@ public class MFPathTest
     }
     this.naviMap.updateClearanceValues(MFEMovementType.WALK);
 
-    MFPath testPath = new MFPath(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
 
-    boolean success = testPath.findPath();
-    assertTrue(success);
+    MFPath path = testPath.findPath();
+    assertNotNull(path);
 
     int gotPathLength = 0;
-    while(testPath.hasNext()) {
-      testPath.next();
+    while(path.hasNext()) {
+      path.next();
       ++gotPathLength;
     }
     assertEquals(expPathLength, gotPathLength);
@@ -266,14 +237,14 @@ public class MFPathTest
     }
     this.naviMap.updateClearanceValues(MFEMovementType.WALK);
 
-    MFPath testPath = new MFPath(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
 
-    boolean success = testPath.findPath();
-    assertTrue(success);
+    MFPath path = testPath.findPath();
+    assertNotNull(path);
 
     int gotPathLength = 0;
-    while(testPath.hasNext()) {
-      testPath.next();
+    while(path.hasNext()) {
+      path.next();
       ++gotPathLength;
     }
     assertEquals(expPathLength, gotPathLength);
@@ -302,14 +273,10 @@ public class MFPathTest
     }
     this.naviMap.updateClearanceValues(MFEMovementType.WALK);
 
-    MFPath testPath = new MFPath(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
 
-    boolean success = testPath.findPath();
-    assertFalse(success);
-
-    // test iterator behavior
-    assertFalse(testPath.isPathValid());
-    assertFalse(testPath.wasPathFound());
+    MFPath path = testPath.findPath();
+    assertNull(path);
   }
 
   @Test
@@ -332,14 +299,10 @@ public class MFPathTest
     }
     this.naviMap.updateClearanceValues(MFEMovementType.WALK);
 
-    MFPath testPath = new MFPath(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
 
-    boolean success = testPath.findPath();
-    assertFalse(success);
-
-    // test iterator behavior
-    assertFalse(testPath.isPathValid());
-    assertFalse(testPath.wasPathFound());
+    MFPath path = testPath.findPath();
+    assertNull(path);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

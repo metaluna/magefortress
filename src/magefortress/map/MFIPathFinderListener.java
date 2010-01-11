@@ -25,9 +25,14 @@
 package magefortress.map;
 
 /**
- *
+ * Notifies an object when a path search was finished.
  */
 public interface MFIPathFinderListener
 {
-  public void pathFound(MFPath _path);
+  /**
+   * Sends an interested object the path it search for or <code>null</code>
+   * if no path could be found.
+   * @param _path the path or <code>null</code> if there is no path.
+   */
+  public void pathSearchFinished(MFPath _path);
 }

@@ -27,15 +27,17 @@ package magefortress.jobs;
 import magefortress.jobs.subtasks.*;
 import magefortress.core.MFItem;
 import magefortress.core.MFWorkshop;
+import magefortress.map.MFMap;
 
 /**
  * Produces a single item.
  */
 public class MFProduceItemJob extends MFJob
 {
-  public MFProduceItemJob(final MFWorkshop _sender, final MFBlueprint _blueprint)
+  public MFProduceItemJob(final MFWorkshop _sender, final MFMap _map, final MFBlueprint _blueprint)
   {
     super(_sender);
+    this.map = _map;
     this.blueprint = _blueprint;
   }
 
@@ -46,9 +48,9 @@ public class MFProduceItemJob extends MFJob
 
     for (MFItem material : this.blueprint.getMaterials()) {
       MFSubtask locateMaterial = new MFLocateSimilarItemSubtask(this.getOwner(), material);
-      MFSubtask gotoMaterial   = new MFGotoLocationSubtask(this.getOwner());
+      MFSubtask gotoMaterial   = new MFGotoLocationSubtask(this.map, this.getOwner());
       MFSubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());
-      MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.getOwner(), workshop.getLocation());
+      MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.map, this.getOwner(), workshop.getLocation());
       MFSubtask dropMaterial   = new MFPutDraggedItemSubtask(this.getOwner(), workshop);
       this.subtaskQueue.add(locateMaterial);
       this.subtaskQueue.add(gotoMaterial);
@@ -75,6 +77,7 @@ public class MFProduceItemJob extends MFJob
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final MFMap map;
   private final MFBlueprint blueprint;
 
 }

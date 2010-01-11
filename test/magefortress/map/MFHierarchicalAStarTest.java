@@ -22,21 +22,34 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map;
 
-import java.util.EnumSet;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-/**
- *
- */
-public interface MFIMovable
+public class MFHierarchicalAStarTest
 {
-  public boolean canMove();
-  public boolean move(MFEDirection _direction);
-  public void setSpeed(int _speed);
-  public int getSpeed();
-  public void setCurrentHeading(MFLocation _heading);
-  public MFLocation getCurrentHeading();
-  public EnumSet<MFEMovementType> getCapabilities();
-  public int getClearance();
+  private MFHierarchicalAStar path;
+
+  @Before
+  public void setUp()
+  {
+  }
+
+  @Test
+  public void testHasNext()
+  {
+  }
+
+  @Test
+  public void testNext()
+  {
+  }
+
+  @Test
+  public void testPathSearchFinished()
+  {
+  }
+
 }

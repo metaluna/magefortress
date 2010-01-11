@@ -36,7 +36,7 @@ import magefortress.core.MFLocation;
 /**
  * Base class for path finding algorithms.
  */
-public abstract class MFAbstractPath
+public abstract class MFTemplateAStar
 {
   /**
    * Constructor
@@ -46,39 +46,10 @@ public abstract class MFAbstractPath
    * @param _clearance the size of the moving creature
    * @param _capabilities the movement types the moving creature can employ
    */
-  public MFAbstractPath(MFMap _map, MFTile _start, MFTile _goal,
+  public MFTemplateAStar(MFMap _map, MFTile _start, MFTile _goal,
                 int _clearance, EnumSet<MFEMovementType> _capabilities)
   {
-    if (_map == null) {
-      String msg = "Path: Cannot create path without map.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_start == null) {
-      String msg = "Path: Cannot create path without start location.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_goal == null) {
-      String msg = "Path: Cannot create path without target location. Start: " +
-              _start.getLocation();
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_clearance <= 0) {
-      String msg = "Path: Cannot create path from " + _start.getLocation() +
-                   " to " + _goal.getLocation() + " with an agent's size of " +
-                   _clearance + ". Must be at least 1.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_capabilities == null || _capabilities.isEmpty()) {
-      String msg = "Path: Cannot create path from " + _start.getLocation() +
-                   " to " + _goal.getLocation() + " without knowing the " +
-                   "agent's capabilities.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
+    validateConstructorParams(_map, _start, _goal, _clearance, _capabilities);
 
     this.map = _map;
     this.start = _start;
@@ -87,49 +58,39 @@ public abstract class MFAbstractPath
     this.capabilities = EnumSet.copyOf(_capabilities);
   }
 
-  public int getOrthogonalCost()
+  public final int getOrthogonalCost()
   {
     return ORTHOGONAL_COST;
   }
 
-  public int getDiagonalCost()
+  public final int getDiagonalCost()
   {
     return DIAGONAL_COST;
   }
 
-  public MFMap getMap()
+  public final MFMap getMap()
   {
     return map;
   }
 
-  public MFTile getStart()
+  public final MFTile getStart()
   {
     return start;
   }
 
-  public MFTile getGoal()
+  public final MFTile getGoal()
   {
     return goal;
   }
 
-  public int getClearance()
+  public final int getClearance()
   {
     return clearance;
   }
 
-  public EnumSet<MFEMovementType> getCapabilities()
+  public final EnumSet<MFEMovementType> getCapabilities()
   {
     return capabilities;
-  }
-
-  public boolean wasPathFound()
-  {
-    return wasPathFound;
-  }
-
-  public boolean isPathValid()
-  {
-    return isPathValid;
   }
 
   /**
@@ -141,7 +102,7 @@ public abstract class MFAbstractPath
    * of here.
    * @return <code>true</code> if a was path found
    */
-  public boolean findPath()
+  public MFPath findPath()
   {
     validateStartConditions();
 
@@ -151,23 +112,20 @@ public abstract class MFAbstractPath
     final int startH = this.estimateDistance(this.start);
     this.addToOpenList(this.start, null, 0, startH);
 
-    boolean success = this.runSearch();
+    final MFPath result = this.runSearch();
 
     clearSearchLists();
 
-    this.wasPathFound = success;
-    this.isPathValid = success;
-
-    return success;
+    return result;
   }
 
   /**
    * Do not call directly! Used during the path search in {@link #findPath() findPath()}.
    * @return <code>true</code> if a path was found
    */
-  abstract boolean runSearch();
+  abstract MFPath runSearch();
   /**
-   * Do not call directly! Used during packaging of a new node.
+   * Do not call directly! Used during insertion of a new node.
    * @param _start the parent node
    * @param _goal the neighboring tile
    * @return the cost of moving from parent node to neighboring node
@@ -175,24 +133,24 @@ public abstract class MFAbstractPath
   abstract int costFunction(MFTile _start, MFTile _goal);
 
   //---vvv---      PACKAGE-PRIVATE METHODS      ---vvv---
-  
   /** Logger */
-  static final Logger logger = Logger.getLogger(MFAbstractPath.class.getName());
+  static final Logger logger = Logger.getLogger(MFTemplateAStar.class.getName());
 
-  Queue<MFNode> getOpenList()
+  final Queue<MFNode> getOpenList()
   {
     return this.openList;
   }
 
-  Map<MFLocation, MFNode> getOpenListLocations()
+  final Map<MFLocation, MFNode> getOpenListLocations()
   {
     return this.openListLocations;
   }
 
-  Map<MFLocation, MFNode> getClosedList()
+  final Map<MFLocation, MFNode> getClosedList()
   {
     return this.closedList;
   }
+
   /**
    * Processes a neighbor node during the search. Packages the tile into a node
    * with associated costs and puts it onto the open list.
@@ -203,7 +161,7 @@ public abstract class MFAbstractPath
    * @param _parentNode the parent node
    * @param _neighbor the tile being processed
    */
-  void processNeighbor(final MFNode _parentNode, final MFTile _neighbor)
+  final void processNeighbor(final MFNode _parentNode, final MFTile _neighbor)
   {
     //　calculate costs
     final int g = _parentNode.g + this.costFunction(_parentNode.tile, _neighbor);
@@ -229,9 +187,9 @@ public abstract class MFAbstractPath
   //---vvv---      PRIVATE METHODS        ---vvv---
 
   /** Cost for moving to a non-diagonally adjacent tile */
-  private static final int ORTHOGONAL_COST = 10;
+  private static final int ORTHOGONAL_COST = 1;
   /** Cost for moving to a diagonally adjacent tile */
-  private static final int DIAGONAL_COST = 14;
+  private static final int DIAGONAL_COST = 1;
 
   /** The map to search */
   private final MFMap map;
@@ -250,11 +208,6 @@ public abstract class MFAbstractPath
   private Queue<MFNode> openList;
   /** Stores the nodes for faster access */
   private Map<MFLocation, MFNode> openListLocations;
-  /** Stores if the search was unsuccessful */
-  private boolean wasPathFound;
-  /** Stores if a path was already searched */
-  private boolean isPathValid;
-
 
   /**
    * Adds a tile to the open list during search.
@@ -296,11 +249,11 @@ public abstract class MFAbstractPath
     final int xDistance = Math.abs(_tile.getLocation().x - this.goal.getLocation().x);
     final int yDistance = Math.abs(_tile.getLocation().y - this.goal.getLocation().y);
     if (xDistance > yDistance) {
-      return MFAbstractPath.DIAGONAL_COST * yDistance +
-             MFAbstractPath.ORTHOGONAL_COST * (xDistance - yDistance);
+      return MFTemplateAStar.DIAGONAL_COST * yDistance +
+             MFTemplateAStar.ORTHOGONAL_COST * (xDistance - yDistance);
     } else {
-      return MFAbstractPath.DIAGONAL_COST * xDistance +
-             MFAbstractPath.ORTHOGONAL_COST * (yDistance - xDistance);
+      return MFTemplateAStar.DIAGONAL_COST * xDistance +
+             MFTemplateAStar.ORTHOGONAL_COST * (yDistance - xDistance);
     }
   }
 
@@ -325,12 +278,6 @@ public abstract class MFAbstractPath
    */
   private void validateStartConditions()
   {
-    if (this.isPathValid) {
-      String msg = "Path: Cannot search for a path from" + this.start + " to " +
-                    this.goal + "again. Already searched one.";
-      MFAbstractPath.logger.warning(msg);
-      throw new IllegalStateException(msg);
-    }
     boolean canEnterStart = false;
     for (MFEMovementType capability : this.capabilities) {
       if (this.start.getClearance(capability) >= this.clearance &&
@@ -340,10 +287,10 @@ public abstract class MFAbstractPath
       }
     }
     if (!canEnterStart) {
-      String msg = "Path: Cannot search path from " + this.start.getLocation() +
+      String msg = "AStar: Cannot search path from " + this.start.getLocation() +
                    " to " + this.goal.getLocation() + ". Given clearance and " +
                    "capabilities are insufficient to move to the starting tile.";
-      MFAbstractPath.logger.severe(msg);
+      MFTemplateAStar.logger.severe(msg);
       throw new IllegalStateException(msg);
     }
     boolean canEnterTarget = false;
@@ -355,20 +302,65 @@ public abstract class MFAbstractPath
       }
     }
     if (!canEnterTarget) {
-      String msg = "Path: Cannot search path from " + this.start.getLocation() +
+      String msg = "AStar: Cannot search path from " + this.start.getLocation() +
                    " to " + this.goal.getLocation() + ". Given clearance and " +
                    "capabilities are insufficient to move to the target tile.";
-      MFAbstractPath.logger.severe(msg);
+      MFTemplateAStar.logger.severe(msg);
       throw new IllegalStateException(msg);
     }
   }
 
+  /**
+   * Validates the parameters given to the constructor.
+   * @param _map the map
+   * @param _start the starting tile
+   * @param _goal the target tile
+   * @param _clearance the size of the moving creature
+   * @param _capabilities the movement types the moving creature can employ
+   * @throws IllegalArgumentException if any of the parameters fails to meet
+   *                                  the conditions.
+   */
+  private void validateConstructorParams(final MFMap _map, final MFTile _start,
+                                   final MFTile _goal, final int _clearance,
+                                   final EnumSet<MFEMovementType> _capabilities)
+  {
+    if (_map == null) {
+      String msg = "AStar: Cannot create A-Star without map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_start == null) {
+      String msg = "AStar: Cannot create A-Star without start location.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_goal == null) {
+      String msg = "AStar: Cannot create A-Star without target location. Start: " +
+                                                           _start.getLocation();
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_clearance <= 0) {
+      String msg = "AStar: Cannot create A-Star from " + _start.getLocation() +
+                    " to " + _goal.getLocation() + " with an agent's size of " +
+                    _clearance + ". Must be at least 1.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_capabilities == null || _capabilities.isEmpty()) {
+      String msg = "AStar: Cannot create A-Star from " + _start.getLocation() +
+                    " to " + _goal.getLocation() + " without knowing the " +
+                    "agent's capabilities.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+  }
 
 
   /**
    * Object to hold relevant data to a node of the search algorithm.
    */
-  class MFNode implements Comparable<MFNode>
+  final class MFNode implements Comparable<MFNode>
   {
     final MFTile tile;
     MFNode parent;
@@ -383,30 +375,6 @@ public abstract class MFAbstractPath
       this.g = _g;
       this.h = _h;
       this.f = _g + _h;
-    }
-
-    @Override
-    public boolean equals(Object _other)
-    {
-      if (_other == null) {
-        return false;
-      }
-      if (getClass() != _other.getClass()) {
-        return false;
-      }
-      final MFNode otherNode = (MFNode) _other;
-      if (this.f != otherNode.f) {
-        return false;
-      }
-      return true;
-    }
-
-    @Override
-    public int hashCode()
-    {
-      int hash = 5;
-      hash = 41 * hash + this.f;
-      return hash;
     }
 
     @Override

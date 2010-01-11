@@ -555,13 +555,13 @@ public class MFNavigationMap
           }
 
           // initialize search algorithm
-          final MFPath path = new MFPath(this.map, startEntrance.getTile(),
+          final MFAnnotatedAStar search = new MFAnnotatedAStar(this.map, startEntrance.getTile(),
                   goalEntrance.getTile(), _clearance, _capabilities);
 
           // search!
-          boolean foundPath = path.findPath();
+          MFAnnotatedPath foundPath = (MFAnnotatedPath) search.findPath();
 
-          if (!foundPath) {
+          if (foundPath == null) {
             String msg = "Navigation Map: Unable to connect entrances to the same section. " +
                           "From " + startEntrance.getLocation() +
                           " to "  + goalEntrance.getLocation();
@@ -571,7 +571,7 @@ public class MFNavigationMap
 
           // create the edge
           MFEdge edge = new MFEdge(startEntrance, goalEntrance,
-                              path.getPathCost(), _clearance, _capabilities);
+                              foundPath.getCost(), _clearance, _capabilities);
           startEntrance.addEdge(edge);
         }
       }
