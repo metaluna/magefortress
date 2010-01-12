@@ -29,7 +29,6 @@ import magefortress.core.MFEMovementType;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class MFAnnotatedAStarTest
 {
@@ -45,102 +44,6 @@ public class MFAnnotatedAStarTest
   public void setUp()
   {
     this.naviMap = createMap(WIDTH, HEIGHT, DEPTH);
-  }
-
-  //--------------------------- INSTANTIATION TESTS ----------------------------
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutMap()
-  {
-    new MFAnnotatedAStar(null, mock(MFTile.class), mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutStartTile()
-  {
-    new MFAnnotatedAStar(mock(MFMap.class), null, mock(MFTile.class), 1, EnumSet.of(MFEMovementType.WALK));
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutTargetTile()
-  {
-    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), null, 1, EnumSet.of(MFEMovementType.WALK));
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutClearance()
-  {
-    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 0, EnumSet.of(MFEMovementType.WALK));
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutCapabilities()
-  {
-    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, null);
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithZeroCapabilities()
-  {
-    new MFAnnotatedAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class), 1, EnumSet.noneOf(MFEMovementType.class));
-  }
-
-  //-------------------- PATH START CONDITIONS TESTS ---------------------------
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotSearchPathStartingOnSolidTile()
-  {
-    MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(false);
-    MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-
-    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
-    search.findPath();
-  }
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotSearchPathStartingOnNarrowPassage()
-  {
-    MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-    MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(2);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-
-    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
-    search.findPath();
-  }
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotSearchPathEndingOnSolidTile()
-  {
-    MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-    MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(false);
-
-    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 1, EnumSet.of(MFEMovementType.WALK));
-    search.findPath();
-  }
-
-  @Test(expected=IllegalStateException.class)
-  public void shouldNotSearchPathEndingOnNarrowPassage()
-  {
-    MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(2);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-    MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
-
-    this.search = new MFAnnotatedAStar(mock(MFMap.class), mockStart, mockGoal, 2, EnumSet.of(MFEMovementType.WALK));
-    search.findPath();
   }
 
   //---------------------------- PATH TESTS ------------------------------------

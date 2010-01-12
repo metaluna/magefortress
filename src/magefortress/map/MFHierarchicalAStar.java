@@ -47,11 +47,20 @@ import magefortress.core.MFEMovementType;
 public class MFHierarchicalAStar extends MFTemplateAStar
 {
   public MFHierarchicalAStar(MFMap _map, MFTile _start, MFTile _goal,
-                    int _clearance, EnumSet<MFEMovementType> _capabilities)
+                    int _clearance, EnumSet<MFEMovementType> _capabilities,
+                    MFPathFinder _pathFinder)
   {
     super(_map, _start, _goal, _clearance, _capabilities);
+    if (_pathFinder == null) {
+      String msg = "HierarchicalAStar " + _start.getLocation() + "->" + 
+                    _goal.getLocation() + ": Cannot create search without a " +
+                    "path finder.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    
+    this.pathFinder = _pathFinder;
   }
-
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
 
@@ -137,6 +146,8 @@ public class MFHierarchicalAStar extends MFTemplateAStar
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
+  /** Path finder manager used to initiate the path found. */
+  private final MFPathFinder pathFinder;
 
   /**
    * Backtraces from the given node and saves the entrances passed on the way plus
@@ -170,7 +181,8 @@ public class MFHierarchicalAStar extends MFTemplateAStar
 
     final MFPath result = 
             new MFHierarchicalPath(this.getStart(), this.getGoal(), path,
-                    this.getClearance(), this.getCapabilities(), this.getMap());
+                    this.getClearance(), this.getCapabilities(), this.getMap(),
+                    this.pathFinder);
     return result;
   }
 

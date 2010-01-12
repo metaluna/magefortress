@@ -62,8 +62,8 @@ public class MFPathFinder
                                 final EnumSet<MFEMovementType> _capabilities,
                                 final MFIPathFinderListener _listener)
   {
-    final MFHierarchicalAStar search =
-        new MFHierarchicalAStar(_map, _start, _goal, _clearance, _capabilities);
+    final MFHierarchicalAStar search = new MFHierarchicalAStar(_map, _start,
+                                        _goal, _clearance, _capabilities, this);
     this.enqueuePathSearch(search, _listener);
   }
 

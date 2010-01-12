@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -26,26 +26,30 @@ package magefortress.map;
 
 import java.util.EnumSet;
 import magefortress.core.MFEMovementType;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
-public class MFHierarchicalAStarTest
+/**
+ * Empty implementation of an A-Star search algorithm.
+ */
+public class MFMockAStar extends MFTemplateAStar
 {
-  private MFHierarchicalAStar path;
-
-  @Before
-  public void setUp()
+  public MFMockAStar(MFMap _map, MFTile _start, MFTile _goal,
+                        int _clearance, EnumSet<MFEMovementType> _capabilities)
   {
+    super(_map, _start, _goal, _clearance, _capabilities);
   }
 
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateHierarchicalSearchWithoutPathFinder()
+  @Override
+  MFPath runSearch()
   {
-    new MFHierarchicalAStar(mock(MFMap.class), mock(MFTile.class),
-                            mock(MFTile.class), 1,
-                            EnumSet.of(MFEMovementType.WALK), null);
+    return null;
   }
+
+  @Override
+  int costFunction(MFTile _start, MFTile _goal)
+  {
+    return 1;
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
 
 }

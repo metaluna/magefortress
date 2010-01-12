@@ -39,43 +39,58 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
 {
   MFHierarchicalPath(final MFTile _start, final MFTile _goal, 
                  final Deque<MFTile> _path, final int _clearance,
-                 final EnumSet<MFEMovementType> _capabilities, final MFMap _map)
+                 final EnumSet<MFEMovementType> _capabilities, final MFMap _map,
+                 final MFPathFinder _pathFinder)
   {
     super(_start, _goal);
 
     if (_path == null || _path.isEmpty()) {
-      String msg = "Hierarchical Path: Cannot create hierarchical path without" +
-                    "any tiles.";
+      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create hierarchical path " +
+                    "without any tiles.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
     if (_clearance < 1) {
-      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
-                    "valid clearance. " + _clearance + " < 1";
+      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create hierarchical path " +
+                    "without valid clearance. " + _clearance + " < 1";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
     if (_capabilities == null || _capabilities.isEmpty()) {
-      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
-                    "any capabilities needed to traverse it.";
+      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create hierarchical path " +
+                    "without any capabilities needed to traverse it.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
     if (_map == null) {
-      String msg = "Hierarchical Path: Cannot create hierarchical path without " +
-                    "a copy of the map.";
+      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create hierarchical path " +
+                    "without a copy of the map.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    
+    if (_pathFinder == null) {
+      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create hierarchical path " +
+                    "without a copy of the map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
     this.path = _path;
     this.clearance = _clearance;
     this.capabilities = EnumSet.copyOf(_capabilities);
     this.map = _map;
+    this.pathFinder = _pathFinder;
     
-   // start searching for the first two subpaths
     this.searchNextSubpath();
-    this.searchNextSubpath();
+   // start searching for second subpath if there are at least 2 tiles left in the path
+    if (this.path.size() > 1) {
+      this.searchNextSubpath();
+    }
   }
 
   /**
@@ -97,7 +112,8 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   }
 
   /**
-   * Gets the next step of the path.
+   * Gets the next step of the path. Must be prepended by calls to
+   * {@link #isPathValid() isPathValid()} and {@link #hasNext() hasNext()}.
    * @return the next step of the path
    */
   @Override
@@ -120,10 +136,13 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
     }
 
     // switch to next subpath and search for the next one if we haven't reached the goal
-    if (!this.currentSubpath.hasNext() && this.currentSubpath.getGoal() != this.getGoal()) {
+    if (!this.currentSubpath.hasNext()) {
       this.currentSubpath = this.nextSubpath;
       this.nextSubpath = null;
-      this.searchNextSubpath();
+      if (this.currentSubpath != null &&
+          this.currentSubpath.getGoal() != this.getGoal()) {
+        this.searchNextSubpath();
+      }
     }
 
     return dir;
@@ -175,6 +194,8 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   private final EnumSet<MFEMovementType> capabilities;
   /** Caches the map */
   private final MFMap map;
+  /** Caches the path finder used to find subpaths */
+  private final MFPathFinder pathFinder;
   
   /** Current subpath */
   private MFPath currentSubpath;
@@ -208,7 +229,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
     final MFTile start = this.path.poll();
     final MFTile goal  = this.path.peek();
 
-    MFPathFinder.getInstance().enqueuePathSearch(this.map, start, goal,
+    this.pathFinder.enqueuePathSearch(this.map, start, goal,
                                       this.clearance, this.capabilities, this);
   }
 
