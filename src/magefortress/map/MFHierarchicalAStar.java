@@ -25,8 +25,10 @@
 package magefortress.map;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.List;
 import magefortress.core.MFEMovementType;
 
 /**
@@ -35,14 +37,7 @@ import magefortress.core.MFEMovementType;
  * <p>
  * A call to {@link #findPath() findPath()} triggers the search for a new path
  * which finds a path on the abstracted hierarchical map and a path from the
- * starting tile to the first entrance. Calls to {@link #next() next()} get the
- * next step of the stored concrete path. When there are only a few steps left
- * this path will enqueue a search for the next part of the path.
- * <p>
- * Every call to next() or hasNext() has to be prepended by a check of the
- * path's validity by calling {@link #isPathValid() isPathValid()}. If it is 
- * not valid a new path has to be searched.
- *
+ * starting tile to the first entrance.
  */
 public class MFHierarchicalAStar extends MFTemplateAStar
 {
@@ -77,19 +72,27 @@ public class MFHierarchicalAStar extends MFTemplateAStar
       foundPath = search.findPath();
     } else {
       // insert start and goal into the navi map
-      final MFSectionEntrance startEntrance = this.insertTileIntoNavigationMap(this.getStart());
-      // cannot reach start
+      MFSectionEntrance startEntrance = this.getStart().getEntrance();
+      MFSectionEntrance goalEntrance  = this.getGoal().getEntrance();
+      // stores if we need to null the start/goal's tile's entrance attribute afterwards
+      boolean resetStartEntrance  = (startEntrance == null);
+      boolean resetGoalEntrance   = (goalEntrance  == null);
       if (startEntrance == null) {
-        return null;
+        startEntrance = this.insertTileIntoNavigationMap(this.getStart());
+        // cannot reach start
+        if (startEntrance == null) {
+          return null;
+        }
       }
 
-      final MFSectionEntrance goalEntrance  = this.insertTileIntoNavigationMap(this.getGoal());
-      // cannot reach goal
       if (goalEntrance == null) {
-        this.removeFromNavigationMap(startEntrance);
-        return null;
+        goalEntrance = this.insertTileIntoNavigationMap(this.getGoal());
+        // cannot reach goal
+        if (goalEntrance == null) {
+          this.removeTileFromNavigationMap(startEntrance);
+          return null;
+        }
       }
-
       // begin search
       while (!this.getOpenList().isEmpty()) {
 
@@ -131,8 +134,12 @@ public class MFHierarchicalAStar extends MFTemplateAStar
       }
 
       // remove start and goal from the map
-      this.removeFromNavigationMap(startEntrance);
-      this.removeFromNavigationMap(goalEntrance);
+      if (resetStartEntrance) {
+        this.removeTileFromNavigationMap(startEntrance);
+      }
+      if (resetGoalEntrance) {
+        this.removeTileFromNavigationMap(goalEntrance);
+      }
     }
     
     return foundPath;
@@ -171,7 +178,9 @@ public class MFHierarchicalAStar extends MFTemplateAStar
       path.push(_node.tile);
       _node = _node.parent;
     }
-
+    // add starting tile to the path
+    path.push(_node.tile);
+    
     if (_node.tile != this.getStart()) {
       String msg = "HierarchicalPath " + this.getStart().getLocation() + "->" +
                    this.getGoal().getLocation() + ": Root of backtraced path " +
@@ -239,7 +248,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
    * Removes the start or goal entrance node from the navigation map.
    * @param _tile the tile to remove
    */
-  private void removeFromNavigationMap(final MFSectionEntrance _entrance)
+  private void removeTileFromNavigationMap(final MFSectionEntrance _entrance)
   {
     if (_entrance == null) {
       String msg = "HierarchicalPath " + this.getStart().getLocation() + "->" +
@@ -250,7 +259,8 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     }
 
     // remove entrance by removing all connections to its neighbors
-    for (MFEdge edgeFrom : _entrance.getEdges()) {
+    final List<MFEdge> edgesFrom = new ArrayList<MFEdge>(_entrance.getEdges());
+    for (MFEdge edgeFrom : edgesFrom) {
       _entrance.removeEdge(edgeFrom);
       // find the corresponding edge at the neighbor and remove it
       final MFSectionEntrance neighbor = edgeFrom.getTo();
@@ -261,6 +271,8 @@ public class MFHierarchicalAStar extends MFTemplateAStar
         }
       }
     }
+
+    _entrance.getTile().setEntrance(null);
   }
 
 }

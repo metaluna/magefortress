@@ -130,7 +130,7 @@ class MFEdge
    */
   public EnumSet<MFEMovementType> getCapabilities()
   {
-    return (EnumSet<MFEMovementType>) Collections.unmodifiableSet(this.capabilities);
+    return EnumSet.copyOf(this.capabilities);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
