@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS races;
+CREATE TABLE races (id INTEGER PRIMARY KEY, name TEXT NOT NULL, hold_behavior TEXT NOT NULL, move_behavior TEXT NOT NULL);
