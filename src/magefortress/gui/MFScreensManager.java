@@ -25,6 +25,7 @@
 package magefortress.gui;
 
 import java.util.LinkedList;
+import magefortress.core.Singleton;
 
 /**
  * A Stack of screen objects. Screens are pushed on the stack one by one. Only
@@ -32,7 +33,7 @@ import java.util.LinkedList;
  * the stack and the screen below will be displayed.
  * Like all managers, it's a Singleton.
  */
-public class MFScreensManager
+public class MFScreensManager implements Singleton
 {
   private static MFScreensManager instance;
   private LinkedList<MFScreen> screens;

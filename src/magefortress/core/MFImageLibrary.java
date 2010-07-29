@@ -37,7 +37,7 @@ import javax.imageio.ImageIO;
  * Singleton object that handles all image file i/o operations.
  * 
  */
-public final class MFImageLibrary
+public final class MFImageLibrary implements Singleton
 {
     /** Singleton instance */
     private static MFImageLibrary instance;

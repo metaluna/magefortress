@@ -32,6 +32,7 @@ import java.awt.event.MouseEvent;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.core.Singleton;
 
 /**
  * Central class where every object that directly interacts with the player
@@ -40,7 +41,7 @@ import java.util.logging.Logger;
  * It is a singleton.
  * 
  */
-public class MFInputManager extends MouseAdapter implements KeyListener
+public class MFInputManager extends MouseAdapter implements KeyListener, Singleton
 {
   /**
    * cf. Singleton pattern
