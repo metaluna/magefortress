@@ -27,13 +27,14 @@ package magefortress.map;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.logging.Logger;
+import magefortress.core.Immutable;
 import magefortress.core.MFEMovementType;
 
 /**
  * Stores the costs to traverse the distance between two {@link MFSectionEntrance nodes} for a
  * given capability and clearance. It is immutable.
  */
-class MFEdge
+class MFEdge implements Immutable
 {
   /**
    * Constructor
