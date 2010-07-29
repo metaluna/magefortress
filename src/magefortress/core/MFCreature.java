@@ -32,15 +32,45 @@ import java.util.logging.Logger;
  */
 public class MFCreature implements MFIMovable, MFIHoldable
 {
-  public MFCreature(String _name)
+  public MFCreature(String _name, MFRace _race)
   {
-    this.name = _name;
-    this.location = new MFLocation(-1, -1, -1);
+
+    // 1. set arguments
+    this.setName(_name);
+
+    if (_race == null) {
+      String message = "Creature '" + this.name + "': " +
+                        "Cannot create without a race.";
+      logger.severe(message);
+      throw new IllegalArgumentException(message);
+    }
+    this.race = _race;
+
+    // 2. set default attributes
+    this.location = MFLocation.NOWHERE;
+    this.holdingBehavior = NULL_HOLDABLE;
+    this.moveBehavior = NULL_MOVABLE;
   }
 
   public String getName()
   {
     return this.name;
+  }
+
+  public void setName(String _name)
+  {
+    if (_name == null) {
+      String message = "Creature '" + this.name + "': " +
+                        "Cannot set name to null.";
+      logger.severe(message);
+      throw new IllegalArgumentException(message);
+    }
+    this.name = _name;
+  }
+
+  public MFRace getRace()
+  {
+    return this.race;
   }
 
   public MFLocation getLocation()
@@ -66,8 +96,13 @@ public class MFCreature implements MFIMovable, MFIHoldable
       logger.severe(message);
       throw new IllegalArgumentException(message);
     }
-    // TODO make a copy of moving behavior
+    // TODO make a copy of moving behavior - impossible?
     this.moveBehavior = _moveBehavior;
+  }
+
+  public MFIMovable getMovingBehavior()
+  {
+    return this.moveBehavior;
   }
 
   public void setHoldingBehavior(MFIHoldable _holdingBehavior)
@@ -78,8 +113,13 @@ public class MFCreature implements MFIMovable, MFIHoldable
       logger.severe(message);
       throw new IllegalArgumentException(message);
     }
-    // TODO make a copy of holding behavior
+    // TODO make a copy of holding behavior - impossible?
     this.holdingBehavior = _holdingBehavior;
+  }
+
+  public MFIHoldable getHoldingBehavior()
+  {
+    return this.holdingBehavior;
   }
 
   public MFLocation lookForSimilarItems(MFItem _item)
@@ -168,11 +208,14 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final String name;
+  private String name;
+  private final MFRace race;
   private MFLocation location;
   private MFItem itemYearnedFor;
   private MFIMovable moveBehavior;
   private MFIHoldable holdingBehavior;
   private static final Logger logger = Logger.getLogger(MFCreature.class.getName());
+  private static final MFIMovable NULL_MOVABLE = new MFNullMovable();
+  private static final MFIHoldable NULL_HOLDABLE = new MFNullHoldable();
 
 }
