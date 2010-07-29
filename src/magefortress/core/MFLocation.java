@@ -33,6 +33,8 @@ public class MFLocation
 {
   public final int x, y, z;
 
+  public static final MFLocation NOWHERE = new MFLocation(-1, -1, -1);
+
   public MFLocation(int _x, int _y, int _z)
   {
     this.x = _x;
@@ -47,7 +49,7 @@ public class MFLocation
 
   public boolean isNeighborOf(MFLocation _other)
   {
-    return distanceTo(_other) == 1;
+    return !this.equals(NOWHERE) && !_other.equals(NOWHERE) && distanceTo(_other) == 1;
   }
 
   public int distanceTo(MFLocation _other)
@@ -77,7 +79,11 @@ public class MFLocation
     if (this.equals(_other)) {
       return null;
     }
-    
+
+    if (this.equals(NOWHERE) || _other.equals(NOWHERE)) {
+      return null;
+    }
+
     MFEDirection result = null;
     
     if (_other.x == this.x && _other.y < this.y) {

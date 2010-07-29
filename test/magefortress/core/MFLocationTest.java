@@ -99,6 +99,20 @@ public class MFLocationTest
     assertFalse(location.isNeighborOf(neighbor));
   }
 
+  @Test
+  public void shouldNeverBeNeighborOfNowhere()
+  {
+    MFLocation neighbor = new MFLocation(0, 0, 0);
+    assertFalse(MFLocation.NOWHERE.isNeighborOf(neighbor));
+    neighbor = new MFLocation(1, 1, 0);
+    assertFalse(MFLocation.NOWHERE.isNeighborOf(neighbor));
+
+    MFLocation origin = new MFLocation(0, 0, 0);
+    assertFalse(origin.isNeighborOf(MFLocation.NOWHERE));
+    origin = new MFLocation(1, 1, 0);
+    assertFalse(origin.isNeighborOf(MFLocation.NOWHERE));
+  }
+
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotGetDirection()
   {
@@ -109,6 +123,19 @@ public class MFLocationTest
   public void shouldReturnNoDirectionWhenIdentical()
   {
     assertNull(location.directionOf(location));
+  }
+
+  @Test
+  public void shouldReturnNoDirectionToNowhere()
+  {
+    assertNull(location.directionOf(MFLocation.NOWHERE));
+    assertNull(MFLocation.NOWHERE.directionOf(MFLocation.NOWHERE));
+  }
+
+  @Test
+  public void shouldReturnNoDirectionFromNowhere()
+  {
+    assertNull(MFLocation.NOWHERE.directionOf(location));
   }
 
   @Test
