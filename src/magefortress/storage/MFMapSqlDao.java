@@ -145,6 +145,10 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
     for (MFTile tile : tiles) {
       _map.setTile(tile);
     }
+
+    for (MFTile tile : tiles) {
+      _map.calculateCorners(tile);
+    }
   }
 
 }

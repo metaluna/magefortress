@@ -324,67 +324,60 @@ public class MFMap implements MFISaveable
   }
 
   /**
-   * Places walls if neighbor isn't dug out. Otherwise it removes the walls to
-   * the neighboring tile.
-   * @param _tile The tile that was dug out
+   * Calculates the types of corner.
+   * <p>Horizontal and vertical wall on the tile -> inward-facing corner piece
+   * </p><p>Only horizontal wall on the tile -> horizontal corner piece
+   * </p><p>Only vertical wall on the tile -> vertical corner piece
+   * </p><p>No adjacent walls on the tile
+   * AND no adjacent walls on surrounding tiles -> no corner piece
+   * </p><p>Otherwise -> outward-facing corner piece
+   * </p>
    */
-  private void calculateWalls(final MFTile _tile)
+  public void calculateCorners(MFTile _tile)
   {
-    
+
+    if (!_tile.isDugOut()) {
+      logger.log(Level.WARNING, "Tile " + _tile.toString() +
+                                ": Trying to calculate corners on solid tile");
+      return;
+    }
+
+    boolean northernEdge = _tile.getPosY() == 0;
+    boolean easternEdge  = _tile.getPosX() == this.width-1;
+    boolean southernEdge = _tile.getPosY() == this.height-1;
+    boolean westernEdge  = _tile.getPosX() == 0;
+
     MFTile neighborN = this.getNeighbor(_tile, MFEDirection.N);
-    MFTile neighborNE = this.getNeighbor(_tile, MFEDirection.NE);
     MFTile neighborE = this.getNeighbor(_tile, MFEDirection.E);
-    MFTile neighborSE = this.getNeighbor(_tile, MFEDirection.SE);
     MFTile neighborS = this.getNeighbor(_tile, MFEDirection.S);
-    MFTile neighborSW = this.getNeighbor(_tile, MFEDirection.SW);
     MFTile neighborW = this.getNeighbor(_tile, MFEDirection.W);
-    MFTile neighborNW = this.getNeighbor(_tile, MFEDirection.NW);
-    
-    boolean wallN = neighborN == null || !neighborN.isUnderground() || !neighborN.isDugOut();
-    boolean wallE = neighborE == null || !neighborE.isUnderground() || !neighborE.isDugOut();
-    boolean wallS = neighborS == null || !neighborS.isUnderground() || !neighborS.isDugOut();
-    boolean wallW = neighborW == null || !neighborW.isUnderground() || !neighborW.isDugOut();
 
-    _tile.setWalls(wallN, wallE, wallS, wallW);
+    boolean wallN = northernEdge || _tile.hasWallNorth();
+    boolean wallE = easternEdge  || _tile.hasWallEast();
+    boolean wallS = southernEdge || _tile.hasWallSouth();
+    boolean wallW = westernEdge  || _tile.hasWallWest();
 
-    // check walls and corners on straightly neighboring tiles
-    if (!wallN) {
-      neighborN.setWallSouth(false);
-      this.calculateCorners(neighborN);
-    }
-    if (!wallE) {
-      neighborE.setWallWest(false);
-      this.calculateCorners(neighborE);
-    }
-    if (!wallS) {
-      neighborS.setWallNorth(false);
-      this.calculateCorners(neighborS);
-    }
-    if (!wallW) {
-      neighborW.setWallEast(false);
-      this.calculateCorners(neighborW);
-    }
+    boolean wallAboveW = northernEdge ||
+                          (neighborN.isDugOut() && neighborN.hasWallWest());
+    boolean wallAboveE = northernEdge ||
+                          (neighborN.isDugOut() && neighborN.hasWallEast());
+    boolean wallRightN = easternEdge  ||
+                          (neighborE.isDugOut() && neighborE.hasWallNorth());
+    boolean wallRightS = easternEdge  ||
+                          (neighborE.isDugOut() && neighborE.hasWallSouth());
+    boolean wallBelowE = southernEdge ||
+                          (neighborS.isDugOut() && neighborS.hasWallEast());
+    boolean wallBelowW = southernEdge ||
+                          (neighborS.isDugOut() && neighborS.hasWallWest());
+    boolean wallLeftS  = westernEdge  ||
+                          (neighborW.isDugOut() && neighborW.hasWallSouth());
+    boolean wallLeftN  = westernEdge  ||
+                          (neighborW.isDugOut() && neighborW.hasWallNorth());
 
-    // recalculate only corners on diagonally adjacent tiles
-    if (!wallN && !wallE && neighborNE.isDugOut() &&
-        !neighborNE.hasWallWest() && !neighborNE.hasWallSouth()) {
-      this.calculateCorners(neighborNE);
-    }
-    if (!wallS && !wallE && neighborSE.isDugOut() &&
-        !neighborSE.hasWallWest() && !neighborSE.hasWallNorth()) {
-      this.calculateCorners(neighborSE);
-    }
-    if (!wallS && !wallW && neighborSW.isDugOut() &&
-        !neighborSW.hasWallEast() && !neighborSW.hasWallNorth()) {
-      this.calculateCorners(neighborSW);
-    }
-    if (!wallN && !wallW && neighborNW.isDugOut() &&
-        !neighborNW.hasWallEast() && !neighborNW.hasWallSouth()) {
-      this.calculateCorners(neighborNW);
-    }
-    
-    // finally after all walls were set recalculate this tiles corners
-    this.calculateCorners(_tile);
+    this.calculateCornerType(_tile, MFEDirection.NW, wallN, wallW, wallLeftN, wallAboveW);
+    this.calculateCornerType(_tile, MFEDirection.NE, wallN, wallE, wallAboveE, wallRightN);
+    this.calculateCornerType(_tile, MFEDirection.SE, wallS, wallE, wallRightS, wallBelowE);
+    this.calculateCornerType(_tile, MFEDirection.SW, wallS, wallW, wallLeftS, wallBelowW);
   }
 
   /**
@@ -460,63 +453,6 @@ public class MFMap implements MFISaveable
       result = this.map[z][x-1][y-1];
     }
     return result;
-  }
-
-  /**
-   * Calculates the types of corner.
-   * <p>Horizontal and vertical wall on the tile -> inward-facing corner piece
-   * </p><p>Only horizontal wall on the tile -> horizontal corner piece
-   * </p><p>Only vertical wall on the tile -> vertical corner piece
-   * </p><p>No adjacent walls on the tile
-   * AND no adjacent walls on surrounding tiles -> no corner piece
-   * </p><p>Otherwise -> outward-facing corner piece
-   * </p>
-   */
-  void calculateCorners(MFTile _tile)
-  {
-
-    if (!_tile.isDugOut()) {
-      logger.log(Level.WARNING, "Tile " + _tile.toString() +
-                                ": Trying to calculate corners on solid tile");
-      return;
-    }
-
-    boolean northernEdge = _tile.getPosY() == 0;
-    boolean easternEdge  = _tile.getPosX() == this.width-1;
-    boolean southernEdge = _tile.getPosY() == this.height-1;
-    boolean westernEdge  = _tile.getPosX() == 0;
-
-    MFTile neighborN = this.getNeighbor(_tile, MFEDirection.N);
-    MFTile neighborE = this.getNeighbor(_tile, MFEDirection.E);
-    MFTile neighborS = this.getNeighbor(_tile, MFEDirection.S);
-    MFTile neighborW = this.getNeighbor(_tile, MFEDirection.W);
-
-    boolean wallN = northernEdge || _tile.hasWallNorth();
-    boolean wallE = easternEdge  || _tile.hasWallEast();
-    boolean wallS = southernEdge || _tile.hasWallSouth();
-    boolean wallW = westernEdge  || _tile.hasWallWest();
-
-    boolean wallAboveW = northernEdge ||
-                          (neighborN.isDugOut() && neighborN.hasWallWest());
-    boolean wallAboveE = northernEdge ||
-                          (neighborN.isDugOut() && neighborN.hasWallEast());
-    boolean wallRightN = easternEdge  ||
-                          (neighborE.isDugOut() && neighborE.hasWallNorth());
-    boolean wallRightS = easternEdge  ||
-                          (neighborE.isDugOut() && neighborE.hasWallSouth());
-    boolean wallBelowE = southernEdge ||
-                          (neighborS.isDugOut() && neighborS.hasWallEast());
-    boolean wallBelowW = southernEdge ||
-                          (neighborS.isDugOut() && neighborS.hasWallWest());
-    boolean wallLeftS  = westernEdge  ||
-                          (neighborW.isDugOut() && neighborW.hasWallSouth());
-    boolean wallLeftN  = westernEdge  ||
-                          (neighborW.isDugOut() && neighborW.hasWallNorth());
-
-    this.calculateCornerType(_tile, MFEDirection.NW, wallN, wallW, wallLeftN, wallAboveW);
-    this.calculateCornerType(_tile, MFEDirection.NE, wallN, wallE, wallAboveE, wallRightN);
-    this.calculateCornerType(_tile, MFEDirection.SE, wallS, wallE, wallRightS, wallBelowE);
-    this.calculateCornerType(_tile, MFEDirection.SW, wallS, wallW, wallLeftS, wallBelowW);
   }
 
   /**
@@ -615,6 +551,70 @@ public class MFMap implements MFISaveable
   private int id;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFMap.class.getName());
+
+  /**
+   * Places walls if neighbor isn't dug out. Otherwise it removes the walls to
+   * the neighboring tile.
+   * @param _tile The tile that was dug out
+   */
+  private void calculateWalls(final MFTile _tile)
+  {
+
+    MFTile neighborN = this.getNeighbor(_tile, MFEDirection.N);
+    MFTile neighborNE = this.getNeighbor(_tile, MFEDirection.NE);
+    MFTile neighborE = this.getNeighbor(_tile, MFEDirection.E);
+    MFTile neighborSE = this.getNeighbor(_tile, MFEDirection.SE);
+    MFTile neighborS = this.getNeighbor(_tile, MFEDirection.S);
+    MFTile neighborSW = this.getNeighbor(_tile, MFEDirection.SW);
+    MFTile neighborW = this.getNeighbor(_tile, MFEDirection.W);
+    MFTile neighborNW = this.getNeighbor(_tile, MFEDirection.NW);
+
+    boolean wallN = neighborN == null || !neighborN.isUnderground() || !neighborN.isDugOut();
+    boolean wallE = neighborE == null || !neighborE.isUnderground() || !neighborE.isDugOut();
+    boolean wallS = neighborS == null || !neighborS.isUnderground() || !neighborS.isDugOut();
+    boolean wallW = neighborW == null || !neighborW.isUnderground() || !neighborW.isDugOut();
+
+    _tile.setWalls(wallN, wallE, wallS, wallW);
+
+    // check walls and corners on straightly neighboring tiles
+    if (!wallN) {
+      neighborN.setWallSouth(false);
+      this.calculateCorners(neighborN);
+    }
+    if (!wallE) {
+      neighborE.setWallWest(false);
+      this.calculateCorners(neighborE);
+    }
+    if (!wallS) {
+      neighborS.setWallNorth(false);
+      this.calculateCorners(neighborS);
+    }
+    if (!wallW) {
+      neighborW.setWallEast(false);
+      this.calculateCorners(neighborW);
+    }
+
+    // recalculate only corners on diagonally adjacent tiles
+    if (!wallN && !wallE && neighborNE.isDugOut() &&
+        !neighborNE.hasWallWest() && !neighborNE.hasWallSouth()) {
+      this.calculateCorners(neighborNE);
+    }
+    if (!wallS && !wallE && neighborSE.isDugOut() &&
+        !neighborSE.hasWallWest() && !neighborSE.hasWallNorth()) {
+      this.calculateCorners(neighborSE);
+    }
+    if (!wallS && !wallW && neighborSW.isDugOut() &&
+        !neighborSW.hasWallEast() && !neighborSW.hasWallNorth()) {
+      this.calculateCorners(neighborSW);
+    }
+    if (!wallN && !wallW && neighborNW.isDugOut() &&
+        !neighborNW.hasWallEast() && !neighborNW.hasWallSouth()) {
+      this.calculateCorners(neighborNW);
+    }
+
+    // finally after all walls were set recalculate this tiles corners
+    this.calculateCorners(_tile);
+  }
 
   /**
    * Checks to see if a tile is accessible for a given set of movement types and

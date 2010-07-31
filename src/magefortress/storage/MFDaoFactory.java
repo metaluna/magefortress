@@ -24,6 +24,7 @@
  */
 package magefortress.storage;
 
+import java.util.Properties;
 import java.util.logging.Logger;
 import magefortress.core.MFRace;
 import magefortress.map.MFMap;
@@ -45,15 +46,15 @@ public class MFDaoFactory
    * Constructor accepting the desired storage mechanism.
    * @param _storage
    */
-  public MFDaoFactory(Storage _storage)
+  public MFDaoFactory(Properties _props)
   {
-    if (_storage == null) {
-      String msg = "Cannot create DAOFactory without a storage mechanism.";
+    if (_props == null) {
+      String msg = "Cannot create DAOFactory without properties.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
 
-    this.switchStorage(_storage);
+    this.switchStorage(_props);
   }
 
   public MFIRaceDao getRaceDao()
@@ -131,22 +132,23 @@ public class MFDaoFactory
     return tileDao;
   }
 
-  private void switchStorage(Storage _storage)
+  private void switchStorage(Properties _props)
   {
-    switch (_storage) {
-      case SQL: connectDb(); break;
+    this.storage = Storage.valueOf(_props.getProperty("STORAGE"));
+
+    switch (this.storage) {
+      case SQL: connectDb(_props); break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
 
-    this.storage = _storage;
   }
 
-  private void connectDb()
+  private void connectDb(Properties _props)
   {
     // connect
     this.db = MFSqlConnector.getInstance();
-    
+    this.db.connect(_props.getProperty("DATABASE"));
     this.prepareStatements();
   }
 

@@ -29,6 +29,7 @@ import magefortress.map.MFTile;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
 import magefortress.input.MFInputManager;
+import magefortress.storage.MFDaoFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,7 +46,7 @@ public class MFGameTest
   public void setUp()
   {
     mockMap = mock(MFMap.class);
-    game = new MFGame(mockMap);
+    game = new MFGame(mockMap, mock(MFDaoFactory.class));
   }
 
   @Test

@@ -32,12 +32,15 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFDaoFactory;
 
 /**
  * Starts everything
@@ -133,8 +136,22 @@ public class MageFortress extends JFrame implements Runnable
    */
   private void loadGame()
   {
-    MFMap map = MFMap.createRandomMap(30, 30, 1);
-    MFGame game = new MFGame(map);
+    // configure storage (sqlite)
+    Properties props = new Properties();
+    props.setProperty("STORAGE", STORAGE.toString());
+    props.setProperty("DATABASE", DATABASE);
+    MFDaoFactory daoFactory = new MFDaoFactory(props);
+
+    //MFMap demomap = MFMap.createRandomMap(30, 30, 1);
+    // load demo map from database
+    MFMap demoMap = null;
+    try {
+      demoMap = daoFactory.getMapDao().load(DEMOMAP_ID);
+    } catch (DataAccessException ex) {
+      Logger.getLogger(MageFortress.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    MFGame game = new MFGame(demoMap, daoFactory);
+    
     MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
     game.setScreen(gameScreen);
     screenStack.push(gameScreen);
@@ -169,5 +186,10 @@ public class MageFortress extends JFrame implements Runnable
     Thread loop = new Thread(game);
     loop.start();
   }
+  
+  private static final MFDaoFactory.Storage STORAGE = MFDaoFactory.Storage.SQL;
+  private static final String DATABASE              = "magefortress.db";
+  private static final int DEMOMAP_ID               = 1;
+
 
 }

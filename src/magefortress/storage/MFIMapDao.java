@@ -33,6 +33,9 @@ public interface MFIMapDao extends MFIDao
 {
 
   @Override
+  public MFMap load(int _mapId) throws DataAccessException;
+
+  @Override
   public MFMap getPayload();
   //---vvv---      PRIVATE METHODS      ---vvv---
 

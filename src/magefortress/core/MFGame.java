@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFCommunicationChannel;
 import magefortress.gui.MFScreen;
+import magefortress.storage.MFDaoFactory;
 
 /**
  * Single place for all game data.
@@ -40,13 +41,15 @@ import magefortress.gui.MFScreen;
 public class MFGame
 {
   
-  public MFGame(MFMap _map)
+  public MFGame(MFMap _map, MFDaoFactory _daoFactory)
   {
     // init channels
     this.channels = new ArrayList<MFCommunicationChannel>();
     
     // init map
     this.map = _map;
+
+    this.daoFactory = _daoFactory;
   }
 
   public void update()
@@ -110,6 +113,8 @@ public class MFGame
   private MFMap map;
   /** Communications channels*/
   private final ArrayList<MFCommunicationChannel> channels;
+  /** DAO factory */
+  private final MFDaoFactory daoFactory;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFGame.class.getName());
 

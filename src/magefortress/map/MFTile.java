@@ -320,6 +320,23 @@ public class MFTile implements MFIPaintable, MFISaveable
     return "" + posX + "/" + posY + "/" + posZ;
   }
 
+  /**
+   * Gets the corner type of the specified direction.
+   * @param _direction The direction of the corner
+   * @return The type of corner
+   * @throws IllegalArgumentException If the direction is not diagonal
+   */
+  public Corner getCorner(MFEDirection _direction)
+  {
+    if (!MFEDirection.diagonals().contains(_direction)) {
+      String msg = _direction + " is not a valid corner direction.";
+      logger.log(Level.SEVERE, msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    return this.corners.get(_direction);
+  }
+
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
   void setWallNorth(boolean wallNorth)
   {
@@ -405,23 +422,6 @@ public class MFTile implements MFIPaintable, MFISaveable
   Corner getCornerSW()
   {
     return this.getCorner(MFEDirection.SW);
-  }
-
-  /**
-   * Gets the corner type of the specified direction.
-   * @param _direction The direction of the corner
-   * @return The type of corner
-   * @throws IllegalArgumentException If the direction is not diagonal
-   */
-  Corner getCorner(MFEDirection _direction)
-  {
-    if (!MFEDirection.diagonals().contains(_direction)) {
-      String msg = _direction + " is not a valid corner direction.";
-      logger.log(Level.SEVERE, msg);
-      throw new IllegalArgumentException(msg);
-    }
-
-    return this.corners.get(_direction);
   }
 
   void setClearance(MFEMovementType _movementType, int _clearance)

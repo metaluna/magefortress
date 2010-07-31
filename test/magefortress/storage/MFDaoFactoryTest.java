@@ -24,6 +24,7 @@
  */
 package magefortress.storage;
 
+import java.util.Properties;
 import magefortress.core.MFRace;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
@@ -39,7 +40,16 @@ public class MFDaoFactoryTest
   @Before
   public void setUp()
   {
-    this.factory = new MFDaoFactory(MFDaoFactory.Storage.SQL);
+    MFSqlConnector realDb = MFSqlConnector.getInstance();
+    realDb.connect("magefortress.test.db");
+    realDb.loadFromFile("magefortress.sql");
+    realDb.loadFromFile("test_fixtures.sql");
+
+    Properties props = new Properties();
+    props.setProperty("STORAGE", MFDaoFactory.Storage.SQL.toString());
+    props.setProperty("DATABASE", "magefortress.test.db");
+
+    this.factory = new MFDaoFactory(props);
   }
 
   @Test(expected=IllegalArgumentException.class)

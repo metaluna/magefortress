@@ -25,6 +25,8 @@
 package magefortress.storage;
 
 import java.util.List;
+import java.util.Properties;
+import magefortress.core.MFEDirection;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import org.junit.Before;
@@ -43,15 +45,21 @@ public class MFMapSqlDaoTest
   private MFSqlConnector mockDb;
   private MFDaoFactory mockDaoFactory;
   private static MFSqlConnector realDb;
+  private static Properties props;
 
   @BeforeClass
   public static void setUpClass()
   {
     realDb = MFSqlConnector.getInstance();
-    realDb.connect("test.db");
+    realDb.connect("magefortress.test.db");
     realDb.loadFromFile("magefortress.sql");
     realDb.loadFromFile("test_fixtures.sql");
-    new MFMapSqlDao(realDb, new MFDaoFactory(MFDaoFactory.Storage.SQL)).prepareStatements();
+    
+    props = new Properties();
+    props.setProperty("STORAGE", MFDaoFactory.Storage.SQL.toString());
+    props.setProperty("DATABASE", "magefortress.test.db");
+
+    new MFMapSqlDao(realDb, new MFDaoFactory(props)).prepareStatements();
   }
 
   @Before
@@ -201,6 +209,26 @@ public class MFMapSqlDaoTest
 
   }
 
+  @Test
+  public void shouldCalculateCornersOnLoadedTiles() throws DataAccessException
+  {
+    unsavedMapSqlDao = getRealDao();
+
+    MFMap gotMap = unsavedMapSqlDao.load(2);
+
+    assertEquals(2, gotMap.getId());
+
+    for (int x = 0; x < gotMap.getWidth(); ++x) {
+      for (int y = 0; y < gotMap.getHeight(); ++y) {
+        for (int z = 0; z < gotMap.getDepth(); ++z) {
+          MFTile tile = gotMap.getTile(x,y,z);
+          assertEquals(MFTile.Corner.INWARD, tile.getCorner(MFEDirection.NW));
+        }
+      }
+    }
+
+  }
+
   @Test(expected=DataAccessException.class)
   public void shouldNotLoadNonExistingId() throws DataAccessException
   {
@@ -264,7 +292,7 @@ public class MFMapSqlDaoTest
   public void shouldNotGetMapAfterLoading() throws DataAccessException
   {
     unsavedMapSqlDao = new MFMapSqlDao(
-            realDb, unsavedMockMap, new MFDaoFactory(MFDaoFactory.Storage.SQL));
+            realDb, unsavedMockMap, new MFDaoFactory(props));
 
     MFMap loadedMap = unsavedMapSqlDao.load(1);
     MFMap gotMap    = unsavedMapSqlDao.getPayload();
@@ -275,14 +303,9 @@ public class MFMapSqlDaoTest
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private synchronized void resetDb()
-  {
-    realDb.loadFromFile("test_fixtures.sql");
-  }
-
   private MFMapSqlDao getRealDao()
   {
-    return new MFMapSqlDao(realDb, new MFDaoFactory(MFDaoFactory.Storage.SQL));
+    return new MFMapSqlDao(realDb, new MFDaoFactory(props));
   }
 
 
