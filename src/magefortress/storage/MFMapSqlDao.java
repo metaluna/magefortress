@@ -29,6 +29,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 
 /**
  *
@@ -46,19 +47,22 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
    * Most basic constructor
    * @param _db
    */
-  public MFMapSqlDao(MFSqlConnector _db)
+  public MFMapSqlDao(MFSqlConnector _db, MFDaoFactory _daoFactory)
   {
-    this(_db, null);
+    this(_db, null, _daoFactory);
   }
 
   /**
    * Constructor
    * @param _db
+   * @param _map
+   * @param _daoFactory
    */
-  public MFMapSqlDao(MFSqlConnector _db, MFMap _map)
+  public MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory)
   {
     super(_db);
     this.map = _map;
+    this.daoFactory = _daoFactory;
   }
 
   @Override
@@ -66,6 +70,8 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
   {
     MFMap gotMap = (MFMap) super.load(_id);
 
+    this.loadTiles(gotMap);
+    
     return gotMap;
   }
 
@@ -127,4 +133,18 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** The represented map. May be null if this object is used to load data */
   private final MFMap map;
+  /** Used to load tiles */
+  private final MFDaoFactory daoFactory;
+
+  private void loadTiles(MFMap _map) throws DataAccessException
+  {
+    MFITileDao tileDao = this.daoFactory.getTileDao(_map.getId());
+
+    List<MFTile> tiles = tileDao.loadAllOfMap(_map.getId());
+
+    for (MFTile tile : tiles) {
+      _map.setTile(tile);
+    }
+  }
+
 }

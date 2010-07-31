@@ -101,4 +101,11 @@ public class MFDaoFactoryTest
     assertEquals(MFTileSqlDao.class, tileDao.getClass());
   }
 
+   @Test
+   public void shouldGetTileSqlDaoWithMap()
+   {
+     MFITileDao tileDao = factory.getTileDao(1);
+     assertNull(tileDao.getPayload());
+   }
+
 }
