@@ -51,10 +51,13 @@ public class MFMap implements MFISaveable
 
     this.map = new MFTile[_depth][_width][_height];
 
+    // TODO get UNSAVED_MARKER from DaoFactory as soon as it's a singleton
+    final int UNSAVED_MARKER = -1;
+    
     for (int z = 0; z < _depth; ++z) {
       for (int x = 0; x < _width; ++x) {
         for (int y = 0; y < _height; ++y) {
-          this.map[z][x][y] = new MFTile(x,y,z);
+          this.map[z][x][y] = new MFTile(UNSAVED_MARKER, x,y,z);
         }
       }
     }
@@ -223,6 +226,22 @@ public class MFMap implements MFISaveable
   public MFTile getTile(MFLocation _location)
   {
     return this.getTile(_location.x, _location.y, _location.z);
+  }
+
+  /**
+   * Places a tile on the map. Used to load a map and its tiles
+   * @param _tile The tile to set
+   */
+  public void setTile(MFTile _tile)
+  {
+    if (!this.isInsideMap(_tile.getLocation())) {
+      String msg = "Cannot set tile on map@" + _tile.getLocation() + ". " +
+              "Out of bounds.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.map[_tile.getPosZ()][_tile.getPosX()][_tile.getPosY()] = _tile;
   }
 
   /**

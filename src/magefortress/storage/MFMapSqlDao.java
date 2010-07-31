@@ -33,7 +33,7 @@ import magefortress.map.MFMap;
 /**
  *
  */
-public class MFMapSqlDao extends MFSqlDao implements MFIMapDao
+class MFMapSqlDao extends MFSqlDao implements MFIMapDao
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO maps (width, height, depth) VALUES (?,?,?);";

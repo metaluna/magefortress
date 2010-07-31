@@ -36,12 +36,13 @@ import magefortress.core.MFIPaintable;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
+import magefortress.storage.MFISaveable;
 
 /**
  *
  * 
  */
-public class MFTile implements MFIPaintable
+public class MFTile implements MFIPaintable, MFISaveable
 {
   /** Saves the type of corner */
   public enum Corner {NONE,VERTICAL,HORIZONTAL,BOTH,INWARD};
@@ -50,16 +51,18 @@ public class MFTile implements MFIPaintable
 
   /**
    * Convenience constructor creating an underground tile with no walls.
+   * @param _id Id in the data storage
    * @param _posX Position on the map
    * @param _posY Position on the map
    * @param _posZ Position on the map
    */
-  public MFTile(int _posX, int _posY, int _posZ)
+  public MFTile(int _id, int _posX, int _posY, int _posZ)
   {
-    this(_posX, _posY, _posZ, false,false,false,false,false,true,true);
+    this(_id, _posX, _posY, _posZ, false,false,false,false,false,true,true);
   }
   /**
    * Full constructor
+   * @param _id Id in the data storage
    * @param _posX Position on the map
    * @param _posY Position on the map
    * @param _posZ Position on the map
@@ -71,10 +74,11 @@ public class MFTile implements MFIPaintable
    * @param _floor Floor status
    * @param _isUnderground Is or was it underground?
    */
-  public MFTile(int _posX, int _posY, int _posZ, boolean _isDugOut,
+  public MFTile(int _id, int _posX, int _posY, int _posZ, boolean _isDugOut,
           boolean _wallN, boolean _wallE, boolean _wallS, boolean _wallW,
           boolean _floor, boolean _isUnderground)
   {
+    this.id = _id;
     this.posX = _posX;
     this.posY = _posY;
     this.posZ = _posZ;
@@ -99,6 +103,19 @@ public class MFTile implements MFIPaintable
     // init clearance values
     this.naviInfo = new MFNavigationTile(_posX, _posY, _posZ);
 
+  }
+
+
+  @Override
+  public int getId()
+  {
+    return this.id;
+  }
+
+  @Override
+  public void setId(int _id)
+  {
+    this.id = _id;
   }
 
   public int getPosX()
@@ -447,6 +464,7 @@ public class MFTile implements MFIPaintable
   private static final Logger logger = Logger.getLogger(MFTile.class.getName());
 
   private final MFNavigationTile naviInfo;
+  private int id;
   private int posX, posY, posZ;
   private boolean isUnderground;
   private boolean isDugOut;

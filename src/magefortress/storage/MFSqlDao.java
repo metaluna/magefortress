@@ -107,10 +107,16 @@ abstract class MFSqlDao implements MFIDao
   @Override
   public List<? extends MFISaveable> loadAll() throws DataAccessException
   {
+    return loadAll("READ_ALL_" + this.getClass().getSimpleName(),
+                    Collections.emptyList());
+  }
+
+  public List<? extends MFISaveable> loadAll(String _queryId, List<Object> _parameters)
+          throws DataAccessException
+  {
     final List<MFISaveable> gotPayloads = new ArrayList<MFISaveable>();
 
-    ResultSet rs = this.getDb().query("READ_ALL_" +
-            this.getClass().getSimpleName(), Collections.emptyList());
+    ResultSet rs = this.getDb().query(_queryId, _parameters);
 
     if (rs == null) {
       String msg = "Error during loading of "+ this.getPayload().getClass().getSimpleName() +
@@ -229,16 +235,16 @@ abstract class MFSqlDao implements MFIDao
 
   }
 
+  protected MFSqlConnector getDb()
+  {
+    return this.db;
+  }
+
   //---vvv---       PRIVATE METHODS       ---vvv---
   /** Database connection */
   private final MFSqlConnector db;
   /** Marks an unsaved object */
   private static final int UNSAVED_MARKER = -1;
-
-  private MFSqlConnector getDb()
-  {
-    return this.db;
-  }
 
   /**
    * Template method making use of readVectorizedData(). Here raw data from the
@@ -256,7 +262,7 @@ abstract class MFSqlDao implements MFIDao
 
       id = _rs.getInt("id");
 
-      final Map<String, Object> data = new HashMap<String, Object>(4);
+      final Map<String, Object> data = new HashMap<String, Object>();
 
       final ResultSetMetaData metadata = _rs.getMetaData();
 

@@ -81,6 +81,26 @@ public class MFMapTest
     this.map.getTile(WIDTH, HEIGHT, DEPTH+1);
   }
 
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotSetTileOutsideOfMap()
+  {
+    this.map.setTile(new MFTile(-1,-1,0,0));
+  }
+
+  @Test
+  public void shouldSetTile()
+  {
+    int x = WIDTH-1;
+    int y = HEIGHT-1;
+    int z = DEPTH-1;
+    MFTile expTile = new MFTile(-1, x, y, z);
+    
+    this.map.setTile(expTile);
+
+    MFTile gotTile = this.map.getTile(x, y, z);
+    assertEquals(expTile, gotTile);
+  }
+
   @Test
   public void shouldConvertToTilespace()
   {

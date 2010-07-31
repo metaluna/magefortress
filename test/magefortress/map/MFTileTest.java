@@ -43,7 +43,7 @@ public class MFTileTest
   @Before
   public void setUp()
   {
-    this.tile = new MFTile(0, 0, 0);
+    this.tile = new MFTile(-1, 0, 0, 0);
   }
 
   @Test
