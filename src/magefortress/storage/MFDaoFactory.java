@@ -90,9 +90,14 @@ public class MFDaoFactory
   {
     // connect
     this.db = MFSqlConnector.getInstance();
-    // prepare queries
-    new MFRaceSqlDao(this.db).prepareStatements();
+    
+    this.prepareStatements();
+  }
 
+  private void prepareStatements()
+  {
+    new MFRaceSqlDao(this.db).prepareStatements();
+    new MFMapSqlDao(this.db).prepareStatements();
   }
 
 }

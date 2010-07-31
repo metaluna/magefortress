@@ -212,7 +212,7 @@ public class MFAnnotatedAStarTest
 
   private MFNavigationMap createMap(int _width, int _height, int _depth)
   {
-    this.map = new MFMap(_width, _height, _depth);
+    this.map = new MFMap(-1, _width, _height, _depth);
     for (int x = 0; x < _width; ++x) {
       for (int y = 0; y < _height; ++y) {
         for (int z = 0; z < _depth; ++z) {

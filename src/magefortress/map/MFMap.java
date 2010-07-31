@@ -35,19 +35,20 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
 import magefortress.map.MFTile.Corner;
+import magefortress.storage.MFISaveable;
 
 /**
  * Contains the tiles.
  */
-public class MFMap
+public class MFMap implements MFISaveable
 {
 
-  public MFMap(int _width, int _height, int _depth)
+  public MFMap(int _id, int _width, int _height, int _depth)
   {
     this.width = _width;
     this.height = _height;
     this.depth = _depth;
-    
+
     this.map = new MFTile[_depth][_width][_height];
 
     for (int z = 0; z < _depth; ++z) {
@@ -57,6 +58,7 @@ public class MFMap
         }
       }
     }
+    this.id = _id;
   }
 
   //---vvv---      STATIC METHODS      ---vvv---
@@ -82,7 +84,8 @@ public class MFMap
   public static MFMap createRandomMap(int _width, int _height, int _depth)
   {
     Random r = new Random();
-    MFMap result = new MFMap(_width, _height, _depth);
+    final int id = -1;
+    MFMap result = new MFMap(id, _width, _height, _depth);
 
     for (MFTile[][] level : result.map) {
       for (MFTile[] cols : level) {
@@ -154,6 +157,16 @@ public class MFMap
   }
 
   //---vvv---      PUBLIC METHODS      ---vvv---
+
+  public int getId()
+  {
+    return this.id;
+  }
+
+  public void setId(int _id)
+  {
+    this.id = _id;
+  }
 
   /**
    * The width of a level
@@ -578,7 +591,9 @@ public class MFMap
   /** Number of levels */
   private final int depth;
   /** The map. The array has the following order: z -> x -> y */
-  private MFTile[][][] map;
+  private final MFTile[][][] map;
+  /** Datastorage id */
+  private int id;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFMap.class.getName());
 
