@@ -192,15 +192,14 @@ public class MFMap
    */
   public MFTile getTile(int x, int y, int z)
   {
-    MFTile result = null;
-    try {
-      result = this.map[z][x][y];
-    } catch (IndexOutOfBoundsException e) {
-      logger.severe("Coordinates have to be inside the map: " +
-                                x + "/" + y + "/" + z);
-      throw e;
+    if (!isInsideMap(x, y, z)) {
+      String msg = "Coordinates have to be inside the map: " +
+                                x + "/" + y + "/" + z;
+      logger.severe(msg);
+      throw new IndexOutOfBoundsException(msg);
     }
-    return result;
+    
+    return this.map[z][x][y];
   }
 
   /**
@@ -265,9 +264,7 @@ public class MFMap
       throw new IllegalArgumentException(msg);
     }
     // error if location isn't inside the map bounds
-    if (0 > _location.z || _location.z >= this.depth ||
-        0 > _location.x || _location.x >= this.width ||
-        0 > _location.y || _location.y >= this.height) {
+    if (!isInsideMap(_location)) {
       String msg = "Map@" + _location + ": Illegal location to dig.";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
@@ -277,52 +274,66 @@ public class MFMap
 
     // error if tile is not underground
     if (!tile.isUnderground()) {
-      String msg = "Map@" + _location + ": Tile to dig out has to be underground.";
+      String msg = "Map@" + _location + ": Tile to be dug out has to be underground.";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
     // error if the tile is already clear
     if (tile.isDugOut()) {
-      String msg = "Map@" + _location + ": Tile to dig out must not be dug out";
+      String msg = "Map@" + _location + ": Tile to be dug out must not be dug out";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
 
     // dig out
     tile.setDugOut(true);
-    // place walls if neighbor isn't dug out else remove wall of neighbor
-    MFTile neighborN = this.getNeighbor(tile, MFEDirection.N);
-    MFTile neighborNE = this.getNeighbor(tile, MFEDirection.NE);
-    MFTile neighborE = this.getNeighbor(tile, MFEDirection.E);
-    MFTile neighborSE = this.getNeighbor(tile, MFEDirection.SE);
-    MFTile neighborS = this.getNeighbor(tile, MFEDirection.S);
-    MFTile neighborSW = this.getNeighbor(tile, MFEDirection.SW);
-    MFTile neighborW = this.getNeighbor(tile, MFEDirection.W);
-    MFTile neighborNW = this.getNeighbor(tile, MFEDirection.NW);
+
+    calculateWalls(tile);
+  }
+
+  /**
+   * Places walls if neighbor isn't dug out. Otherwise it removes the walls to
+   * the neighboring tile.
+   * @param _tile The tile that was dug out
+   */
+  private void calculateWalls(final MFTile _tile)
+  {
+    
+    MFTile neighborN = this.getNeighbor(_tile, MFEDirection.N);
+    MFTile neighborNE = this.getNeighbor(_tile, MFEDirection.NE);
+    MFTile neighborE = this.getNeighbor(_tile, MFEDirection.E);
+    MFTile neighborSE = this.getNeighbor(_tile, MFEDirection.SE);
+    MFTile neighborS = this.getNeighbor(_tile, MFEDirection.S);
+    MFTile neighborSW = this.getNeighbor(_tile, MFEDirection.SW);
+    MFTile neighborW = this.getNeighbor(_tile, MFEDirection.W);
+    MFTile neighborNW = this.getNeighbor(_tile, MFEDirection.NW);
+    
     boolean wallN = neighborN == null || !neighborN.isUnderground() || !neighborN.isDugOut();
     boolean wallE = neighborE == null || !neighborE.isUnderground() || !neighborE.isDugOut();
     boolean wallS = neighborS == null || !neighborS.isUnderground() || !neighborS.isDugOut();
     boolean wallW = neighborW == null || !neighborW.isUnderground() || !neighborW.isDugOut();
-    tile.setWalls(wallN, wallE, wallS, wallW);
-    if (!wallN){
+
+    _tile.setWalls(wallN, wallE, wallS, wallW);
+
+    // check walls and corners on straightly neighboring tiles
+    if (!wallN) {
       neighborN.setWallSouth(false);
       this.calculateCorners(neighborN);
     }
-    if (!wallE){
+    if (!wallE) {
       neighborE.setWallWest(false);
       this.calculateCorners(neighborE);
     }
-    if (!wallS){
+    if (!wallS) {
       neighborS.setWallNorth(false);
       this.calculateCorners(neighborS);
     }
-    if (!wallW){
+    if (!wallW) {
       neighborW.setWallEast(false);
       this.calculateCorners(neighborW);
     }
 
-    // remove center-facing corners of diagonal neighbors if all walls
-    // have been removed
+    // recalculate only corners on diagonally adjacent tiles
     if (!wallN && !wallE && neighborNE.isDugOut() &&
         !neighborNE.hasWallWest() && !neighborNE.hasWallSouth()) {
       this.calculateCorners(neighborNE);
@@ -339,8 +350,33 @@ public class MFMap
         !neighborNW.hasWallEast() && !neighborNW.hasWallSouth()) {
       this.calculateCorners(neighborNW);
     }
+    
+    // finally after all walls were set recalculate this tiles corners
+    this.calculateCorners(_tile);
+  }
 
-    this.calculateCorners(tile);
+  /**
+   * Checks if coordinates are on the map.
+   * @param _location The coordinates to check
+   * @return <code>true</code> if on the map
+   */
+  public boolean isInsideMap(MFLocation _location)
+  {
+    return isInsideMap(_location.x, _location.y, _location.z);
+  }
+
+  /**
+   * Checks if coordinates are on the map.
+   * @param _x
+   * @param _y
+   * @param _z
+   * @return <code>true</code> if on the map
+   */
+  public boolean isInsideMap(int _x, int _y, int _z)
+  {
+    return 0 <= _z && _z < this.depth &&
+           0 <= _x && _x < this.width &&
+           0 <= _y && _y < this.height;
   }
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
@@ -413,37 +449,42 @@ public class MFMap
       return;
     }
 
+    boolean northernEdge = _tile.getPosY() == 0;
+    boolean easternEdge  = _tile.getPosX() == this.width-1;
+    boolean southernEdge = _tile.getPosY() == this.height-1;
+    boolean westernEdge  = _tile.getPosX() == 0;
+
     MFTile neighborN = this.getNeighbor(_tile, MFEDirection.N);
     MFTile neighborE = this.getNeighbor(_tile, MFEDirection.E);
     MFTile neighborS = this.getNeighbor(_tile, MFEDirection.S);
     MFTile neighborW = this.getNeighbor(_tile, MFEDirection.W);
 
-    boolean _wallN = _tile.getPosY() == 0 || _tile.hasWallNorth();
-    boolean _wallE = _tile.getPosX() == this.width-1 || _tile.hasWallEast();
-    boolean _wallS = _tile.getPosY() == this.height-1 || _tile.hasWallSouth();
-    boolean _wallW = _tile.getPosX() == 0 || _tile.hasWallWest();
+    boolean wallN = northernEdge || _tile.hasWallNorth();
+    boolean wallE = easternEdge  || _tile.hasWallEast();
+    boolean wallS = southernEdge || _tile.hasWallSouth();
+    boolean wallW = westernEdge  || _tile.hasWallWest();
 
-    boolean wallAboveW = neighborN == null ||
+    boolean wallAboveW = northernEdge ||
                           (neighborN.isDugOut() && neighborN.hasWallWest());
-    boolean wallAboveE = neighborN == null ||
+    boolean wallAboveE = northernEdge ||
                           (neighborN.isDugOut() && neighborN.hasWallEast());
-    boolean wallRightN = neighborE == null ||
+    boolean wallRightN = easternEdge  ||
                           (neighborE.isDugOut() && neighborE.hasWallNorth());
-    boolean wallRightS = neighborE == null ||
+    boolean wallRightS = easternEdge  ||
                           (neighborE.isDugOut() && neighborE.hasWallSouth());
-    boolean wallBelowE = neighborS == null ||
+    boolean wallBelowE = southernEdge ||
                           (neighborS.isDugOut() && neighborS.hasWallEast());
-    boolean wallBelowW = neighborS == null ||
+    boolean wallBelowW = southernEdge ||
                           (neighborS.isDugOut() && neighborS.hasWallWest());
-    boolean wallLeftS  = neighborW == null ||
+    boolean wallLeftS  = westernEdge  ||
                           (neighborW.isDugOut() && neighborW.hasWallSouth());
-    boolean wallLeftN  = neighborW == null ||
+    boolean wallLeftN  = westernEdge  ||
                           (neighborW.isDugOut() && neighborW.hasWallNorth());
 
-    this.calculateCornerType(_tile, MFEDirection.NW, _wallN, _wallW, wallLeftN, wallAboveW);
-    this.calculateCornerType(_tile, MFEDirection.NE, _wallN, _wallE, wallAboveE, wallRightN);
-    this.calculateCornerType(_tile, MFEDirection.SE, _wallS, _wallE, wallRightS, wallBelowE);
-    this.calculateCornerType(_tile, MFEDirection.SW, _wallS, _wallW, wallLeftS, wallBelowW);
+    this.calculateCornerType(_tile, MFEDirection.NW, wallN, wallW, wallLeftN, wallAboveW);
+    this.calculateCornerType(_tile, MFEDirection.NE, wallN, wallE, wallAboveE, wallRightN);
+    this.calculateCornerType(_tile, MFEDirection.SE, wallS, wallE, wallRightS, wallBelowE);
+    this.calculateCornerType(_tile, MFEDirection.SW, wallS, wallW, wallLeftS, wallBelowW);
   }
 
   /**
@@ -496,39 +537,16 @@ public class MFMap
       throw new IllegalArgumentException(msg);
     }
 
-    boolean walled = false;
-    if (MFEDirection.straight().contains(_direction)) {
-      walled = _start.hasWall(_direction);
-    } else if (MFEDirection.diagonals().contains(_direction)) {
-      switch (_direction) {
-        case NE: walled = _start.hasWallNorth() || _start.hasWallEast() ||
-                          _goal.hasWallSouth() || _goal.hasWallWest();
-                 break;
-        case SE: walled = _start.hasWallSouth() || _start.hasWallEast() ||
-                          _goal.hasWallNorth() || _goal.hasWallWest();
-                 break;
-        case SW: walled = _start.hasWallSouth() || _start.hasWallWest() ||
-                          _goal.hasWallNorth() || _goal.hasWallEast();
-                 break;
-        case NW: walled = _start.hasWallNorth() || _start.hasWallWest() ||
-                          _goal.hasWallSouth() || _goal.hasWallEast();
-                 break;
-      }
-    }
+    boolean blockedByWalls = blockedByWalls(_direction, _start, _goal);
 
-    boolean walkable = false;
+    boolean blockedByTerrain = false;
 
     // only need to check walkability if there are no walls
-    if (!walled) {
-      for (MFEMovementType movement : _capabilities) {
-        if (_goal.getClearance(movement) >= _clearance && _goal.isWalkable(movement)) {
-          walkable = true;
-          break;
-        }
-      }
+    if (!blockedByWalls) {
+      blockedByTerrain = blockedByTerrain(_capabilities, _goal, _clearance);
     }
 
-    if (walled || !walkable) {
+    if (blockedByWalls || blockedByTerrain) {
       return false;
     } else {
       return true;
@@ -563,6 +581,65 @@ public class MFMap
   private MFTile[][][] map;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFMap.class.getName());
+
+  /**
+   * Checks to see if a tile is accessible for a given set of movement types and
+   * clearance.
+   * @param _capabilities
+   * @param _goal
+   * @param _clearance
+   * @return
+   */
+  private boolean blockedByTerrain(final EnumSet<MFEMovementType> _capabilities,
+                                      final MFTile _goal, final int _clearance)
+  {
+    boolean accessible = false;
+
+    for (MFEMovementType movement : _capabilities) {
+      if (_goal.getClearance(movement) >= _clearance && _goal.isWalkable(movement)) {
+        accessible = true;
+        break;
+      }
+    }
+    return !accessible;
+  }
+
+  /**
+   * Checks to see if two adjacent tiles are walled off from each other.
+   * @param _direction
+   * @param _start
+   * @param _goal
+   * @return
+   */
+  private boolean blockedByWalls(final MFEDirection _direction,
+                                    final MFTile _start, final MFTile _goal)
+  {
+    boolean blockedByWalls = false;
+
+    if (MFEDirection.straight().contains(_direction)) {
+      blockedByWalls = _start.hasWall(_direction);
+    } else if (MFEDirection.diagonals().contains(_direction)) {
+      switch (_direction) {
+        case NE:
+          blockedByWalls = _start.hasWallNorth() || _start.hasWallEast() ||
+                           _goal.hasWallSouth()  || _goal.hasWallWest();
+          break;
+        case SE:
+          blockedByWalls = _start.hasWallSouth() || _start.hasWallEast() ||
+                           _goal.hasWallNorth()  || _goal.hasWallWest();
+          break;
+        case SW:
+          blockedByWalls = _start.hasWallSouth() || _start.hasWallWest() ||
+                           _goal.hasWallNorth()  || _goal.hasWallEast();
+          break;
+        case NW:
+          blockedByWalls = _start.hasWallNorth() || _start.hasWallWest() ||
+                           _goal.hasWallSouth()  || _goal.hasWallEast();
+          break;
+      }
+    }
+    return blockedByWalls;
+  }
 
   /**
    * Calculates the type of specified corner.
