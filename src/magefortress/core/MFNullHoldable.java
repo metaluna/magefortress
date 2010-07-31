@@ -28,7 +28,7 @@ package magefortress.core;
  * Null implementation of MFIHoldable not being able to hold anything or to put
  * anything down.
  */
-class MFNullHoldable implements MFIHoldable, Immutable
+public class MFNullHoldable implements MFIHoldable, Immutable
 {
 
   public boolean canHold()

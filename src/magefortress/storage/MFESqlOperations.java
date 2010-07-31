@@ -22,55 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
-
-import java.util.EnumSet;
+package magefortress.storage;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ * List of all standard sql operations
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public enum MFESqlOperations
 {
-
-  public boolean canMove()
-  {
-    return false;
-  }
-
-  public boolean move(MFEDirection _direction)
-  {
-    return false;
-  }
-
-  public void setSpeed(int _speed)
-  {
-  }
-
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+  CREATE, READ, READ_ALL, UPDATE, DESTROY
 }

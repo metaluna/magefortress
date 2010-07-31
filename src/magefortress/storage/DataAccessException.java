@@ -22,12 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.storage;
 
 /**
  * Represents errors during the access of data, encapsulating concrete exceptions.
  */
-class DataAccessException extends Exception
+public class DataAccessException extends Exception
 {
 
   public DataAccessException(String msg)

@@ -22,55 +22,19 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.storage;
 
-import java.util.EnumSet;
+import java.util.List;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ * Interface used by all DAOs to store and load them from a storage mechanism.
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public interface MFIDao
 {
-
-  public boolean canMove()
-  {
-    return false;
-  }
-
-  public boolean move(MFEDirection _direction)
-  {
-    return false;
-  }
-
-  public void setSpeed(int _speed)
-  {
-  }
-
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+  public void save() throws DataAccessException;
+  public abstract MFISaveable load(int _id) throws DataAccessException;
+  public List<? extends MFISaveable> loadAll() throws DataAccessException;
+  public void delete() throws DataAccessException;
+  public int getUnsavedMarker();
+  public MFISaveable getPayload();
 }

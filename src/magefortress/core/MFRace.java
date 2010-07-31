@@ -25,6 +25,7 @@
 package magefortress.core;
 
 import java.util.logging.Logger;
+import magefortress.storage.MFISaveable;
 
 /**
  * Contains attributes equal across all creatures of the same race, namely:
@@ -35,9 +36,9 @@ import java.util.logging.Logger;
  * <li>...</li>
  * </ul>
  *
- * Instances of this class are <strong>immutable</strong>.
+ * Instances of this class are <strong>immutable</strong> except regarding their id.
  */
-public final class MFRace implements Immutable
+public class MFRace implements Immutable, MFISaveable
 {
   /**
    * Constructor with behavior classes defined by a string. It converts the
@@ -103,9 +104,16 @@ public final class MFRace implements Immutable
     this.holdingBehavior = _holdingBehavior;
   }
 
+  @Override
   public int getId()
   {
     return this.id;
+  }
+
+  @Override
+  public void setId(int _id)
+  {
+    this.id = _id;
   }
 
   public String getName()
@@ -153,7 +161,7 @@ public final class MFRace implements Immutable
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final int id;
+  private int id;
   private final String name;
   private final Class<? extends MFIMovable> movingBehavior;
   private final Class<? extends MFIHoldable> holdingBehavior;

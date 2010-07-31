@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.storage;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.core.Singleton;
 
 /**
  * Handles low-level database work. This class is a singleton.

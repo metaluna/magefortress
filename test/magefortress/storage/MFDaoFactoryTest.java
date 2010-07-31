@@ -22,55 +22,51 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.storage;
 
-import java.util.EnumSet;
+import magefortress.core.MFRace;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-/**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
- */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFDaoFactoryTest
 {
+  private MFDaoFactory factory;
 
-  public boolean canMove()
+  @Before
+  public void setUp()
   {
-    return false;
+    this.factory = new MFDaoFactory(MFDaoFactory.Storage.SQL);
   }
 
-  public boolean move(MFEDirection _direction)
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutStorageMechanism()
   {
-    return false;
+    new MFDaoFactory(null);
   }
 
-  public void setSpeed(int _speed)
+  @Test
+  public void shouldGetRaceDaoWithoutRace()
   {
+    MFIRaceDao raceDao = factory.getRaceDao();
+    assertNotNull(raceDao);
+    assertNull(raceDao.getPayload());
   }
 
-  public int getSpeed()
+  @Test
+  public void shouldGetRaceDaoWithRace()
   {
-    return 0;
+    MFRace mockRace = mock(MFRace.class);
+    MFIRaceDao raceDao = factory.getRaceDao(mockRace);
+    assertEquals(mockRace, raceDao.getPayload());
   }
 
-  public void setCurrentHeading(MFLocation _heading)
+  @Test
+  public void shouldGetRaceSqlDao()
   {
+    MFIRaceDao raceDao = factory.getRaceDao();
+    assertEquals(MFRaceSqlDao.class, raceDao.getClass());
   }
-
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
 
 }

@@ -22,55 +22,21 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.storage;
 
-import java.util.EnumSet;
+import magefortress.core.MFRace;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ *
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public interface MFIRaceDao extends MFIDao
 {
-
-  public boolean canMove()
-  {
-    return false;
-  }
-
-  public boolean move(MFEDirection _direction)
-  {
-    return false;
-  }
-
-  public void setSpeed(int _speed)
-  {
-  }
-
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  public int getClearance()
-  {
-    return 0;
-  }
-
+  /**
+   * Returns the race object contained in this DAO. May be null.
+   */
+  @Override
+  public MFRace getPayload();
+  
   //---vvv---      PRIVATE METHODS      ---vvv---
 
 }
