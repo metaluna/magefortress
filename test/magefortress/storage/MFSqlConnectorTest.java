@@ -38,7 +38,7 @@ public class MFSqlConnectorTest
 {
 
   final static MFSqlConnector dbinstance = MFSqlConnector.getInstance();
-  final static String DATABASE = "test.db";
+  final static String DATABASE = "magefortress.test.db";
   final static String DATABASE_SCHEMA = "magefortress.sql";
   final static String FIXTURES = "test_fixtures.sql";
 

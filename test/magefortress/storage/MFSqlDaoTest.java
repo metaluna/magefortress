@@ -41,7 +41,7 @@ public class MFSqlDaoTest
   public static void setUpClass()
   {
     realDb = MFSqlConnector.getInstance();
-    realDb.connect("test.db");
+    realDb.connect("magefortress.test.db");
     realDb.loadFromFile("magefortress.sql");
     realDb.loadFromFile("test_fixtures.sql");
     new MFRaceSqlDao(realDb).prepareStatements();
