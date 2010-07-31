@@ -97,7 +97,7 @@ public class MFTile implements MFIPaintable
     this.placedObject = null;
 
     // init clearance values
-    this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
+    this.naviInfo = new MFNavigationTile(_posX, _posY, _posZ);
 
   }
 
@@ -355,34 +355,6 @@ public class MFTile implements MFIPaintable
   }
 
   /**
-   * Sets the size of the biggest creature which can pass the tile.
-   * @param _movementType The type of movement
-   * @param _clearance The size of the creature
-   */
-  void setClearance(MFEMovementType _movementType, int _clearance)
-  {
-    this.clearanceValues.put(_movementType, _clearance);
-  }
-
-  /**
-   * Gets the size of the biggest creature which can pass the tile.
-   * @param _movementType The movement type
-   * @return The size of the creature
-   */
-  int getClearance(MFEMovementType _movementType)
-  {
-    Integer result = this.clearanceValues.get(_movementType);
-    if (result == null) {
-      String msg = "Tile " + this.toString() +
-                    ": Must set clearance value for " + _movementType.toString() +
-                    " before trying to get it.";
-      logger.log(Level.WARNING, msg);
-      throw new IllegalArgumentException(msg);
-    }
-    return result;
-  }
-
-  /**
    * Sets the corner type of the specified direction.
    * @param _direction The direction of the corner
    * @param corner The type of corner
@@ -435,54 +407,46 @@ public class MFTile implements MFIPaintable
     return this.corners.get(_direction);
   }
 
-  /**
-   * Sets the section the tile belongs to. For navigational use.
-   * @param _section The parent section.
-   */
-  void setParentSection(MFSection _section)
+  void setClearance(MFEMovementType _movementType, int _clearance)
   {
-    if (_section == null) {
-      String msg = "Tile: Cannot set parent section to null.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    this.parentSection = _section;
+    this.naviInfo.setClearance(_movementType, _clearance);
   }
 
-  /**
-   * Gets the section the tile belongs to. For navigational use. May be
-   * <code>null</code> if it was not set yet.
-   * @return The parent section
-   */
+  int getClearance(MFEMovementType _movementType)
+  {
+    return this.naviInfo.getClearance(_movementType);
+  }
+
+  void setParentSection(MFSection _section)
+  {
+    this.naviInfo.setParentSection(_section);
+  }
+
   MFSection getParentSection()
   {
-    return this.parentSection;
+    return this.naviInfo.getParentSection();
   }
   
-  /**
-   * Marks the tile as a section entrance. If set to <code>null</code> the tile
-   * stops being an entrance. For navigational use.
-   * @param _entrance the entrance
-   */
   void setEntrance(MFSectionEntrance _entrance)
   {
-    this.entrance = _entrance;
+    this.naviInfo.setEntrance(_entrance);
   }
 
   MFSectionEntrance getEntrance()
   {
-    return this.entrance;
+    return this.naviInfo.getEntrance();
   }
 
   boolean isEntrance()
   {
-    return this.entrance != null;
+    return this.naviInfo.isEntrance();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final int WALL_WIDTH = 12;
   private static final Logger logger = Logger.getLogger(MFTile.class.getName());
 
+  private final MFNavigationTile naviInfo;
   private int posX, posY, posZ;
   private boolean isUnderground;
   private boolean isDugOut;
@@ -491,21 +455,12 @@ public class MFTile implements MFIPaintable
   /**The types of corners. Automatically calculated
    * @Transient */
   private EnumMap<MFEDirection, Corner> corners;
-  /** Saves how big a creature can stand on this and the surrounding tiles.
-   * @Transient */
-  private EnumMap<MFEMovementType, Integer> clearanceValues;
   /** The room to which the tile belongs, if any.*/
   private MFRoom room;
   /** Wall and floor construction listeners */
   private LinkedList<MFITileConstructionsListener> constructionsListeners;
   /** Items placed on the tile like furniture, food or dropped clothes */
   private MFIPlaceable placedObject;
-  /** The parent navigational section
-   * @Transient */
-  private MFSection parentSection;
-  /** Marks the tile as being an entrance
-   * @Transient */
-  private MFSectionEntrance entrance;
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {
