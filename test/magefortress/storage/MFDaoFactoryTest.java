@@ -25,6 +25,8 @@
 package magefortress.storage;
 
 import magefortress.core.MFRace;
+import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -67,6 +69,36 @@ public class MFDaoFactoryTest
   {
     MFIRaceDao raceDao = factory.getRaceDao();
     assertEquals(MFRaceSqlDao.class, raceDao.getClass());
+  }
+
+  @Test
+  public void shouldGetMapDaoWithMap()
+  {
+    MFMap mockMap = mock(MFMap.class);
+    MFIMapDao mapDao = factory.getMapDao(mockMap);
+    assertEquals(mockMap, mapDao.getPayload());
+  }
+
+  @Test
+  public void shouldGetMapSqlDao()
+  {
+    MFIMapDao mapDao = factory.getMapDao();
+    assertEquals(MFMapSqlDao.class, mapDao.getClass());
+  }
+
+  @Test
+  public void shouldGetTileDaoWithTile()
+  {
+    MFTile mockTile = mock(MFTile.class);
+    MFITileDao tileDao = factory.getTileDao(mockTile);
+    assertEquals(mockTile, tileDao.getPayload());
+  }
+
+  @Test
+  public void shouldGetTileSqlDao()
+  {
+    MFITileDao tileDao = factory.getTileDao();
+    assertEquals(MFTileSqlDao.class, tileDao.getClass());
   }
 
 }

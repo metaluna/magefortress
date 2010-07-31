@@ -26,6 +26,8 @@ package magefortress.storage;
 
 import java.util.logging.Logger;
 import magefortress.core.MFRace;
+import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 
 /**
  * Factory which produces Data Access Objects which are used to save&load
@@ -59,15 +61,47 @@ public class MFDaoFactory
     return this.getRaceDao(null);
   }
 
-  public MFIRaceDao getRaceDao(MFRace _race)
+  public MFIRaceDao getRaceDao(MFRace _payload)
   {
     MFIRaceDao raceDao;
     switch (this.storage) {
-      case SQL: raceDao = new MFRaceSqlDao(this.db, _race); break;
+      case SQL: raceDao = new MFRaceSqlDao(this.db, _payload); break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
     return raceDao;
+  }
+
+  public MFIMapDao getMapDao()
+  {
+    return this.getMapDao(null);
+  }
+
+  public MFIMapDao getMapDao(MFMap _payload)
+  {
+    MFIMapDao mapDao;
+    switch (this.storage) {
+      case SQL: mapDao = new MFMapSqlDao(this.db, _payload, this); break;
+      default: throw new AssertionError("Unexpected statement: storage mechanism " +
+              storage + " unknown.");
+    }
+    return mapDao;
+  }
+
+  public MFITileDao getTileDao()
+  {
+    return this.getTileDao(null);
+  }
+
+  public MFITileDao getTileDao(MFTile _payload)
+  {
+    MFITileDao tileDao;
+    switch (this.storage) {
+      case SQL: tileDao = new MFTileSqlDao(this.db, _payload); break;
+      default: throw new AssertionError("Unexpected statement: storage mechanism " +
+              storage + " unknown.");
+    }
+    return tileDao;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -97,7 +131,7 @@ public class MFDaoFactory
   private void prepareStatements()
   {
     new MFRaceSqlDao(this.db).prepareStatements();
-    new MFMapSqlDao(this.db).prepareStatements();
+    new MFMapSqlDao(this.db, this).prepareStatements();
   }
 
 }
