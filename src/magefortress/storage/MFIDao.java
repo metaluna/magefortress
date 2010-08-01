@@ -29,12 +29,12 @@ import java.util.List;
 /**
  * Interface used by all DAOs to store and load them from a storage mechanism.
  */
-public interface MFIDao
+public interface MFIDao<T extends MFISaveable>
 {
   public void save() throws DataAccessException;
-  public abstract MFISaveable load(int _id) throws DataAccessException;
-  public List<? extends MFISaveable> loadAll() throws DataAccessException;
+  public abstract T load(int _id) throws DataAccessException;
+  public List<? extends T> loadAll() throws DataAccessException;
   public void delete() throws DataAccessException;
   public int getUnsavedMarker();
-  public MFISaveable getPayload();
+  public T getPayload();
 }

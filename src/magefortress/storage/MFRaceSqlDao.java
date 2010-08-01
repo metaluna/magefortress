@@ -35,7 +35,7 @@ import magefortress.core.MFRace;
 /**
  *
  */
-class MFRaceSqlDao extends MFSqlDao implements MFIRaceDao, Immutable
+class MFRaceSqlDao extends MFSqlDao<MFRace> implements MFIRaceDao, Immutable
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO races (name, hold_behavior, move_behavior) VALUES (?,?,?);";
@@ -56,35 +56,11 @@ class MFRaceSqlDao extends MFSqlDao implements MFIRaceDao, Immutable
   /**
    * Constructor 
    * @param _db
+   * @param _race
    */
   public MFRaceSqlDao(MFSqlConnector _db, MFRace _race)
   {
-    super(_db);
-    this.race = _race;
-  }
-
-  @Override
-  public MFRace load(int _id) throws DataAccessException
-  {
-    MFRace gotRace = (MFRace) super.load(_id);
-
-    return gotRace;
-  }
-
-  @Override
-  public List<MFRace> loadAll() throws DataAccessException
-  {
-    List<MFRace> gotRaces = new ArrayList<MFRace>();
-    for (MFISaveable payload : super.loadAll()) {
-      gotRaces.add((MFRace) payload);
-    }
-    return gotRaces;
-  }
-
-  @Override
-  public MFRace getPayload()
-  {
-    return this.race;
+    super(_db, _race);
   }
 
   //---vvv---       PROTECTED METHODS        ---vvv---
@@ -105,6 +81,8 @@ class MFRaceSqlDao extends MFSqlDao implements MFIRaceDao, Immutable
   protected MFRace readVectorizedData(final Map<String, Object> _data)
           throws DataAccessException
   {
+    assert _data != null && !_data.isEmpty();
+
     int id = (Integer) _data.get("id");
     String name = (String) _data.get("name");
     String holdBehaviorName = (String) _data.get("hold_behavior");
@@ -129,15 +107,13 @@ class MFRaceSqlDao extends MFSqlDao implements MFIRaceDao, Immutable
   protected List<Object> getVectorizedData()
   {
     final List<Object> vectorizedData = new ArrayList<Object>(4);
-    vectorizedData.add(this.race.getName());
-    vectorizedData.add(this.race.getHoldingBehaviorClass().getName());
-    vectorizedData.add(this.race.getMovingBehaviorClass().getName());
-    vectorizedData.add(this.race.getId());
+    vectorizedData.add(this.getPayload().getName());
+    vectorizedData.add(this.getPayload().getHoldingBehaviorClass().getName());
+    vectorizedData.add(this.getPayload().getMovingBehaviorClass().getName());
+    vectorizedData.add(this.getPayload().getId());
     return vectorizedData;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** The represented race. May be null if this object is used to load data */
-  private final MFRace race;
 
 }

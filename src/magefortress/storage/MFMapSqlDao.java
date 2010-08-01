@@ -28,13 +28,14 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import magefortress.core.Immutable;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 
 /**
  *
  */
-class MFMapSqlDao extends MFSqlDao implements MFIMapDao
+class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO maps (width, height, depth) VALUES (?,?,?);";
@@ -46,6 +47,7 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
   /**
    * Most basic constructor
    * @param _db
+   * @param _daoFactory
    */
   public MFMapSqlDao(MFSqlConnector _db, MFDaoFactory _daoFactory)
   {
@@ -54,41 +56,65 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
 
   /**
    * Constructor
-   * @param _db
-   * @param _map
-   * @param _daoFactory
+   * @param _db The database connection
+   * @param _map The map that has to be saved/deleted
+   * @param _daoFactory The factory used to save and load the map's tiles
    */
   public MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory)
   {
-    super(_db);
-    this.map = _map;
+    super(_db, _map);
     this.daoFactory = _daoFactory;
+  }
+
+  @Override
+  public void save() throws DataAccessException
+  {
+    // save the map
+    super.save();
+
+    // additionally save all tiles
+    this.saveTiles();
   }
 
   @Override
   public MFMap load(int _id) throws DataAccessException
   {
-    MFMap gotMap = (MFMap) super.load(_id);
+    // load the map
+    MFMap gotMap = super.load(_id);
 
+    // additionally load all tiles
     this.loadTiles(gotMap);
-    
+
     return gotMap;
   }
 
   @Override
-  public List<MFMap> loadAll() throws DataAccessException
+  public List<? extends MFMap> loadAll() throws DataAccessException
   {
-    List<MFMap> gotMaps = new ArrayList<MFMap>();
-    for (MFISaveable payload : super.loadAll()) {
-      gotMaps.add((MFMap) payload);
+    // load maps
+    List<? extends MFMap> gotMaps = super.loadAll();
+
+    // additionally load all tiles of all maps
+    for (MFMap map : gotMaps) {
+      this.loadTiles(map);
     }
     return gotMaps;
   }
 
   @Override
-  public MFMap getPayload()
+  public void delete() throws DataAccessException
   {
-    return this.map;
+    if (this.getPayload() == null) {
+      String msg = "MFMapSqlDao: Can't delete null map. " +
+                      "Please initialize DAO with map object.";
+      logger.severe(msg);
+      throw new NullPointerException(msg);
+    }
+    // delete tiles before deletion of map
+    this.deleteTiles();
+
+    // delete the map
+    super.delete();
   }
 
   //---vvv---       PROTECTED METHODS        ---vvv---
@@ -109,6 +135,8 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
   protected MFMap readVectorizedData(final Map<String, Object> _data)
           throws DataAccessException
   {
+    assert _data != null && !_data.isEmpty();
+    
     int id = (Integer) _data.get("id");
     int width = (Integer) _data.get("width");
     int height = (Integer) _data.get("height");
@@ -123,22 +151,47 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
   protected List<Object> getVectorizedData()
   {
     final List<Object> vectorizedData = new ArrayList<Object>(4);
-    vectorizedData.add(this.map.getWidth());
-    vectorizedData.add(this.map.getHeight());
-    vectorizedData.add(this.map.getDepth());
-    vectorizedData.add(this.map.getId());
+    vectorizedData.add(this.getPayload().getWidth());
+    vectorizedData.add(this.getPayload().getHeight());
+    vectorizedData.add(this.getPayload().getDepth());
+    vectorizedData.add(this.getPayload().getId());
     return vectorizedData;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** The represented map. May be null if this object is used to load data */
-  private final MFMap map;
-  /** Used to load tiles */
+  /** Used for loading of tiles */
   private final MFDaoFactory daoFactory;
 
-  private void loadTiles(MFMap _map) throws DataAccessException
+  private void saveTiles() throws DataAccessException
   {
-    MFITileDao tileDao = this.daoFactory.getTileDao(_map.getId());
+    MFMap map = this.getPayload();
+    assert map != null : "MFMapSqlDao: Can't save tiles of null map";
+    assert map.getId() != MFSqlDao.UNSAVED_MARKER : "MFMapSqlDao: Map has " +
+                                                    "to be saved before tiles.";
+
+    for (int x=0; x<map.getWidth(); ++x) {
+      for (int y=0; y<map.getHeight(); ++y) {
+        for (int z=0; z<map.getDepth(); ++z) {
+          saveTile(map.getTile(x, y, z), map.getId());
+        }
+      }
+    }
+
+  }
+
+  private void saveTile(MFTile _tile, int _mapId) throws DataAccessException
+  {
+    assert _tile != null : "MFMapSqlDao: No tile to save.";
+    
+    MFITileDao tileDao = this.daoFactory.getTileDao(_tile, _mapId);
+    tileDao.save();
+  }
+
+  private void loadTiles(MFMap _map)  throws DataAccessException
+  {
+    assert _map != null : "MFMapSqlDao: Can't load tiles of null map.";
+
+    MFITileDao tileDao = this.daoFactory.getTileDao();
 
     List<MFTile> tiles = tileDao.loadAllOfMap(_map.getId());
 
@@ -151,4 +204,20 @@ class MFMapSqlDao extends MFSqlDao implements MFIMapDao
     }
   }
 
+  private void deleteTiles() throws DataAccessException
+  {
+    MFMap map = this.getPayload();
+    assert map != null : "MFMapSqlDao: Cannot delete tiles of null map.";
+
+    for (int x=0; x<map.getWidth(); ++x) {
+      for (int y=0; y<map.getHeight(); ++y) {
+        for (int z=0; z<map.getDepth(); ++z) {
+          MFTile tile = map.getTile(x, y, z);
+          MFITileDao tileDao = this.daoFactory.getTileDao(tile, map.getId());
+          tileDao.delete();
+        }
+      }
+    }
+    
+  }
 }

@@ -24,55 +24,12 @@
  */
 package magefortress.storage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.EnumMap;
-import java.util.Map;
-
 /**
  *
  */
-public class MFMockSqlDao extends MFSqlDao<MFMockSaveable> implements MFIMockDao
+public interface MFIMockDao extends MFIDao<MFMockSaveable>
 {
 
-  public MFMockSqlDao(MFSqlConnector _db)
-  {
-    this(_db, null);
-  }
-
-  public MFMockSqlDao(MFSqlConnector _db, MFMockSaveable _payload)
-  {
-    super(_db, _payload);
-  }
-
-  @Override
-  protected EnumMap<MFESqlOperations, String> getStatements()
-  {
-    EnumMap<MFESqlOperations, String> queries =
-            new EnumMap<MFESqlOperations, String>(MFESqlOperations.class);
-    queries.put(MFESqlOperations.CREATE, "c");
-    queries.put(MFESqlOperations.READ, "r");
-    queries.put(MFESqlOperations.READ_ALL, "ra");
-    queries.put(MFESqlOperations.UPDATE, "u");
-    queries.put(MFESqlOperations.DESTROY, "d");
-
-    return queries;
-  }
-
-  @Override
-  protected List<Object> getVectorizedData()
-  {
-    List<Object> data = new ArrayList<Object>(1);
-    data.add("mock data");
-
-    return data;
-  }
-
-  @Override
-  protected MFMockSaveable readVectorizedData(Map<String, Object> _data) throws DataAccessException
-  {
-    return null;
-  }
-
   //---vvv---      PRIVATE METHODS      ---vvv---
+
 }

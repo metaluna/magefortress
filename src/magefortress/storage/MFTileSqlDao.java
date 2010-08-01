@@ -28,12 +28,13 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import magefortress.core.Immutable;
 import magefortress.map.MFTile;
 
 /**
  *
  */
-class MFTileSqlDao extends MFSqlDao implements MFITileDao
+class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO tiles (map_id, room_id, " +
@@ -58,38 +59,19 @@ class MFTileSqlDao extends MFSqlDao implements MFITileDao
    */
   public MFTileSqlDao(MFSqlConnector _db)
   {
-    this(_db, null);
+    this(_db, null, MFSqlDao.UNSAVED_MARKER);
   }
 
   /**
-   * Constructor used for saving tiles
+   * Constructor used for saving/deleting tiles of a map
    * @param _db
-   */
-  public MFTileSqlDao(MFSqlConnector _db, MFTile _tile)
-  {
-    super(_db);
-    this.tile = _tile;
-    this.mapId = -1;
-  }
-
-  /**
-   * Constructor used for loading tiles of a map
-   * @param _db
+   * @param _tile
    * @param _mapId
    */
-  public MFTileSqlDao(MFSqlConnector _db, int _mapId)
+  public MFTileSqlDao(MFSqlConnector _db, MFTile _tile, int _mapId)
   {
-    super(_db);
-    this.tile = null;
+    super(_db, _tile);
     this.mapId = _mapId;
-  }
-
-  @Override
-  public MFTile load(int _id) throws DataAccessException
-  {
-    MFTile gotTile = (MFTile) super.load(_id);
-
-    return gotTile;
   }
 
   @Override
@@ -100,16 +82,16 @@ class MFTileSqlDao extends MFSqlDao implements MFITileDao
     final List<Object> parameters = new ArrayList<Object>(1);
     parameters.add(_mapId);
 
-    for (MFISaveable payload : super.loadAll("READ_MAP_TILES", parameters)) {
-      gotTiles.add((MFTile) payload);
+    for (MFTile tile : super.loadAll("READ_MAP_TILES", parameters)) {
+      gotTiles.add(tile);
     }
     return gotTiles;
   }
 
   @Override
-  public MFTile getPayload()
+  public int getMapId()
   {
-    return this.tile;
+    return this.mapId;
   }
 
   //---vvv---       PROTECTED METHODS        ---vvv---
@@ -133,8 +115,10 @@ class MFTileSqlDao extends MFSqlDao implements MFITileDao
   protected MFTile readVectorizedData(final Map<String, Object> _data)
           throws DataAccessException
   {
+    assert _data != null && !_data.isEmpty();
+
     int id = (Integer) _data.get("id");
-    int mapId = (Integer) _data.get("map_id");
+    int unusedMapId = (Integer) _data.get("map_id");
     int roomId = (Integer) _data.get("room_id");
     int objectId = (Integer) _data.get("object_id");
     int posX = (Integer) _data.get("x");
@@ -158,11 +142,6 @@ class MFTileSqlDao extends MFSqlDao implements MFITileDao
       // TODO add object to tile
     }
 
-    if (mapId != this.mapId) {
-      String msg = "Map id mismatch. Expected " + this.mapId + ", got " + mapId;
-      logger.warning(msg);
-    }
-
     return gotTile;
   }
 
@@ -176,23 +155,21 @@ class MFTileSqlDao extends MFSqlDao implements MFITileDao
     //vectorizedData.add(tile.getObject().getId());
     vectorizedData.add(this.getUnsavedMarker());
     vectorizedData.add(this.getUnsavedMarker());
-    vectorizedData.add(tile.getPosX());
-    vectorizedData.add(tile.getPosY());
-    vectorizedData.add(tile.getPosZ());
-    vectorizedData.add(tile.isUnderground());
-    vectorizedData.add(tile.isDugOut());
-    vectorizedData.add(tile.hasWallNorth());
-    vectorizedData.add(tile.hasWallEast());
-    vectorizedData.add(tile.hasWallSouth());
-    vectorizedData.add(tile.hasWallWest());
-    vectorizedData.add(tile.hasFloor());
-    vectorizedData.add(tile.getId());
+    vectorizedData.add(this.getPayload().getPosX());
+    vectorizedData.add(this.getPayload().getPosY());
+    vectorizedData.add(this.getPayload().getPosZ());
+    vectorizedData.add(this.getPayload().isUnderground());
+    vectorizedData.add(this.getPayload().isDugOut());
+    vectorizedData.add(this.getPayload().hasWallNorth());
+    vectorizedData.add(this.getPayload().hasWallEast());
+    vectorizedData.add(this.getPayload().hasWallSouth());
+    vectorizedData.add(this.getPayload().hasWallWest());
+    vectorizedData.add(this.getPayload().hasFloor());
+    vectorizedData.add(this.getPayload().getId());
     return vectorizedData;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** The represented tile. May be null if this object is used to load data */
-  private final MFTile tile;
   /** Id of the map. Saved here because tiles don't have that information */
   private final int mapId;
 

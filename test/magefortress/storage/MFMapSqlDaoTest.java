@@ -40,46 +40,40 @@ public class MFMapSqlDaoTest
 {
   private MFMapSqlDao unsavedMapSqlDao;
   private MFMapSqlDao savedMapSqlDao;
-  private MFMap unsavedMockMap;
+  private MFMap unsavedMap;
   private MFMap savedMockMap;
   private MFSqlConnector mockDb;
   private MFDaoFactory mockDaoFactory;
   private static MFSqlConnector realDb;
-  private static Properties props;
+  private static MFDaoFactory realDaoFactory;
+  private static final int GENERATED_ID = 42;
+  private static final String CREATE_ID = "CREATE_MFMapSqlDao";
 
   @BeforeClass
   public static void setUpClass()
   {
-    realDb = MFSqlConnector.getInstance();
-    realDb.connect("magefortress.test.db");
-    realDb.loadFromFile("magefortress.sql");
-    realDb.loadFromFile("test_fixtures.sql");
-    
-    props = new Properties();
+    Properties props = new Properties();
     props.setProperty("STORAGE", MFDaoFactory.Storage.SQL.toString());
     props.setProperty("DATABASE", "magefortress.test.db");
+    realDaoFactory = new MFDaoFactory(props);
 
-    new MFMapSqlDao(realDb, new MFDaoFactory(props)).prepareStatements();
+    realDb = MFSqlConnector.getInstance();
+    realDb.loadFromFile("magefortress.sql");
+    realDb.loadFromFile("test_fixtures.sql");
   }
 
   @Before
-  public void setUp() throws ClassNotFoundException
+  public void setUp() throws ClassNotFoundException, DataAccessException
   {
-    // reset real test db
-    //realDb.loadFromFile("magefortress.sql");
-    //realDb.loadFromFile("test_fixtures.sql");
-    //resetDb();
-
     mockDb = mock(MFSqlConnector.class);
+    when(mockDb.insert(eq(CREATE_ID), anyListOf(Object.class)))
+            .thenReturn(GENERATED_ID);
     
     mockDaoFactory = mock(MFDaoFactory.class);
-    MFITileDao mockTileDao = mock(MFITileDao.class);
-    when(mockDaoFactory.getTileDao(anyInt())).thenReturn(mockTileDao);
 
-    unsavedMockMap = mock(MFMap.class);
-    when(unsavedMockMap.getId()).thenReturn(new MFMapSqlDao(mockDb, mockDaoFactory).getUnsavedMarker());
+    unsavedMap = new MFMap(MFSqlDao.UNSAVED_MARKER, 4, 5, 1);
 
-    unsavedMapSqlDao = new MFMapSqlDao(mockDb, unsavedMockMap, mockDaoFactory);
+    unsavedMapSqlDao = new MFMapSqlDao(mockDb, unsavedMap, realDaoFactory);
 
     savedMockMap = mock(MFMap.class);
     when(savedMockMap.getId()).thenReturn(42);
@@ -127,7 +121,7 @@ public class MFMapSqlDaoTest
     ArgumentCaptor<String> queryId = ArgumentCaptor.forClass(String.class);
 
     verify(mockDb).insert(queryId.capture(), anyListOf(Object.class));
-    assertEquals("CREATE_MFMapSqlDao", queryId.getValue());
+    assertEquals(CREATE_ID, queryId.getValue());
   }
 
   @Test
@@ -144,7 +138,7 @@ public class MFMapSqlDaoTest
   @Test
   public void shoudlCallGetVectorizedDataOnSave() throws DataAccessException
   {
-    MFSqlDao spyDao = spy(unsavedMapSqlDao);
+    MFMapSqlDao spyDao = spy(unsavedMapSqlDao);
     spyDao.save();
     verify(spyDao).getVectorizedData();
   }
@@ -152,21 +146,22 @@ public class MFMapSqlDaoTest
   @Test
   public void shouldUpdateMapWithGeneratedId() throws DataAccessException
   {
-    final int generatedId = 42;
-    when(mockDb.insert(eq("CREATE_MFMapSqlDao"), anyListOf(Object.class)))
-            .thenReturn(generatedId);
-
+    MFMap spyMap = spy(unsavedMap);
+    unsavedMapSqlDao = new MFMapSqlDao(mockDb, spyMap, realDaoFactory);
+    
     unsavedMapSqlDao.save();
 
-    verify(unsavedMockMap).setId(generatedId);
+    verify(spyMap).setId(anyInt());
   }
 
   @Test
   public void shouldNotUpdateIdWhenPreviouslySaved() throws DataAccessException
   {
+    MFMap spyMap = spy(unsavedMap);
+
     savedMapSqlDao.save();
 
-    verify(unsavedMockMap, never()).setId(anyInt());
+    verify(spyMap, never()).setId(anyInt());
   }
 
   @Test
@@ -240,7 +235,7 @@ public class MFMapSqlDaoTest
   {
     //resetDb();
     unsavedMapSqlDao = getRealDao();
-    List<MFMap> gotMaps = unsavedMapSqlDao.loadAll();
+    List<? extends MFMap> gotMaps = unsavedMapSqlDao.loadAll();
     assertEquals("Wrong map count;", 2, gotMaps.size());
   }
 
@@ -278,7 +273,7 @@ public class MFMapSqlDaoTest
   @Test
   public void shouldGetMap()
   {
-    assertEquals(unsavedMockMap, unsavedMapSqlDao.getPayload());
+    assertEquals(unsavedMap, unsavedMapSqlDao.getPayload());
   }
 
   @Test
@@ -292,20 +287,20 @@ public class MFMapSqlDaoTest
   public void shouldNotGetMapAfterLoading() throws DataAccessException
   {
     unsavedMapSqlDao = new MFMapSqlDao(
-            realDb, unsavedMockMap, new MFDaoFactory(props));
+            realDb, unsavedMap, realDaoFactory);
 
     MFMap loadedMap = unsavedMapSqlDao.load(1);
     MFMap gotMap    = unsavedMapSqlDao.getPayload();
 
     assertNotNull(loadedMap);
-    assertNotSame(unsavedMockMap, loadedMap);
-    assertEquals(unsavedMockMap, gotMap);
+    assertNotSame(unsavedMap, loadedMap);
+    assertEquals(unsavedMap, gotMap);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private MFMapSqlDao getRealDao()
   {
-    return new MFMapSqlDao(realDb, new MFDaoFactory(props));
+    return new MFMapSqlDao(realDb, realDaoFactory);
   }
 
 

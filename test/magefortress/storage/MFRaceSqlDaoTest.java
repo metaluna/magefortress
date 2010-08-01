@@ -131,7 +131,7 @@ public class MFRaceSqlDaoTest
   @Test
   public void shoudlCallGetVectorizedDataOnSave() throws DataAccessException
   {
-    MFSqlDao spyDao = spy(unsavedRaceSqlDao);
+    MFRaceSqlDao spyDao = spy(unsavedRaceSqlDao);
     spyDao.save();
     verify(spyDao).getVectorizedData();
   }
@@ -181,7 +181,7 @@ public class MFRaceSqlDaoTest
   {
     //resetDb();
     unsavedRaceSqlDao = new MFRaceSqlDao(realDb);
-    List<MFRace> gotRaces = unsavedRaceSqlDao.loadAll();
+    List<? extends MFRace> gotRaces = unsavedRaceSqlDao.loadAll();
     assertEquals(2, gotRaces.size());
   }
 

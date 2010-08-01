@@ -39,13 +39,13 @@ import java.util.logging.Logger;
 /**
  * Superclass for all objects that need to be saved to a relational database.
  */
-abstract class MFSqlDao implements MFIDao
+abstract class MFSqlDao<T extends MFISaveable> implements MFIDao<T>
 {
   /**
    * Constructor taking the database connection.
    * @param _db The database connection
    */
-  public MFSqlDao(MFSqlConnector _db)
+  public MFSqlDao(MFSqlConnector _db, T _payload)
   {
     if (_db == null) {
       String msg = "Couldn't create DAO " + this.getClass().getName() +
@@ -55,6 +55,7 @@ abstract class MFSqlDao implements MFIDao
     }
 
     this.db = _db;
+    this.payload = _payload;
   }
 
   @Override
@@ -87,7 +88,7 @@ abstract class MFSqlDao implements MFIDao
   }
 
   @Override
-  public MFISaveable load(int _id) throws DataAccessException
+  public T load(int _id) throws DataAccessException
   {
     final ArrayList<Object> args = new ArrayList<Object>(1);
     args.add(_id);
@@ -100,21 +101,21 @@ abstract class MFSqlDao implements MFIDao
       throw new DataAccessException(msg);
     }
 
-    MFISaveable gotPayload = this.parseRecord(rs);
+    T gotPayload = this.parseRecord(rs);
     return gotPayload;
   }
 
   @Override
-  public List<? extends MFISaveable> loadAll() throws DataAccessException
+  public List<? extends T> loadAll() throws DataAccessException
   {
     return loadAll("READ_ALL_" + this.getClass().getSimpleName(),
                     Collections.emptyList());
   }
 
-  public List<? extends MFISaveable> loadAll(String _queryId, List<Object> _parameters)
+  public List<? extends T> loadAll(String _queryId, List<Object> _parameters)
           throws DataAccessException
   {
-    final List<MFISaveable> gotPayloads = new ArrayList<MFISaveable>();
+    final List<T> gotPayloads = new ArrayList<T>();
 
     ResultSet rs = this.getDb().query(_queryId, _parameters);
 
@@ -128,7 +129,7 @@ abstract class MFSqlDao implements MFIDao
     try {
 
       while (rs.next()) {
-        MFISaveable gotPayload = this.parseRecord(rs);
+        T gotPayload = this.parseRecord(rs);
         gotPayloads.add(gotPayload);
       }
 
@@ -186,7 +187,15 @@ abstract class MFSqlDao implements MFIDao
     return UNSAVED_MARKER;
   }
 
+  @Override
+  public T getPayload()
+  {
+    return this.payload;
+  }
+
   //---vvv---      PROTECTED METHODS      ---vvv---
+  /** Marks an unsaved object */
+  protected static final int UNSAVED_MARKER = -1;
   /** Logger */
   protected static final Logger logger = Logger.getLogger(MFSqlDao.class.getName());
 
@@ -215,7 +224,7 @@ abstract class MFSqlDao implements MFIDao
    * @param _data The raw data from the database
    * @return The finished object
    */
-  protected abstract MFISaveable readVectorizedData(Map<String, Object> _data)
+  protected abstract T readVectorizedData(Map<String, Object> _data)
           throws DataAccessException;
 
 
@@ -243,8 +252,8 @@ abstract class MFSqlDao implements MFIDao
   //---vvv---       PRIVATE METHODS       ---vvv---
   /** Database connection */
   private final MFSqlConnector db;
-  /** Marks an unsaved object */
-  private static final int UNSAVED_MARKER = -1;
+  /** Data which can be saved or deleted */
+  private final T payload;
 
   /**
    * Template method making use of readVectorizedData(). Here raw data from the
@@ -253,9 +262,9 @@ abstract class MFSqlDao implements MFIDao
    * @param _rs The raw data
    * @return The parse record
    */
-  private MFISaveable parseRecord(final ResultSet _rs) throws DataAccessException
+  private T parseRecord(final ResultSet _rs) throws DataAccessException
   {
-    MFISaveable gotPayload = null;
+    T gotPayload = null;
     int id = 0;
 
     try {
@@ -290,6 +299,10 @@ abstract class MFSqlDao implements MFIDao
   private void createRecord(final List<Object> vectorizedData)
           throws DataAccessException
   {
+    // delete last entry which should be the id
+    assert (Integer) vectorizedData.get(vectorizedData.size()-1) == UNSAVED_MARKER;
+    vectorizedData.remove(vectorizedData.size()-1);
+    
     int generatedId = this.getDb().insert(
             "CREATE_" + this.getClass().getSimpleName(), vectorizedData);
     this.getPayload().setId(generatedId);

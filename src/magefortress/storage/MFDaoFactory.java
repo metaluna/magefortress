@@ -106,31 +106,23 @@ public class MFDaoFactory
     return this.getTileDao(null, _mapId);
   }
 
-  public MFITileDao getTileDao(MFTile _payload)
-  {
-    return this.getTileDao(_payload, 0);
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  private static final Logger logger = Logger.getLogger(MFDaoFactory.class.getName());
-  private Storage storage;
-  private MFSqlConnector db;
-
-  private MFITileDao getTileDao(MFTile _payload, int _mapId)
+  public MFITileDao getTileDao(MFTile _payload, int _mapId)
   {
     MFITileDao tileDao;
     switch (this.storage) {
-      case SQL: if (_payload != null) {
-                  tileDao = new MFTileSqlDao(this.db, _payload);
-                } else {
-                  tileDao = new MFTileSqlDao(this.db, _mapId);
-                }
+      case SQL: tileDao = new MFTileSqlDao(this.db, _payload, _mapId);
                 break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
     return tileDao;
   }
+
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private static final Logger logger = Logger.getLogger(MFDaoFactory.class.getName());
+  private Storage storage;
+  private MFSqlConnector db;
 
   private void switchStorage(Properties _props)
   {

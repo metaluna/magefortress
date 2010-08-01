@@ -64,11 +64,11 @@ public class MFTileSqlDaoTest
 
     unsavedMockTile = mock(MFTile.class);
     when(unsavedMockTile.getId()).thenReturn(new MFTileSqlDao(mockDb).getUnsavedMarker());
-    unsavedTileSqlDao = new MFTileSqlDao(mockDb, unsavedMockTile);
+    unsavedTileSqlDao = new MFTileSqlDao(mockDb, unsavedMockTile, 1);
 
     savedMockTile = mock(MFTile.class);
     when(savedMockTile.getId()).thenReturn(42);
-    savedTileSqlDao = new MFTileSqlDao(mockDb, savedMockTile);
+    savedTileSqlDao = new MFTileSqlDao(mockDb, savedMockTile, 1);
 
   }
 
@@ -130,7 +130,7 @@ public class MFTileSqlDaoTest
   @Test
   public void shoudlCallGetVectorizedDataOnSave() throws DataAccessException
   {
-    MFSqlDao spyDao = spy(unsavedTileSqlDao);
+    MFTileSqlDao spyDao = spy(unsavedTileSqlDao);
     spyDao.save();
     verify(spyDao).getVectorizedData();
   }
@@ -158,7 +158,7 @@ public class MFTileSqlDaoTest
   @Test
   public void shouldLoad() throws DataAccessException
   {
-    unsavedTileSqlDao = new MFTileSqlDao(realDb, 2);
+    unsavedTileSqlDao = new MFTileSqlDao(realDb);
 
     MFTile gotTile = unsavedTileSqlDao.load(7);
 
@@ -189,7 +189,7 @@ public class MFTileSqlDaoTest
   {
     //resetDb();
     int mapId = 2;
-    unsavedTileSqlDao = new MFTileSqlDao(realDb, mapId);
+    unsavedTileSqlDao = new MFTileSqlDao(realDb);
     List<MFTile> gotTiles = unsavedTileSqlDao.loadAllOfMap(mapId);
     assertEquals("Wrong tile count;", 16, gotTiles.size());
   }
@@ -241,7 +241,7 @@ public class MFTileSqlDaoTest
   @Test
   public void shouldNotGetTileAfterLoading() throws DataAccessException
   {
-    unsavedTileSqlDao = new MFTileSqlDao(realDb, 2);
+    unsavedTileSqlDao = new MFTileSqlDao(realDb);
     MFTile gotTile = unsavedTileSqlDao.load(1);
     assertNotNull(gotTile);
     assertNull(unsavedTileSqlDao.getPayload());

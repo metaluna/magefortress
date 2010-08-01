@@ -29,13 +29,8 @@ import magefortress.core.MFRace;
 /**
  *
  */
-public interface MFIRaceDao extends MFIDao
+public interface MFIRaceDao extends MFIDao<MFRace>
 {
-  /**
-   * Returns the race object contained in this DAO. May be null.
-   */
-  @Override
-  public MFRace getPayload();
   
   //---vvv---      PRIVATE METHODS      ---vvv---
 

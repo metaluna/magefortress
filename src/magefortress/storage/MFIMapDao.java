@@ -29,14 +29,9 @@ import magefortress.map.MFMap;
 /**
  *
  */
-public interface MFIMapDao extends MFIDao
+public interface MFIMapDao extends MFIDao<MFMap>
 {
 
-  @Override
-  public MFMap load(int _mapId) throws DataAccessException;
-
-  @Override
-  public MFMap getPayload();
   //---vvv---      PRIVATE METHODS      ---vvv---
 
 }

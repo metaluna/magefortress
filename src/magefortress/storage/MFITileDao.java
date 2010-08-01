@@ -30,12 +30,10 @@ import magefortress.map.MFTile;
 /**
  *
  */
-public interface MFITileDao extends MFIDao
+public interface MFITileDao extends MFIDao<MFTile>
 {
   public List<MFTile> loadAllOfMap(int _mapId) throws DataAccessException;
-
-  @Override
-  public MFTile getPayload();
+  public int getMapId();
 
   //---vvv---      PRIVATE METHODS      ---vvv---
 

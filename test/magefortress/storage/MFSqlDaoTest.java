@@ -32,9 +32,9 @@ import static org.mockito.Mockito.*;
 
 public class MFSqlDaoTest
 {
-  private MFSqlDao sqlDao;
+  private MFSqlDao<MFMockSaveable> sqlDao;
   private MFSqlConnector mockDb;
-  private MFISaveable mockPayload;
+  private MFMockSaveable mockPayload;
   private static MFSqlConnector realDb;
 
   @BeforeClass
@@ -50,7 +50,7 @@ public class MFSqlDaoTest
   @Before
   public void setUp()
   {
-    mockPayload = mock(MFISaveable.class);
+    mockPayload = mock(MFMockSaveable.class);
     mockDb = mock(MFSqlConnector.class);
     sqlDao = new MFMockSqlDao(mockDb, mockPayload);
   }
@@ -75,16 +75,16 @@ public class MFSqlDaoTest
   @Test
   public void shouldCallReadVectorizedData() throws DataAccessException
   {
-    MFSqlDao spyDao = spy(new MFMockSqlDao(realDb, mockPayload));
+    MFSqlDao<MFMockSaveable> spyDao = spy(new MFMockSqlDao(realDb, mockPayload));
     spyDao.load(1);
     
 
   }
 
   @Test
-  public void shoudlCallGetVectorizedData() throws DataAccessException
+  public void shouldCallGetVectorizedData() throws DataAccessException
   {
-    MFSqlDao spyDao = spy(sqlDao);
+    MFSqlDao<MFMockSaveable> spyDao = spy(sqlDao);
     spyDao.save();
     verify(spyDao).getVectorizedData();
   }

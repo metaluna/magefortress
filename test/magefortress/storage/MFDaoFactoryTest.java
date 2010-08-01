@@ -97,11 +97,12 @@ public class MFDaoFactoryTest
   }
 
   @Test
-  public void shouldGetTileDaoWithTile()
+  public void shouldGetTileDaoWithTileAndMap()
   {
     MFTile mockTile = mock(MFTile.class);
-    MFITileDao tileDao = factory.getTileDao(mockTile);
+    MFITileDao tileDao = factory.getTileDao(mockTile, 1);
     assertEquals(mockTile, tileDao.getPayload());
+    assertEquals(1, tileDao.getMapId());
   }
 
   @Test
@@ -110,12 +111,5 @@ public class MFDaoFactoryTest
     MFITileDao tileDao = factory.getTileDao();
     assertEquals(MFTileSqlDao.class, tileDao.getClass());
   }
-
-   @Test
-   public void shouldGetTileSqlDaoWithMap()
-   {
-     MFITileDao tileDao = factory.getTileDao(1);
-     assertNull(tileDao.getPayload());
-   }
 
 }
