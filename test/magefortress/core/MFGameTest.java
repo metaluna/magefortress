@@ -46,7 +46,7 @@ public class MFGameTest
   public void setUp()
   {
     mockMap = mock(MFMap.class);
-    game = new MFGame(mockMap, mock(MFDaoFactory.class));
+    game = new MFGame(mockMap, mock(MFGameObjectFactory.class), mock(MFDaoFactory.class));
   }
 
   @Test

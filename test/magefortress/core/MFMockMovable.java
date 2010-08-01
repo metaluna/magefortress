@@ -37,9 +37,8 @@ public class MFMockMovable implements MFIMovable
     return true;
   }
 
-  public boolean move(MFEDirection _direction)
+  public void move(MFEDirection _direction)
   {
-    return true;
   }
 
   public void setSpeed(int _speed)
@@ -68,6 +67,21 @@ public class MFMockMovable implements MFIMovable
   public int getClearance()
   {
     return 1;
+  }
+
+  public void setClearance(int _clearance)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public MFLocation getLocation()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void setLocation(MFLocation _location)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

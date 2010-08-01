@@ -63,7 +63,7 @@ public class MFGameScreenTest
     gameScreen.enqueueInputAction(mockAction3);
     verifyZeroInteractions(mockAction1, mockAction2, mockAction3);
 
-    gameScreen.update();
+    gameScreen.update(System.currentTimeMillis());
     inOrder.verify(mockAction1).execute();
     inOrder.verify(mockAction2).execute();
     inOrder.verify(mockAction3).execute();
@@ -81,9 +81,9 @@ public class MFGameScreenTest
     MFInputAction mockAction = mock(MFInputAction.class);
     gameScreen.enqueueInputAction(mockAction);
 
-    gameScreen.update();
+    gameScreen.update(System.currentTimeMillis());
     verify(mockAction).execute();
-    gameScreen.update();
+    gameScreen.update(System.currentTimeMillis());
     verifyNoMoreInteractions(mockAction);
   }
 

@@ -260,11 +260,13 @@ public class MFTile implements MFIPaintable, MFISaveable
     return this.placedObject;
   }
 
-  public void update()
+  @Override
+  public void update(long _currentTime)
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  @Override
   public void paint(Graphics2D _g, int _x_translation, int _y_translation)
   {
     final int x = posX * TILESIZE + _x_translation;

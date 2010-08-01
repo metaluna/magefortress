@@ -35,6 +35,8 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
 import magefortress.map.MFTile.Corner;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFDaoFactory;
 import magefortress.storage.MFISaveable;
 
 /**
@@ -159,6 +161,17 @@ public class MFMap implements MFISaveable
     return result;
   }
 
+  public static MFMap loadMap(int _mapId, MFDaoFactory _daoFactory)
+  {
+    try {
+      return _daoFactory.getMapDao().load(_mapId);
+    } catch (DataAccessException e) {
+      String msg = "Unable to load map #" + _mapId;
+      logger.log(Level.SEVERE, msg, e);
+      throw new IllegalArgumentException(msg, e);
+    }
+  }
+
   //---vvv---      PUBLIC METHODS      ---vvv---
 
   public int getId()
@@ -259,26 +272,52 @@ public class MFMap implements MFISaveable
    */
   public void paint(Graphics2D _g, int _level, Rectangle _clippingRect)
   {
-    // select which tiles are visible
-    // start of visible tiles
-    MFLocation start = convertToTilespace(0, 0, _level,
-                                          _clippingRect.x, _clippingRect.y);
-    // end of visible tiles
-    MFLocation end = convertToTilespace(_clippingRect.width-1, _clippingRect.height-1,
-                                      _level, _clippingRect.x, _clippingRect.y);
+//    // select which tiles are visible
+//    // start of visible tiles
+//    MFLocation start = convertToTilespace(0, 0, _level,
+//                                          _clippingRect.x, _clippingRect.y);
+//    // end of visible tiles
+//    MFLocation end = convertToTilespace(_clippingRect.width-1, _clippingRect.height-1,
+//                                      _level, _clippingRect.x, _clippingRect.y);
+//
+//    // only necessary if we don't stop scrolling at the edges of the map
+//    int startX = Math.max(start.x, 0);
+//    int startY = Math.max(start.y, 0);
+//    int endX = Math.min(end.x, this.width-1);
+//    int endY = Math.min(end.y, this.height-1);
 
-    // only necessary if we don't stop scrolling at the edges of the map
-    int startX = Math.max(start.x, 0);
-    int startY = Math.max(start.y, 0);
-    int endX = Math.min(end.x, this.width-1);
-    int endY = Math.min(end.y, this.height-1);
-
+    MFLocation start = this.getVisibleStart(_level, _clippingRect);
+    MFLocation end   = this.getVisibleEnd(_level, _clippingRect);
     // render all visible tiles
-    for (int y = startY; y <= endY; ++y) {
-      for (int x = startX; x <= endX; ++x) {
+    for (int y = start.y; y <= end.y; ++y) {
+      for (int x = start.x; x <= end.x; ++x) {
         map[_level][x][y].paint(_g, _clippingRect.x, _clippingRect.y);
       }
     }
+  }
+
+  public MFLocation getVisibleStart(int _level, Rectangle _clippingRect)
+  {
+    // start of visible tiles
+    MFLocation start = convertToTilespace(0, 0, _level,
+                                          _clippingRect.x, _clippingRect.y);
+    // only necessary if we don't stop scrolling at the edges of the map
+    int startX = Math.max(start.x, 0);
+    int startY = Math.max(start.y, 0);
+
+    return new MFLocation(startX, startY, _level);
+  }
+
+  public MFLocation getVisibleEnd(int _level, Rectangle _clippingRect)
+  {
+    // end of visible tiles
+    MFLocation end = convertToTilespace(_clippingRect.width-1, _clippingRect.height-1,
+                                      _level, _clippingRect.x, _clippingRect.y);
+    // only necessary if we don't stop scrolling at the edges of the map
+    int endX = Math.min(end.x, this.width-1);
+    int endY = Math.min(end.y, this.height-1);
+    
+    return new MFLocation(endX, endY, _level);
   }
 
   /**

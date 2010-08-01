@@ -24,78 +24,28 @@
  */
 package magefortress.core;
 
-import java.util.EnumSet;
+import java.awt.image.BufferedImage;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ *
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFGameObjectFactory
 {
-
-  @Override
-  public boolean canMove()
+  public MFGameObjectFactory(MFImageLibrary _imgLib)
   {
-    return false;
+    this.imgLib = _imgLib;
   }
 
-  @Override
-  public void move(MFEDirection _direction)
+  public MFCreature createCreature(MFRace _race)
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
-  }
-
-  @Override
-  public void setSpeed(int _speed)
-  {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  @Override
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
-  {
+    MFCreature result = _race.createCreature();
+    BufferedImage img = this.imgLib.get(DEFAULT_CREATURE_SPRITE);
+    MFStillPaintable sprite = new MFStillPaintable(img);
+    result.setDrawingBehavior(sprite);
+    return result;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-
+  private static final String DEFAULT_CREATURE_SPRITE = "sticky.png";
+  private final MFImageLibrary imgLib;
 }

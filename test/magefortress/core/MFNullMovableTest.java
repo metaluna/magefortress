@@ -45,10 +45,10 @@ public class MFNullMovableTest
     assertFalse(movable.canMove());
   }
 
-  @Test
+  @Test(expected=MFIllegalMoveException.class)
   public void shouldNotMove()
   {
-    assertFalse(movable.move(MFEDirection.N));
+    movable.move(MFEDirection.N);
   }
 
   @Test

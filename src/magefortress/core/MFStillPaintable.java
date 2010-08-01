@@ -24,78 +24,31 @@
  */
 package magefortress.core;
 
-import java.util.EnumSet;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ *
  */
-public class MFNullMovable implements MFIMovable, Immutable
+class MFStillPaintable implements MFIPaintable
 {
 
-  @Override
-  public boolean canMove()
+  public MFStillPaintable(BufferedImage _image)
   {
-    return false;
+    this.image = _image;
   }
 
-  @Override
-  public void move(MFEDirection _direction)
+  public void update(long _newTime)
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
+    //noop
   }
 
-  @Override
-  public void setSpeed(int _speed)
+  public void paint(Graphics2D _g, int _x, int _y)
   {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  @Override
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
-  {
+    _g.drawImage(image, _x, _y, null);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final BufferedImage image;
 
 }

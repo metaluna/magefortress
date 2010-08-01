@@ -31,6 +31,6 @@ import java.awt.Graphics2D;
  */
 public interface MFIPaintable
 {
-  public void update();
+  public void update(long _newTime);
   public void paint(Graphics2D g, int x_translation, int y_translation);
 }

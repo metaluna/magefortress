@@ -84,16 +84,16 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
         // get next tile to move to
         MFEDirection nextMove = this.path.next();
 
-        boolean movedSuccessful = this.getOwner().move(nextMove);
+        this.getOwner().move(nextMove);
         // reset counter
         this.updateCount = 0;
 
         // couldn't move to target tile
-        if (!movedSuccessful) {
-          // recalculate path
-          this.searchPath();
-          return false;
-        }
+//        if (!movedSuccessful) {
+//          // recalculate path
+//          this.searchPath();
+//          return false;
+//        }
 
         // check if we made the last move of the path
         if (!this.path.hasNext()) {

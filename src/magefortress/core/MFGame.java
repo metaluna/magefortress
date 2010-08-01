@@ -40,30 +40,55 @@ import magefortress.storage.MFDaoFactory;
  */
 public class MFGame
 {
-  
-  public MFGame(MFMap _map, MFDaoFactory _daoFactory)
+
+  public static MFGame loadGame(int _mapId, MFGameObjectFactory _gameObjectFactory, MFDaoFactory _daoFactory)
+  {
+    final MFMap map = MFMap.loadMap(_mapId, _daoFactory);
+    final MFGame result = new MFGame(map, _gameObjectFactory, _daoFactory);
+    return result;
+  }
+
+  public MFGame(MFMap _map, MFGameObjectFactory _gameObjectFactory, MFDaoFactory _daoFactory)
   {
     // init channels
     this.channels = new ArrayList<MFCommunicationChannel>();
+    this.creatures = new ArrayList<MFCreature>();
     
     // init map
     this.map = _map;
 
     this.daoFactory = _daoFactory;
+    this.gameObjectFactory = _gameObjectFactory;
+    
   }
 
-  public void update()
+  public void update(long _currentTime)
   {
     processCommunicationChannels();
 
-    // TODO process creatures
+    for (MFCreature creature : this.creatures) {
+      creature.update(_currentTime);
+    }
   }
 
   public void paint(Graphics2D _g, int _currentLevel, Rectangle _clippingRect)
   {
     this.map.paint(_g, _currentLevel, _clippingRect);
+
+    MFLocation start = this.map.getVisibleStart(_currentLevel, _clippingRect);
+    MFLocation end   = this.map.getVisibleEnd(_currentLevel, _clippingRect);
+    
+    // render all visible creatures
+    for (MFCreature creature : this.creatures) {
+      MFLocation location = creature.getLocation();
+      if (location.z == _currentLevel &&
+          start.x <= location.x && location.x <= end.x &&
+          start.y <= location.y && location.y <= end.y) {
+        creature.paint(_g, _clippingRect.x, _clippingRect.y);
+      }
+    }
+
     // TODO paint objects - move to map.paint()?
-    // TODO paint creatures - move to map.paint()?
   }
 
   /**
@@ -106,6 +131,16 @@ public class MFGame
     this.screen.close();
   }
 
+  /**
+   * Adds a creature to the game. It does not have to be placed on the map.
+   * It will be processed regardless.
+   * @param _creature The creature to add.
+   */
+  public void addCreature(MFCreature _creature)
+  {
+    this.creatures.add(_creature);
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** The view on the game */
   private MFScreen screen;
@@ -113,6 +148,10 @@ public class MFGame
   private MFMap map;
   /** Communications channels*/
   private final ArrayList<MFCommunicationChannel> channels;
+  /** Relevant creatures */
+  private final ArrayList<MFCreature> creatures;
+  /** Factory for all game object like creatures, items, plants */
+  private final MFGameObjectFactory gameObjectFactory;
   /** DAO factory */
   private final MFDaoFactory daoFactory;
   /** The logger */

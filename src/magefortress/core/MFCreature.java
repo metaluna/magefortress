@@ -24,13 +24,15 @@
  */
 package magefortress.core;
 
+import java.awt.Graphics2D;
 import java.util.EnumSet;
 import java.util.logging.Logger;
+import magefortress.map.MFTile;
 
 /**
  * Base class for all creatures
  */
-public class MFCreature implements MFIMovable, MFIHoldable
+public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
 {
   public MFCreature(String _name, MFRace _race)
   {
@@ -47,9 +49,10 @@ public class MFCreature implements MFIMovable, MFIHoldable
     this.race = _race;
 
     // 2. set default attributes
-    this.location = MFLocation.NOWHERE;
     this.holdingBehavior = NULL_HOLDABLE;
     this.moveBehavior = NULL_MOVABLE;
+    this.drawingBehavior = NULL_PAINTABLE;
+    this.size = 1;
   }
 
   public String getName()
@@ -73,9 +76,24 @@ public class MFCreature implements MFIMovable, MFIHoldable
     return this.race;
   }
 
-  public MFLocation getLocation()
+  public int getSize()
   {
-    return this.location;
+    return this.size;
+  }
+
+  /**
+   * Must be bigger than 0.
+   * @param _size
+   */
+  public void setSize(int _size)
+  {
+    if (_size < 0) {
+      String msg = "Creature '" + this.name + "': " +
+                    "Size has to be bigger 0.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.size = _size;
   }
 
   public void setItemYearnedFor(MFItem _item)
@@ -122,6 +140,22 @@ public class MFCreature implements MFIMovable, MFIHoldable
     return this.holdingBehavior;
   }
 
+  public void setDrawingBehavior(MFIPaintable _drawingBehavior)
+  {
+    if (_drawingBehavior == null) {
+      String message = "Creature '" + this.name + "': " +
+                        "Drawing behavior must not be null.";
+      logger.severe(message);
+      throw new IllegalArgumentException(message);
+    }
+    this.drawingBehavior = _drawingBehavior;
+  }
+
+  public MFIPaintable getDrawingBehavior()
+  {
+    return this.drawingBehavior;
+  }
+
   public MFLocation lookForSimilarItems(MFItem _item)
   {
     throw new UnsupportedOperationException("Not yet implemented");
@@ -132,6 +166,7 @@ public class MFCreature implements MFIMovable, MFIHoldable
     throw new UnsupportedOperationException("Not yet implemented");
   }
 
+  //---vvv---     MOVABLE INTERFACE     ---vvv---
   @Override
   public void setSpeed(int _speed)
   {
@@ -151,9 +186,9 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   @Override
-  public boolean move(MFEDirection _direction)
+  public void move(MFEDirection _direction)
   {
-    return this.moveBehavior.move(_direction);
+    this.moveBehavior.move(_direction);
   }
 
   @Override
@@ -181,6 +216,25 @@ public class MFCreature implements MFIMovable, MFIHoldable
   }
 
   @Override
+  public void setClearance(int _clearance)
+  {
+    this.moveBehavior.setClearance(_clearance);
+  }
+
+  @Override
+  public MFLocation getLocation()
+  {
+    return this.moveBehavior.getLocation();
+  }
+
+  @Override
+  public void setLocation(MFLocation _location)
+  {
+    this.moveBehavior.setLocation(_location);
+  }
+
+  //---vvv---     HOLDABLE INTERFACE    ---vvv---
+  @Override
   public boolean canHold()
   {
     return this.holdingBehavior.canHold();
@@ -207,15 +261,35 @@ public class MFCreature implements MFIMovable, MFIHoldable
     return this.holdingBehavior.putItem(_room);
   }
 
+  //---vvv---     PAINTABLE INTERFACE    ---vvv---
+  public void update(long _currentTime)
+  {
+    this.drawingBehavior.update(_currentTime);
+  }
+
+  public void paint(Graphics2D _g, int _x_translation, int _y_translation)
+  {
+    final int x = this.moveBehavior.getLocation().x * MFTile.TILESIZE + 
+                    _x_translation + SPRITE_OFFSET_X;
+    final int y = this.moveBehavior.getLocation().y * MFTile.TILESIZE + 
+                    _y_translation + SPRITE_OFFSET_Y;
+
+    this.drawingBehavior.paint(_g, x, y);
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private String name;
-  private final MFRace race;
-  private MFLocation location;
-  private MFItem itemYearnedFor;
-  private MFIMovable moveBehavior;
-  private MFIHoldable holdingBehavior;
   private static final Logger logger = Logger.getLogger(MFCreature.class.getName());
   private static final MFIMovable NULL_MOVABLE = new MFNullMovable();
   private static final MFIHoldable NULL_HOLDABLE = new MFNullHoldable();
+  private static final MFIPaintable NULL_PAINTABLE = new MFNullPaintable();
+  private static final int SPRITE_OFFSET_X = 8;
+  private static final int SPRITE_OFFSET_Y = 4;
 
+  private String name;
+  private int size;
+  private final MFRace race;
+  private MFItem itemYearnedFor;
+  private MFIMovable moveBehavior;
+  private MFIHoldable holdingBehavior;
+  private MFIPaintable drawingBehavior;
 }

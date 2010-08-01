@@ -106,6 +106,28 @@ public class MFLocation
 
     return result;
   }
+
+  @SuppressWarnings("fallthrough")
+  public MFLocation locationOf(MFEDirection _dir)
+  {
+    int xDiff=0, yDiff=0, zDiff=0;
+    
+    switch (_dir) {
+      case NE: xDiff= 1;
+      case N : yDiff=-1; break;
+      case SE: yDiff= 1;
+      case E : xDiff= 1; break;
+      case SW: xDiff=-1;
+      case S : yDiff= 1; break;
+      case NW: yDiff=-1;
+      case W : xDiff=-1; break;
+    }
+
+    MFLocation result = new MFLocation(x+xDiff, y+yDiff, z+zDiff);
+
+    return result;
+  }
+
   @Override
   public String toString()
   {

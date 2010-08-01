@@ -27,75 +27,79 @@ package magefortress.core;
 import java.util.EnumSet;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ *
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFWalksOnTwoLegs implements MFIMovable
 {
 
-  @Override
+  public MFWalksOnTwoLegs()
+  {
+    this.speed = 1;
+    this.clearance = 1;
+    this.location = MFLocation.NOWHERE;
+    this.heading = MFLocation.NOWHERE;
+    this.capabilities = EnumSet.of(MFEMovementType.WALK);
+  }
+
   public boolean canMove()
   {
-    return false;
+    return true;
   }
 
-  @Override
   public void move(MFEDirection _direction)
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
+    this.location = this.location.locationOf(_direction);
   }
 
-  @Override
   public void setSpeed(int _speed)
   {
+    this.speed = _speed;
   }
 
-  @Override
   public int getSpeed()
   {
-    return 0;
+    return this.speed;
   }
 
-  @Override
   public void setCurrentHeading(MFLocation _heading)
   {
+    this.heading = _heading;
   }
 
-  @Override
   public MFLocation getCurrentHeading()
   {
-    return MFLocation.NOWHERE;
+    return this.heading;
   }
 
-  @Override
   public EnumSet<MFEMovementType> getCapabilities()
   {
-    return EnumSet.noneOf(MFEMovementType.class);
+    return this.capabilities;
   }
 
-  @Override
   public int getClearance()
   {
-    return 0;
+    return this.clearance;
   }
 
-  @Override
   public void setClearance(int _clearance)
   {
-    
+    this.clearance = _clearance;
   }
 
-  @Override
   public MFLocation getLocation()
   {
-    return MFLocation.NOWHERE;
+    return this.location;
   }
 
-  @Override
   public void setLocation(MFLocation _location)
   {
+    this.location = _location;
   }
-
+  
   //---vvv---      PRIVATE METHODS      ---vvv---
-
+  private EnumSet<MFEMovementType> capabilities;
+  private int                      clearance;
+  private MFLocation               heading;
+  private MFLocation               location;
+  private int                      speed;
 }

@@ -24,78 +24,20 @@
  */
 package magefortress.core;
 
-import java.util.EnumSet;
-
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ *
+ * @author Simon Hardijanto
  */
-public class MFNullMovable implements MFIMovable, Immutable
-{
+public class MFIllegalMoveException extends RuntimeException {
 
-  @Override
-  public boolean canMove()
-  {
-    return false;
-  }
+    public MFIllegalMoveException(String _msg)
+    {
+      super(_msg);
+    }
 
-  @Override
-  public void move(MFEDirection _direction)
-  {
-    throw new MFIllegalMoveException("Creature is unable to move.");
-  }
 
-  @Override
-  public void setSpeed(int _speed)
-  {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  @Override
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
-  {
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+    public MFIllegalMoveException(String _msg, Exception _e)
+    {
+        super(_msg, _e);
+    }
 }

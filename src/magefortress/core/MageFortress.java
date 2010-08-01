@@ -73,13 +73,14 @@ public class MageFortress extends JFrame implements Runnable
     // visible screen
     MFScreen currentScreen;
     // use double buffering
-    BufferStrategy buffer = canvas.getBufferStrategy();
+    final BufferStrategy buffer = canvas.getBufferStrategy();
 
-    long nextUpdate = System.currentTimeMillis() + 1000/FPS;
+    final int interval = 1000/FPS;
+    long nextUpdate = System.currentTimeMillis() + interval;
 
     // try fullscreen mode
-    GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice graphicsDevice = environment.getDefaultScreenDevice();
+    final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    final GraphicsDevice graphicsDevice = environment.getDefaultScreenDevice();
     if (graphicsDevice.isFullScreenSupported()) {
       try {
         graphicsDevice.setFullScreenWindow(this);
@@ -90,7 +91,7 @@ public class MageFortress extends JFrame implements Runnable
           Graphics2D g = null;
 
           // process data
-          currentScreen.update();
+          currentScreen.update(System.currentTimeMillis());
 
           // render
           try {
@@ -108,19 +109,18 @@ public class MageFortress extends JFrame implements Runnable
           buffer.show();
 
           // sync
-          long now = System.currentTimeMillis();
-          if (now < nextUpdate)
+          final long diff = nextUpdate - System.currentTimeMillis();
+          if (diff > 0)
           {
-            long delay = nextUpdate - now;
             try {
-              Thread.sleep(delay);
+              Thread.sleep(diff/3);
             } catch (InterruptedException ex) {
               Logger.getLogger(MageFortress.class.getName()).log(Level.SEVERE, "Thread got woken up", ex);
             }
           }
           else
-            System.out.println("Too slow");
-          nextUpdate = System.currentTimeMillis() + 1000/FPS;
+            System.out.println("Too slow (" + diff + "ms)");
+          nextUpdate = System.currentTimeMillis() + interval;
         }
 
       } finally {
@@ -144,13 +144,21 @@ public class MageFortress extends JFrame implements Runnable
 
     //MFMap demomap = MFMap.createRandomMap(30, 30, 1);
     // load demo map from database
-    MFMap demoMap = null;
-    try {
-      demoMap = daoFactory.getMapDao().load(DEMOMAP_ID);
-    } catch (DataAccessException ex) {
-      Logger.getLogger(MageFortress.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    MFGame game = new MFGame(demoMap, daoFactory);
+//    MFMap demoMap = null;
+//    try {
+//      demoMap = daoFactory.getMapDao().load(DEMOMAP_ID);
+//    } catch (DataAccessException ex) {
+//      Logger.getLogger(MageFortress.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+    MFImageLibrary imgLib = MFImageLibrary.getInstance();
+    MFGameObjectFactory gameObjectFactory = new MFGameObjectFactory(imgLib);
+    MFGame game = MFGame.loadGame(DEMOMAP_ID, gameObjectFactory, daoFactory);
+
+    // Testing creatures
+    MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
+    MFCreature sticky1 = gameObjectFactory.createCreature(stickies);
+    sticky1.setLocation(new MFLocation(3, 3, 0));
+    game.addCreature(sticky1);
     
     MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
     game.setScreen(gameScreen);

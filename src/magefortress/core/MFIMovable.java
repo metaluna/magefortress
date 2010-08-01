@@ -32,11 +32,14 @@ import java.util.EnumSet;
 public interface MFIMovable
 {
   public boolean canMove();
-  public boolean move(MFEDirection _direction);
+  public void move(MFEDirection _direction);
   public void setSpeed(int _speed);
   public int getSpeed();
   public void setCurrentHeading(MFLocation _heading);
   public MFLocation getCurrentHeading();
   public EnumSet<MFEMovementType> getCapabilities();
   public int getClearance();
+  public void setClearance(int _clearance);
+  public MFLocation getLocation();
+  public void setLocation(MFLocation _location);
 }

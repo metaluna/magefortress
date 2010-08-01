@@ -24,78 +24,34 @@
  */
 package magefortress.core;
 
-import java.util.EnumSet;
+import java.awt.Graphics2D;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ * Does no painting
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFNullPaintable implements MFIPaintable
 {
-
-  @Override
-  public boolean canMove()
+  public MFNullPaintable()
   {
-    return false;
+    this.lastUpdate = System.currentTimeMillis();
+    this.interval = 100;
   }
 
-  @Override
-  public void move(MFEDirection _direction)
+  public void update(long _currentTime)
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
+    final int diff = (int) (_currentTime - this.lastUpdate);
+    if (diff >= interval) {
+      // do stuff
+      this.lastUpdate = _currentTime;
+    }
   }
 
-  @Override
-  public void setSpeed(int _speed)
-  {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  @Override
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
+  public void paint(Graphics2D g, int x_translation, int y_translation)
   {
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private long lastUpdate;
+  private int interval;
 
 }
