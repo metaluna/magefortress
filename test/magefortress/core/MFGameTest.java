@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.graphics.MFImageLibrary;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.gui.MFGameScreen;
@@ -46,7 +47,7 @@ public class MFGameTest
   public void setUp()
   {
     mockMap = mock(MFMap.class);
-    game = new MFGame(mockMap, mock(MFGameObjectFactory.class), mock(MFDaoFactory.class));
+    game = new MFGame(mockMap, MFImageLibrary.getInstance(), mock(MFDaoFactory.class));
   }
 
   @Test

@@ -89,7 +89,7 @@ public class MFConstructionSiteTest
 
     public MFConstructionSiteMock(MFLocation _location, int _width, int _height)
     {
-      super(_location, _width, _height);
+      super(_location, _width, _height, mock(MFJobFactory.class));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class MFConstructionSiteTest
     }
 
     @Override
-    public MFJob getJob()
+    public MFAssignableJob getJob()
     {
       return null;
     }

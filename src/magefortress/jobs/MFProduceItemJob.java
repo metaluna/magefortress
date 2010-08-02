@@ -32,7 +32,7 @@ import magefortress.map.MFMap;
 /**
  * Produces a single item.
  */
-public class MFProduceItemJob extends MFJob
+public class MFProduceItemJob extends MFAssignableJob
 {
   public MFProduceItemJob(final MFWorkshop _sender, final MFMap _map, final MFBlueprint _blueprint)
   {
@@ -42,7 +42,7 @@ public class MFProduceItemJob extends MFJob
   }
 
   @Override
-  void initJob()
+  protected void initJob()
   {
     MFWorkshop workshop = (MFWorkshop) this.getSender();
 
@@ -52,15 +52,15 @@ public class MFProduceItemJob extends MFJob
       MFSubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());
       MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.map, this.getOwner(), workshop.getLocation());
       MFSubtask dropMaterial   = new MFPutDraggedItemSubtask(this.getOwner(), workshop);
-      this.subtaskQueue.add(locateMaterial);
-      this.subtaskQueue.add(gotoMaterial);
-      this.subtaskQueue.add(pickupMaterial);
-      this.subtaskQueue.add(gotoWorkshop);
-      this.subtaskQueue.add(dropMaterial);
+      this.addSubtask(locateMaterial);
+      this.addSubtask(gotoMaterial);
+      this.addSubtask(pickupMaterial);
+      this.addSubtask(gotoWorkshop);
+      this.addSubtask(dropMaterial);
     }
 
     MFSubtask produceItem = new MFProduceItemSubtask(this.getOwner(), workshop, this.blueprint);
-    this.subtaskQueue.add(produceItem);
+    this.addSubtask(produceItem);
   }
 
   @Override

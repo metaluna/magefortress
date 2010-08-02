@@ -29,15 +29,17 @@ import magefortress.creatures.MFRace;
 import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
+import magefortress.jobs.MFJobFactory;
 
 /**
  *
  */
 public class MFGameObjectFactory
 {
-  public MFGameObjectFactory(MFImageLibrary _imgLib)
+  public MFGameObjectFactory(MFImageLibrary _imgLib, MFJobFactory _jobFactory)
   {
     this.imgLib = _imgLib;
+    this.jobFactory = _jobFactory;
   }
 
   public MFCreature createCreature(MFRace _race)
@@ -52,4 +54,5 @@ public class MFGameObjectFactory
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final String DEFAULT_CREATURE_SPRITE = "sticky.png";
   private final MFImageLibrary imgLib;
+  private final MFJobFactory jobFactory;
 }

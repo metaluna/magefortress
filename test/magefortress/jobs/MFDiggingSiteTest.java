@@ -37,6 +37,7 @@ public class MFDiggingSiteTest
 {
   private MFDiggingSite diggingSite;
   private MFMap mockMap;
+  private MFJobFactory mockJobFactory;
   private MFLocation location;
 
   @Before
@@ -47,13 +48,18 @@ public class MFDiggingSiteTest
     when(this.mockMap.getWidth()).thenReturn(1);
     when(this.mockMap.getHeight()).thenReturn(1);
     when(this.mockMap.getDepth()).thenReturn(1);
-    this.diggingSite = new MFDiggingSite(this.location, this.mockMap);
+
+    this.mockJobFactory = mock(MFJobFactory.class);
+    MFAssignableJob job = mock(MFAssignableJob.class);
+    when(this.mockJobFactory.createDiggingJob(any(MFDiggingSite.class))).thenReturn(job);
+
+    this.diggingSite = new MFDiggingSite(this.location, this.mockMap, this.mockJobFactory);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutLocation()
   {
-    new MFDiggingSite(null, mock(MFMap.class));
+    new MFDiggingSite(null, mock(MFMap.class), mockJobFactory);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -65,7 +71,7 @@ public class MFDiggingSiteTest
     when(mockMap.getHeight()).thenReturn(1);
     when(mockMap.getDepth()).thenReturn(1);
     
-    new MFDiggingSite(invalidLocation, mockMap);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -77,7 +83,7 @@ public class MFDiggingSiteTest
     when(mockMap.getHeight()).thenReturn(1);
     when(mockMap.getDepth()).thenReturn(1);
 
-    new MFDiggingSite(invalidLocation, mockMap);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
   }
 
 
@@ -90,13 +96,13 @@ public class MFDiggingSiteTest
     when(mockMap.getHeight()).thenReturn(1);
     when(mockMap.getDepth()).thenReturn(1);
 
-    new MFDiggingSite(invalidLocation, mockMap);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFDiggingSite(mock(MFLocation.class), null);
+    new MFDiggingSite(mock(MFLocation.class), null, mockJobFactory);
   }
 
   @Test
@@ -104,10 +110,8 @@ public class MFDiggingSiteTest
   {
     assertTrue(this.diggingSite.isJobAvailable());
 
-    MFJob gotJob = this.diggingSite.getJob();
+    MFAssignableJob gotJob = this.diggingSite.getJob();
     assertNotNull(gotJob);
-    assertEquals(this.diggingSite, gotJob.getSender());
-    assertFalse(this.diggingSite.isJobAvailable());
   }
 
   @Test
@@ -115,7 +119,7 @@ public class MFDiggingSiteTest
   {
     assertTrue(this.diggingSite.isJobAvailable());
 
-    MFJob gotJob = this.diggingSite.getJob();
+    MFAssignableJob gotJob = this.diggingSite.getJob();
     assertNotNull(gotJob);
     assertFalse(this.diggingSite.isJobAvailable());
 
@@ -138,7 +142,7 @@ public class MFDiggingSiteTest
   public void shouldNotSendJobOfferToNewSubscriber()
   {
     // grab the job before new interested creature subscribes
-    MFJob gotJob = this.diggingSite.getJob();
+    MFAssignableJob gotJob = this.diggingSite.getJob();
     assertNotNull(gotJob);
     assertFalse(this.diggingSite.isJobAvailable());
 

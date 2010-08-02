@@ -50,8 +50,9 @@ public abstract class MFConstructionSite implements MFIChannelSender
    * @param _topLeftLocation The top-left tile of the construction site
    * @param _width The width of the construction site
    * @param _height The height of the construction site
+   * @param _jobFactory Factory to create job emitting objects
    */
-  public MFConstructionSite(MFLocation _topLeftLocation, int _width, int _height)
+  public MFConstructionSite(MFLocation _topLeftLocation, int _width, int _height, MFJobFactory _jobFactory)
   {
     if (_topLeftLocation == null) {
       String msg = "ConstructionSite: Top left location must not be null. Cannot " +
@@ -68,6 +69,7 @@ public abstract class MFConstructionSite implements MFIChannelSender
     this.location = _topLeftLocation;
     this.width = _width;
     this.height = _height;
+    this.jobFactory = _jobFactory;
   }
 
   @Override
@@ -88,8 +90,14 @@ public abstract class MFConstructionSite implements MFIChannelSender
 
   public abstract void update();
   public abstract void paint(Graphics2D _g, int _x_translation, int _y_translation, MFLocation _location);
-  
+
+  protected MFJobFactory getJobFactory()
+  {
+    return this.jobFactory;
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final MFJobFactory jobFactory;
   private final MFLocation location;
   private final int width;
   private final int height;

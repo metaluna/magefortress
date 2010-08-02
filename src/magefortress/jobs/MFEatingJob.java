@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,49 +24,37 @@
  */
 package magefortress.jobs;
 
-import magefortress.jobs.subtasks.MFLocateWalkableNeighorSubtask;
-import magefortress.jobs.subtasks.MFSubtask;
-import magefortress.jobs.subtasks.MFDigOutTileSubtask;
-import magefortress.jobs.subtasks.MFGotoLocationSubtask;
-import magefortress.core.MFLocation;
-import magefortress.map.MFMap;
+import magefortress.creatures.MFCreature;
 
 /**
- * Digs out a single tile.
+ *
  */
-public class MFDiggingJob extends MFAssignableJob
+public class MFEatingJob extends MFNeedsJob
 {
 
-  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location)
+  public MFEatingJob(MFCreature _owner)
   {
-    super(_sender);
-    this.map = _map;
-    this.location = _location;
+    super(_owner);
   }
 
   @Override
   protected void initJob()
   {
-    MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
-    MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
-    this.addSubtask(findNeighbor);
-    this.addSubtask(gotoTile);
-    this.addSubtask(digTile);
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
   public void pauseJob()
   {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override
   public void cancelJob()
   {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFMap map;
-  private final MFLocation location;
 
 }

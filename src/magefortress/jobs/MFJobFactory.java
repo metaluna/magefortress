@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,49 +24,30 @@
  */
 package magefortress.jobs;
 
-import magefortress.jobs.subtasks.MFLocateWalkableNeighorSubtask;
-import magefortress.jobs.subtasks.MFSubtask;
-import magefortress.jobs.subtasks.MFDigOutTileSubtask;
-import magefortress.jobs.subtasks.MFGotoLocationSubtask;
-import magefortress.core.MFLocation;
-import magefortress.map.MFMap;
+import magefortress.core.MFGame;
+import magefortress.creatures.MFCreature;
 
 /**
- * Digs out a single tile.
+ * Produces jobs
  */
-public class MFDiggingJob extends MFAssignableJob
+public class MFJobFactory
 {
 
-  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location)
+  public MFJobFactory(MFGame _game)
   {
-    super(_sender);
-    this.map = _map;
-    this.location = _location;
+    this.game = _game;
   }
 
-  @Override
-  protected void initJob()
+  public MFIJob createEatingJob(MFCreature _hungryOwner)
   {
-    MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
-    MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
-    this.addSubtask(findNeighbor);
-    this.addSubtask(gotoTile);
-    this.addSubtask(digTile);
+    return new MFEatingJob(_hungryOwner);
   }
-
-  @Override
-  public void pauseJob()
+  
+  public MFAssignableJob createDiggingJob(MFDiggingSite _site)
   {
+    return new MFDiggingJob(_site, game.getMap(), _site.getLocation());
   }
-
-  @Override
-  public void cancelJob()
-  {
-  }
-
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFMap map;
-  private final MFLocation location;
+  private final MFGame game;
 
 }

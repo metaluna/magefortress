@@ -25,7 +25,7 @@
 package magefortress.channel;
 
 import magefortress.core.*;
-import magefortress.jobs.MFJob;
+import magefortress.jobs.MFIJob;
 
 /**
  * Each object that has jobs to offer has to implement this interface. Actors
@@ -53,7 +53,7 @@ public interface MFIChannelSender
    * @return Returns <code>null</code> if no job is available. Otherwise it
    * returns a job.
    */
-  public MFJob getJob();
+  public MFIJob getJob();
 
   /**
    * The location of the sender.

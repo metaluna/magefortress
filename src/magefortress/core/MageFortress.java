@@ -43,6 +43,7 @@ import javax.swing.JFrame;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;
+import magefortress.jobs.MFJobFactory;
 import magefortress.storage.MFDaoFactory;
 
 /**
@@ -154,12 +155,11 @@ public class MageFortress extends JFrame implements Runnable
 //      Logger.getLogger(MageFortress.class.getName()).log(Level.SEVERE, null, ex);
 //    }
     MFImageLibrary imgLib = MFImageLibrary.getInstance();
-    MFGameObjectFactory gameObjectFactory = new MFGameObjectFactory(imgLib);
-    MFGame game = MFGame.loadGame(DEMOMAP_ID, gameObjectFactory, daoFactory);
+    MFGame game = MFGame.loadGame(DEMOMAP_ID, imgLib, daoFactory);
 
     // Testing creatures
     MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
-    MFCreature sticky1 = gameObjectFactory.createCreature(stickies);
+    MFCreature sticky1 = new MFGameObjectFactory(imgLib, new MFJobFactory(game)).createCreature(stickies);
     sticky1.setLocation(new MFLocation(3, 3, 0));
     game.addCreature(sticky1);
     

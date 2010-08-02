@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,49 +24,22 @@
  */
 package magefortress.jobs;
 
-import magefortress.jobs.subtasks.MFLocateWalkableNeighorSubtask;
+import magefortress.creatures.MFCreature;
 import magefortress.jobs.subtasks.MFSubtask;
-import magefortress.jobs.subtasks.MFDigOutTileSubtask;
-import magefortress.jobs.subtasks.MFGotoLocationSubtask;
-import magefortress.core.MFLocation;
-import magefortress.map.MFMap;
 
 /**
- * Digs out a single tile.
+ * Jobs take control of creatures to fulfill the task they were
+ * created to do step-by-step.
+ *
+ * <p><strong>MFJobs hierarchy</strong>: It's now using an interface (MFIJob) 
+ * and a job base class (MFBaseJob) implementing all basic operations. The next
+ * level are MFAssignableJob and MFNeedsJob with a switchable owner and a fixed
+ * owner respectively.
  */
-public class MFDiggingJob extends MFAssignableJob
+public interface MFIJob
 {
-
-  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location)
-  {
-    super(_sender);
-    this.map = _map;
-    this.location = _location;
-  }
-
-  @Override
-  protected void initJob()
-  {
-    MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
-    MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
-    this.addSubtask(findNeighbor);
-    this.addSubtask(gotoTile);
-    this.addSubtask(digTile);
-  }
-
-  @Override
-  public void pauseJob()
-  {
-  }
-
-  @Override
-  public void cancelJob()
-  {
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFMap map;
-  private final MFLocation location;
-
+  public boolean update();
+  public boolean isActive();
+  public MFSubtask getActiveSubtask();
+  public MFCreature getOwner();
 }

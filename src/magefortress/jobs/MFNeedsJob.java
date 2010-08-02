@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,49 +24,42 @@
  */
 package magefortress.jobs;
 
-import magefortress.jobs.subtasks.MFLocateWalkableNeighorSubtask;
-import magefortress.jobs.subtasks.MFSubtask;
-import magefortress.jobs.subtasks.MFDigOutTileSubtask;
-import magefortress.jobs.subtasks.MFGotoLocationSubtask;
-import magefortress.core.MFLocation;
-import magefortress.map.MFMap;
+import magefortress.creatures.MFCreature;
 
 /**
- * Digs out a single tile.
+ *
  */
-public class MFDiggingJob extends MFAssignableJob
+public abstract class MFNeedsJob extends MFBaseJob
 {
 
-  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location)
+  public MFNeedsJob(MFCreature _owner)
   {
-    super(_sender);
-    this.map = _map;
-    this.location = _location;
+    super(_owner);
   }
 
   @Override
-  protected void initJob()
+  public boolean update()
   {
-    MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
-    MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
-    this.addSubtask(findNeighbor);
-    this.addSubtask(gotoTile);
-    this.addSubtask(digTile);
+    if (!this.isActive()) {
+      String msg = "" + this.getClass().getSimpleName() + ": Cannot update " +
+              "when not active.";
+      logger.severe(msg);
+      return true;
+    }
+
+    return super.update();
   }
 
-  @Override
-  public void pauseJob()
+  public void start()
   {
+    this.initJob();
   }
 
-  @Override
-  public void cancelJob()
+  public void pause()
   {
+    this.pauseJob();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFMap map;
-  private final MFLocation location;
 
 }

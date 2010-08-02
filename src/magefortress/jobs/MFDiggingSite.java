@@ -36,9 +36,9 @@ import magefortress.map.MFMap;
 public class MFDiggingSite extends MFConstructionSite
 {
 
-  public MFDiggingSite(MFLocation _location, MFMap _map)
+  public MFDiggingSite(MFLocation _location, MFMap _map, MFJobFactory _jobFactory)
   {
-    super(_location, 1, 1);
+    super(_location, 1, 1, _jobFactory);
     if (_map == null) {
       String msg = "DiggingSite: Map must not be null. Cannot instantiate " +
               "DiggingSite";
@@ -73,12 +73,12 @@ public class MFDiggingSite extends MFConstructionSite
   }
 
   @Override
-  public MFJob getJob()
+  public MFAssignableJob getJob()
   {
-    MFDiggingJob result = null;
+    MFAssignableJob result = null;
 
     if (this.jobAvailable) {
-      result = new MFDiggingJob(this, this.map, this.getLocation());
+      result = this.getJobFactory().createDiggingJob(this);
       this.jobAvailable = false;
     }
 

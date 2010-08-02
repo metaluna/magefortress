@@ -31,7 +31,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFCommunicationChannel;
 import magefortress.creatures.MFCreature;
+import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
+import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.storage.MFDaoFactory;
@@ -42,14 +44,14 @@ import magefortress.storage.MFDaoFactory;
 public class MFGame
 {
 
-  public static MFGame loadGame(int _mapId, MFGameObjectFactory _gameObjectFactory, MFDaoFactory _daoFactory)
+  public static MFGame loadGame(int _mapId, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
   {
     final MFMap map = MFMap.loadMap(_mapId, _daoFactory);
-    final MFGame result = new MFGame(map, _gameObjectFactory, _daoFactory);
+    final MFGame result = new MFGame(map, _imgLib, _daoFactory);
     return result;
   }
 
-  public MFGame(MFMap _map, MFGameObjectFactory _gameObjectFactory, MFDaoFactory _daoFactory)
+  public MFGame(MFMap _map, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
   {
     // init channels
     this.channels = new ArrayList<MFCommunicationChannel>();
@@ -59,8 +61,9 @@ public class MFGame
     this.map = _map;
 
     this.daoFactory = _daoFactory;
-    this.gameObjectFactory = _gameObjectFactory;
-    
+
+    this.jobFactory = new MFJobFactory(this);
+    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory);
   }
 
   public void update(long _currentTime)
@@ -155,6 +158,8 @@ public class MFGame
   private final MFGameObjectFactory gameObjectFactory;
   /** DAO factory */
   private final MFDaoFactory daoFactory;
+  /** Job factory */
+  private final MFJobFactory jobFactory;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFGame.class.getName());
 

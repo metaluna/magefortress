@@ -1,6 +1,6 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
- *
+ *  Copyright (c) 2010 Simon Hardijanto
+ * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
  *  files (the "Software"), to deal in the Software without
@@ -9,10 +9,10 @@
  *  copies of the Software, and to permit persons to whom the
  *  Software is furnished to do so, subject to the following
  *  conditions:
- *
+ * 
  *  The above copyright notice and this permission notice shall be
  *  included in all copies or substantial portions of the Software.
- *
+ * 
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  *  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,9 +25,8 @@
 package magefortress.jobs;
 
 import java.util.LinkedList;
-import java.util.logging.Logger;
 import java.util.Queue;
-import magefortress.channel.MFIChannelSender;
+import java.util.logging.Logger;
 import magefortress.creatures.MFCreature;
 import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFSubtaskCanceledException;
@@ -54,71 +53,25 @@ import magefortress.jobs.subtasks.MFSubtaskCanceledException;
  * of an error in one of the subtasks. Clean-up code can be placed here.
  * </p>
  */
-public abstract class MFJob
+abstract class MFBaseJob implements MFIJob
 {
-  /**
-   * Constructor
-   * @param _sender The sender of the job
-   */
-  public MFJob(final MFIChannelSender _sender)
+  public MFBaseJob(MFCreature _owner)
   {
-    this.sender = _sender;
+    this.owner = _owner;
     this.subtaskQueue = new LinkedList<MFSubtask>();
-  }
-
-  /**
-   * Gets the sender of the job.
-   * @return The sender of the job
-   */
-  final public MFIChannelSender getSender()
-  {
-    return this.sender;
-  }
-
-  /**
-   * Adds an owner when the job is given to a creature. Can be set to <code>null
-   * </code> in case the original owner stops doing it which leads to the
-   * <code>pauseJob()</code> method being called.
-   * @param _newOwner The creature who will be doing the job
-   */
-  final public void setOwner(final MFCreature _newOwner)
-  {
-    if (this.owner == null && _newOwner != null ) {
-      this.owner = _newOwner;
-      this.initJob();
-    } else if (this.owner != null && _newOwner == null) {
-      this.pauseJob();
-      this.owner = _newOwner;
-    } else {
-      this.owner = _newOwner;
-    }
-
-  }
-
-  /**
-   * Gets the current owner. May be <code>null</code> if the job is not taken yet.
-   * @return The current owner or <code>null</code>
-   */
-  final public MFCreature getOwner()
-  {
-    return this.owner;
   }
 
   /**
    * Updates the current task. Internally updates the currently active subtask.
    * If all subtasks are done the job is finished.
-   * In case of an error <code>cancelJob()</code> will be called, so that the 
+   * <p>In case of an error <code>cancelJob()</code> will be called, so that the
    * job gets an opportunity to clean up.
+   * <p>Only to be called when the job has been assigned to somebody!
    * @return <code>true</code> if the job is done
    */
-  final public boolean update()
+  @Override
+  public boolean update()
   {
-    if (this.owner == null) {
-      String msg = "Job: update() must not be called when the job has no owner.";
-      logger.severe(msg);
-      throw new RuntimeException(msg);
-    }
-
     final MFSubtask currentTask = this.subtaskQueue.peek();
 
     // stores if the current subtask is done
@@ -142,15 +95,28 @@ public abstract class MFJob
       if (this.subtaskQueue.isEmpty())
         jobDone = true;
     }
+
     return jobDone;
   }
 
   /**
-   * Gets the currently active subtask. If the job is not active it returns
+   * Gets wether the job is currently active, meaning the list of subtasks is
+   * not empty.
+   * @return <code>true</code> if the job has any subtasks left
+   */
+  @Override
+  public boolean isActive()
+  {
+    return this.subtaskQueue.peek() != null;
+  }
+
+  /**
+   * Gets the currently active subtask. If the job is not active, it returns
    * <code>null</code>.
    * @return The subtask or <code>null</code>
    */
-  final public MFSubtask getActiveSubtask()
+  @Override
+  public MFSubtask getActiveSubtask()
   {
     if (!this.isActive()) {
       return null;
@@ -160,35 +126,37 @@ public abstract class MFJob
   }
 
   /**
-   * Gets wether the job is currently active, meaning the job has an owner and
-   * the list of subtasks is not empty.
-   * @return <code>true</code> if the job has an owner and subtasks left
+   * Gets the current owner. May be <code>null</code> if the job is not taken yet.
+   * @return The current owner or <code>null</code>
    */
-  final public boolean isActive()
+  @Override
+  public MFCreature getOwner()
   {
-    boolean result = true;
-
-    if (this.owner == null) {
-      result = false;
-    } else if (this.subtaskQueue.peek() == null) {
-      result = false;
-    }
-
-    return result;
+    return this.owner;
   }
 
-  abstract void initJob();
-  public abstract void pauseJob();
-  public abstract void cancelJob();
+  //---vvv---      PROTECTED METHODS      ---vvv---
+  /** Log */
+  protected static final Logger logger = Logger.getLogger(MFBaseJob.class.getName());
+  /** The creature currently doing the job */
+  protected MFCreature owner;
+
+  protected void addSubtask(MFSubtask _subtask)
+  {
+    this.subtaskQueue.add(_subtask);
+  }
+
+  protected void clearSubtasks()
+  {
+    this.subtaskQueue.clear();
+  }
+
+  protected abstract void initJob();
+  public    abstract void pauseJob();
+  public    abstract void cancelJob();
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** Log */
-  static final Logger logger = Logger.getLogger(MFJob.class.getName());
   /** List of subtasks */
-  final Queue<MFSubtask> subtaskQueue;
-  /** Where we got the job */
-  private final MFIChannelSender sender;
-  /** The creature currently doing the job */
-  private MFCreature owner;
-  
+  private final Queue<MFSubtask> subtaskQueue;
+
 }
