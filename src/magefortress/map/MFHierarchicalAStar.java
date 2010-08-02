@@ -71,28 +71,11 @@ public class MFHierarchicalAStar extends MFTemplateAStar
                   this.getGoal(), this.getClearance(), this.getCapabilities());
       foundPath = search.findPath();
     } else {
-      // insert start and goal into the navi map
-      MFSectionEntrance startEntrance = this.getStart().getEntrance();
-      MFSectionEntrance goalEntrance  = this.getGoal().getEntrance();
-      // stores if we need to null the start/goal's tile's entrance attribute afterwards
-      boolean resetStartEntrance  = (startEntrance == null);
-      boolean resetGoalEntrance   = (goalEntrance  == null);
-      if (startEntrance == null) {
-        startEntrance = this.insertTileIntoNavigationMap(this.getStart());
-        // cannot reach start
-        if (startEntrance == null) {
-          return null;
-        }
-      }
 
-      if (goalEntrance == null) {
-        goalEntrance = this.insertTileIntoNavigationMap(this.getGoal());
-        // cannot reach goal
-        if (goalEntrance == null) {
-          this.removeTileFromNavigationMap(startEntrance);
-          return null;
-        }
-      }
+      final boolean success = insertStartAndGoalEntrance();
+      if (!success)
+        return null;
+
       // begin search
       while (!this.getOpenList().isEmpty()) {
 
@@ -100,7 +83,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
         final MFNode currentNode = this.getOpenList().poll();
 
         // goal reached
-        if (currentNode.tile == goalEntrance.getTile()) {
+        if (currentNode.tile == this.getGoal()) {
           foundPath = this.backtracePath(currentNode);
           break;
         }
@@ -132,14 +115,8 @@ public class MFHierarchicalAStar extends MFTemplateAStar
           this.processNeighbor(currentNode, neighbor.getTile());
         }
       }
-
-      // remove start and goal from the map
-      if (resetStartEntrance) {
-        this.removeTileFromNavigationMap(startEntrance);
-      }
-      if (resetGoalEntrance) {
-        this.removeTileFromNavigationMap(goalEntrance);
-      }
+      
+      resetStartAndGoalEntrance();
     }
     
     return foundPath;
@@ -155,6 +132,10 @@ public class MFHierarchicalAStar extends MFTemplateAStar
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Path finder manager used to initiate the path found. */
   private final MFPathFinder pathFinder;
+  private MFSectionEntrance startEntrance;
+  private MFSectionEntrance goalEntrance;
+  private boolean resetStartEntrance;
+  private boolean resetGoalEntrance;
 
   /**
    * Backtraces from the given node and saves the entrances passed on the way plus
@@ -193,6 +174,44 @@ public class MFHierarchicalAStar extends MFTemplateAStar
                     this.getClearance(), this.getCapabilities(), this.getMap(),
                     this.pathFinder);
     return result;
+  }
+
+  private boolean insertStartAndGoalEntrance()
+  {
+    // insert start and goal into the navi map
+    this.startEntrance = this.getStart().getEntrance();
+    this.goalEntrance  = this.getGoal().getEntrance();
+    // stores if we need to null the start/goal's tile's entrance attribute afterwards
+    this.resetStartEntrance  = (startEntrance == null);
+    this.resetGoalEntrance   = (goalEntrance  == null);
+    if (startEntrance == null) {
+      startEntrance = this.insertTileIntoNavigationMap(this.getStart());
+      // cannot reach start
+      if (startEntrance == null) {
+        return false;
+      }
+    }
+
+    if (goalEntrance == null) {
+      goalEntrance = this.insertTileIntoNavigationMap(this.getGoal());
+      // cannot reach goal
+      if (goalEntrance == null) {
+        this.removeTileFromNavigationMap(startEntrance);
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private void resetStartAndGoalEntrance()
+  {
+    if (this.resetStartEntrance) {
+      this.removeTileFromNavigationMap(this.startEntrance);
+    }
+    if (this.resetGoalEntrance) {
+      this.removeTileFromNavigationMap(this.goalEntrance);
+    }
   }
 
   /**
