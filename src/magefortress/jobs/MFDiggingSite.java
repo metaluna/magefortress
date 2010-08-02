@@ -26,9 +26,13 @@ package magefortress.jobs;
 
 import java.awt.Graphics2D;
 import magefortress.channel.MFChannelMessage;
+import magefortress.channel.MFCommunicationChannel;
 import magefortress.channel.MFIChannelSubscriber;
+import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 
 /**
  * Marks a square for digging and emits a job call over the digging channel.
@@ -36,9 +40,9 @@ import magefortress.map.MFMap;
 public class MFDiggingSite extends MFConstructionSite
 {
 
-  public MFDiggingSite(MFLocation _location, MFMap _map, MFJobFactory _jobFactory)
+  public MFDiggingSite(MFLocation _location, MFMap _map, MFJobFactory _jobFactory, MFCommunicationChannel _channel)
   {
-    super(_location, 1, 1, _jobFactory);
+    super(_location, 1, 1, _jobFactory, _channel);
     if (_map == null) {
       String msg = "DiggingSite: Map must not be null. Cannot instantiate " +
               "DiggingSite";
@@ -54,27 +58,41 @@ public class MFDiggingSite extends MFConstructionSite
     }
     this.map = _map;
     this.jobAvailable = true;
+
+    this.checkReachability();
+
+    // send job offer
+    if (!this.unreachable) {
+      this.getChannel().enqueueMessage(this.getJobOfferMessage());
+    }
   }
 
   @Override
-  public void update()
+  public void update(long _currentTime)
   {
   }
 
   @Override
-  public void paint(Graphics2D _g, int _x_translation, int _y_translation, MFLocation _location)
+  public void paint(Graphics2D _g, int _x_translation, int _y_translation)
   {
   }
 
   @Override
   public boolean isJobAvailable()
   {
-    return this.jobAvailable;
+    return this.jobAvailable && !this.unreachable;
   }
 
   @Override
   public MFAssignableJob getJob()
   {
+    if (this.unreachable) {
+      String msg = this.getClass().getName() + ": Someone's trying " +
+            "to get a digging job for an unreachable tile@" + this.getLocation();
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+
     MFAssignableJob result = null;
 
     if (this.jobAvailable) {
@@ -88,13 +106,33 @@ public class MFDiggingSite extends MFConstructionSite
   @Override
   public void newSubscriber(MFIChannelSubscriber _subscriber)
   {
-    if (this.jobAvailable) {
-      MFChannelMessage jobOfferMsg = new MFChannelMessage(this);
-      _subscriber.update(jobOfferMsg);
+    if (this.jobAvailable && !this.unreachable) {
+      _subscriber.update(this.getJobOfferMessage());
     }
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final MFMap map;
   private boolean jobAvailable;
+  private boolean unreachable;
+
+  // checks if there are any non-underground tiles around the digging site
+  private void checkReachability()
+  {
+    this.unreachable = true;
+
+    for (MFEDirection direction : MFEDirection.values()) {
+      MFLocation loc = this.getLocation().locationOf(direction);
+      MFTile tile = this.map.getTile(loc);
+      if (tile != null && (!tile.isUnderground() || tile.isDugOut())) {
+        this.unreachable = false;
+        return;
+      }
+    }
+  }
+
+  private MFChannelMessage getJobOfferMessage()
+  {
+    return new MFChannelMessage(this);
+  }
 }

@@ -26,8 +26,11 @@ package magefortress.jobs;
 
 import magefortress.channel.*;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import static org.junit.Assert.*;
@@ -36,54 +39,69 @@ import static org.mockito.Mockito.*;
 public class MFDiggingSiteTest
 {
   private MFDiggingSite diggingSite;
+  private MFDiggingSite unreachableDiggingSite;
   private MFMap mockMap;
+  private MFMap unreachableMockMap;
   private MFJobFactory mockJobFactory;
   private MFLocation location;
+  private MFCommunicationChannel mockChannel;
+  private MFCommunicationChannel unreachableMockChannel;
 
   @Before
   public void setUp() throws Exception
   {
+    this.mockChannel = mock(MFCommunicationChannel.class);
     this.location = new MFLocation(0, 0, 0);
     this.mockMap = mock(MFMap.class);
-    when(this.mockMap.getWidth()).thenReturn(1);
-    when(this.mockMap.getHeight()).thenReturn(1);
-    when(this.mockMap.getDepth()).thenReturn(1);
+    when(this.mockMap.getWidth()).thenReturn(2);
+    when(this.mockMap.getHeight()).thenReturn(2);
+    when(this.mockMap.getDepth()).thenReturn(2);
+    MFTile tile = new MFTile(-1, 1, 0, 0, true, true, true, false, false, true, true);
+    when(mockMap.getTile(new MFLocation(1,0,0))).thenReturn(tile);
+    tile = new MFTile(-1, 0, 1, 0, true, false, false, true, true, true, true);
+    when(mockMap.getTile(new MFLocation(0,1,0))).thenReturn(tile);
+    tile = new MFTile(-1, 1, 1, 0, true, false, true, true, true, true, true);
+    when(mockMap.getTile(new MFLocation(1,1,0))).thenReturn(tile);
 
     this.mockJobFactory = mock(MFJobFactory.class);
     MFAssignableJob job = mock(MFAssignableJob.class);
     when(this.mockJobFactory.createDiggingJob(any(MFDiggingSite.class))).thenReturn(job);
 
-    this.diggingSite = new MFDiggingSite(this.location, this.mockMap, this.mockJobFactory);
+    this.diggingSite = new MFDiggingSite(this.location, this.mockMap, this.mockJobFactory, this.mockChannel);
+
+    // unreachable digging site
+    unreachableMockChannel = mock(MFCommunicationChannel.class);
+    unreachableMockMap = mock(MFMap.class);
+    when(unreachableMockMap.getWidth()).thenReturn(2);
+    when(unreachableMockMap.getHeight()).thenReturn(2);
+    when(unreachableMockMap.getDepth()).thenReturn(2);
+    MFTile undergroundTile = new MFTile(-1,0,0,0);
+    when(unreachableMockMap.getTile(any(MFLocation.class))).thenReturn(undergroundTile);
+
+    unreachableDiggingSite = new MFDiggingSite(location, unreachableMockMap, mockJobFactory, unreachableMockChannel);
+
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutLocation()
   {
-    new MFDiggingSite(null, mock(MFMap.class), mockJobFactory);
+    new MFDiggingSite(null, mockMap, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithIllegalLocationWidth()
   {
     MFLocation invalidLocation = new MFLocation(5, 0, 0);
-    mockMap = mock(MFMap.class);
-    when(mockMap.getWidth()).thenReturn(1);
-    when(mockMap.getHeight()).thenReturn(1);
-    when(mockMap.getDepth()).thenReturn(1);
     
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithIllegalLocationHeight()
   {
     MFLocation invalidLocation = new MFLocation(0, 5, 0);
-    mockMap = mock(MFMap.class);
-    when(mockMap.getWidth()).thenReturn(1);
-    when(mockMap.getHeight()).thenReturn(1);
-    when(mockMap.getDepth()).thenReturn(1);
 
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
   }
 
 
@@ -91,18 +109,32 @@ public class MFDiggingSiteTest
   public void shouldNotCreateWithIllegalLocationDepth()
   {
     MFLocation invalidLocation = new MFLocation(0, 0, 5);
-    mockMap = mock(MFMap.class);
-    when(mockMap.getWidth()).thenReturn(1);
-    when(mockMap.getHeight()).thenReturn(1);
-    when(mockMap.getDepth()).thenReturn(1);
 
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory);
+    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFDiggingSite(mock(MFLocation.class), null, mockJobFactory);
+    new MFDiggingSite(mock(MFLocation.class), null, mockJobFactory, mockChannel);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutJobFactory()
+  {
+    new MFDiggingSite(mock(MFLocation.class), mockMap, null, mockChannel);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutCommunicationChannel()
+  {
+    new MFDiggingSite(mock(MFLocation.class), mockMap, mockJobFactory, null);
+  }
+
+  @Test
+  public void shouldCheckReachabilityDuringConstruction()
+  {
+    verify(mockMap, times(3)).getTile(any(MFLocation.class));
   }
 
   @Test
@@ -150,6 +182,46 @@ public class MFDiggingSiteTest
 
     this.diggingSite.newSubscriber(subscriber);
     verify(subscriber, never()).update(any(MFChannelMessage.class));
+  }
+
+  @Test
+  public void shouldSendInitialJobOfferToChannel()
+  {
+    verify(mockChannel).enqueueMessage(any(MFChannelMessage.class));
+  }
+
+  @Test
+  public void shouldNotSendInitialJobOfferIfUnreachable()
+  {
+    verify(unreachableMockChannel, never()).enqueueMessage(any(MFChannelMessage.class));
+  }
+
+  @Test
+  public void shouldNotBeAvailableIfUnreachable()
+  {
+    assertFalse(unreachableDiggingSite.isJobAvailable());
+  }
+
+  @Test
+  public void shouldNotSendJobOfferIfUnreachable()
+  {
+    MFIChannelSubscriber mockApplier = mock(MFIChannelSubscriber.class);
+
+    unreachableDiggingSite.newSubscriber(mockApplier);
+    verify(mockApplier, never()).update(any(MFChannelMessage.class));
+  }
+
+  @Test(expected=MFPrerequisitesNotMetException.class)
+  public void shouldNotGiveOutJobIfUnreachable()
+  {
+    unreachableDiggingSite.getJob();
+  }
+
+  @Ignore
+  @Test
+  public void shouldSubscribeToChannelIfBecomesReachable()
+  {
+    
   }
 
 }

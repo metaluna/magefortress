@@ -26,8 +26,10 @@ package magefortress.jobs;
 
 import java.awt.Graphics2D;
 import java.util.logging.Logger;
+import magefortress.channel.MFCommunicationChannel;
 import magefortress.channel.MFIChannelSender;
 import magefortress.core.MFLocation;
+import magefortress.graphics.MFIPaintable;
 
 /**
  * Base class for all construction sites. These are placed everywhere a dwarf
@@ -40,7 +42,7 @@ import magefortress.core.MFLocation;
  * attached to the site or the placeable item?)</li>
  * </ul>
  */
-public abstract class MFConstructionSite implements MFIChannelSender
+public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintable
 {
 
   /**
@@ -51,25 +53,42 @@ public abstract class MFConstructionSite implements MFIChannelSender
    * @param _width The width of the construction site
    * @param _height The height of the construction site
    * @param _jobFactory Factory to create job emitting objects
+   * @param _channel Communication channel where job offers are sent to
    */
-  public MFConstructionSite(MFLocation _topLeftLocation, int _width, int _height, MFJobFactory _jobFactory)
+  public MFConstructionSite(MFLocation _topLeftLocation, int _width, int _height,
+                      MFJobFactory _jobFactory, MFCommunicationChannel _channel)
   {
     if (_topLeftLocation == null) {
-      String msg = "ConstructionSite: Top left location must not be null. Cannot " +
-              "instantiate construction site.";
+      String msg = this.getClass().getSimpleName() + ": Top left location " +
+              "must not be null. Cannot instantiate construction site.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
     if (_width <= 0 || _height <= 0) {
-      String msg = "ConstructionSite: Width and height must not be 0. Cannot " +
-              "instantiate construction site. Got " + _width + "x" + _height;
+      String msg = this.getClass().getSimpleName() + ": Width and height " +
+              "must not be 0. Cannot instantiate construction site. Got " +
+              _width + "x" + _height;
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
+    if (_jobFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+              "job factory";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_channel == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+              "communication channel";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
     this.location = _topLeftLocation;
     this.width = _width;
     this.height = _height;
     this.jobFactory = _jobFactory;
+    this.channel = _channel;
   }
 
   @Override
@@ -88,15 +107,24 @@ public abstract class MFConstructionSite implements MFIChannelSender
     return this.height;
   }
 
-  public abstract void update();
-  public abstract void paint(Graphics2D _g, int _x_translation, int _y_translation, MFLocation _location);
+  @Override
+  public abstract void update(long _currentTime);
+  @Override
+  public abstract void paint(Graphics2D _g, int _x_translation, int _y_translation);
 
+  //---vvv---      PROTECTED METHODS      ---vvv---
   protected MFJobFactory getJobFactory()
   {
     return this.jobFactory;
   }
 
+  protected MFCommunicationChannel getChannel()
+  {
+    return this.channel;
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final MFCommunicationChannel channel;
   private final MFJobFactory jobFactory;
   private final MFLocation location;
   private final int width;
