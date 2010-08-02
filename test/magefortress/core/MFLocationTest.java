@@ -216,4 +216,34 @@ public class MFLocationTest
 
     assertFalse(location.equals(uneqlLocation));
   }
+
+  @Test
+  public void shouldGetLocationOfDirection()
+  {
+    MFLocation expLoc = new MFLocation(X, Y-1, Z);
+    MFLocation gotLoc = location.locationOf(MFEDirection.N);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X+1, Y-1, Z);
+    gotLoc = location.locationOf(MFEDirection.NE);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X+1, Y, Z);
+    gotLoc = location.locationOf(MFEDirection.E);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X+1, Y+1, Z);
+    gotLoc = location.locationOf(MFEDirection.SE);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X, Y+1, Z);
+    gotLoc = location.locationOf(MFEDirection.S);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X-1, Y+1, Z);
+    gotLoc = location.locationOf(MFEDirection.SW);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X-1, Y, Z);
+    gotLoc = location.locationOf(MFEDirection.W);
+    assertEquals(expLoc, gotLoc);
+    expLoc = new MFLocation(X-1, Y-1, Z);
+    gotLoc = location.locationOf(MFEDirection.NW);
+    assertEquals(expLoc, gotLoc);
+
+  }
 }
