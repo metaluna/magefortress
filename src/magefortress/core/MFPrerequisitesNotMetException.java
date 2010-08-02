@@ -26,18 +26,17 @@ package magefortress.core;
 
 /**
  *
- * @author Simon Hardijanto
  */
-public class MFIllegalMoveException extends RuntimeException {
+public class MFPrerequisitesNotMetException extends RuntimeException
+{
 
-    public MFIllegalMoveException(String _msg)
-    {
-      super(_msg);
-    }
+  public MFPrerequisitesNotMetException(String _msg)
+  {
+    super(_msg);
+  }
 
-
-    public MFIllegalMoveException(String _msg, Exception _e)
-    {
-        super(_msg, _e);
-    }
+  public MFPrerequisitesNotMetException(String _msg, Throwable _t)
+  {
+    super(_msg, _t);
+  }
 }

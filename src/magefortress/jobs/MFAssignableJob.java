@@ -25,6 +25,7 @@
 package magefortress.jobs;
 
 import magefortress.channel.MFIChannelSender;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.creatures.MFCreature;
 
 /**
@@ -82,7 +83,7 @@ public abstract class MFAssignableJob extends MFBaseJob
     if (this.owner == null) {
       String msg = "Job: update() must not be called when the job has no owner.";
       logger.severe(msg);
-      throw new RuntimeException(msg);
+      throw new MFPrerequisitesNotMetException(msg);
     }
 
     return super.update();

@@ -27,7 +27,6 @@ package magefortress.creatures.behavior;
 import java.util.EnumSet;
 import magefortress.core.Immutable;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFIllegalMoveException;
 import magefortress.core.MFLocation;
 
 /**
