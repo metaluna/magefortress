@@ -58,10 +58,10 @@ public class MFTileTest
     assertEquals(flyValue, tile.getClearance(MFEMovementType.FLY));
   }
 
-  @Test(expected=IllegalArgumentException.class)
-  public void shouldNotHaveClearanceValue()
+  @Test
+  public void shouldHaveZeroClearanceValueIfNothingWasSet()
   {
-    tile.getClearance(MFEMovementType.WALK);
+    assertEquals(0, tile.getClearance(MFEMovementType.WALK));
   }
 
   @Test

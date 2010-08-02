@@ -35,6 +35,7 @@ import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
+import magefortress.map.MFNavigationMap;
 import magefortress.map.MFTile;
 import magefortress.storage.MFDaoFactory;
 
@@ -64,6 +65,9 @@ public class MFGame
 
     this.jobFactory = new MFJobFactory(this);
     this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory);
+
+    this.naviMap = new MFNavigationMap(this.map);
+    this.naviMap.updateAllEntrances();
   }
 
   public void update(long _currentTime)
@@ -160,6 +164,8 @@ public class MFGame
   private final MFDaoFactory daoFactory;
   /** Job factory */
   private final MFJobFactory jobFactory;
+  /** Navigation map containing pathfinding information */
+  private final MFNavigationMap naviMap;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFGame.class.getName());
 

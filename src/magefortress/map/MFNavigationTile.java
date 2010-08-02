@@ -56,17 +56,13 @@ public class MFNavigationTile
   /**
    * Gets the size of the biggest creature which can pass the tile.
    * @param _movementType The movement type
-   * @return The size of the creature
+   * @return The size of the creature or 0 if inaccessible
    */
   int getClearance(MFEMovementType _movementType)
   {
     Integer result = this.clearanceValues.get(_movementType);
     if (result == null) {
-      String msg = "Tile " +posX+"/"+posY+"/"+posZ+
-                    ": Must set clearance value for " + _movementType.toString() +
-                    " before trying to get it.";
-      logger.log(Level.WARNING, msg);
-      throw new IllegalArgumentException(msg);
+      result = 0;
     }
     return result;
   }

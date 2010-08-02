@@ -497,6 +497,17 @@ public class MFMapTest
     
   }
 
+  @Test
+  public void shouldNotBeAccessibleIfNotDugOut()
+  {
+    MFTile start = this.map.getTile(1, 0, 0);
+    MFTile goal  = this.map.getTile(1, 1, 0);
+    goal.setDugOut(false);
+
+    boolean accessible = this.map.canWalkTo(start, goal, MFEDirection.S);
+    assertFalse(accessible);
+  }
+
   //---vvv---     PRIVATE METHODS    ---vvv---
   
   private static MFMap createMap(int _width, int _height, int _depth)

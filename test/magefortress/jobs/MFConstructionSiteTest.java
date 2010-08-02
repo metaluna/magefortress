@@ -25,6 +25,7 @@
 package magefortress.jobs;
 
 import java.awt.Graphics2D;
+import magefortress.channel.MFCommunicationChannel;
 import magefortress.channel.MFIChannelSubscriber;
 import magefortress.core.MFLocation;
 import org.junit.Before;
@@ -89,11 +90,12 @@ public class MFConstructionSiteTest
 
     public MFConstructionSiteMock(MFLocation _location, int _width, int _height)
     {
-      super(_location, _width, _height, mock(MFJobFactory.class));
+      super(_location, _width, _height, mock(MFJobFactory.class),
+              mock(MFCommunicationChannel.class));
     }
 
     @Override
-    public void update()
+    public void update(long _currentTime)
     {
     }
 
@@ -115,7 +117,7 @@ public class MFConstructionSiteTest
     }
 
     @Override
-    public void paint(Graphics2D _g, int _x_translation, int _y_translation, MFLocation _location)
+    public void paint(Graphics2D _g, int _x_translation, int _y_translation)
     {
     }
   }
