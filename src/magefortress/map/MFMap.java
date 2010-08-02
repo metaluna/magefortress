@@ -502,7 +502,6 @@ public class MFMap implements MFISaveable
    * <code>false</code>.
    * @param _start the start tile
    * @param _goal the end tile
-   * @param _direction the direction as seen from the start tile
    * @param _clearance the size of the moving creature
    * @param _capabilities the movement types the creature can use
    * @return <code>true</code> if a creature can walk from start to goal
@@ -510,7 +509,7 @@ public class MFMap implements MFISaveable
    *        if the tiles are not adjacent or if the clearance is smaller one or
    *        if there are no capabilities given.
    */
-  boolean canMoveTo(MFTile _start, MFTile _goal, MFEDirection _direction,
+  boolean canMoveTo(MFTile _start, MFTile _goal,
           int _clearance, EnumSet<MFEMovementType> _capabilities)
   {
     if (_start == null) {
@@ -525,26 +524,26 @@ public class MFMap implements MFISaveable
 
     if (!_start.getLocation().isNeighborOf(_goal.getLocation())) {
       String msg = "Map: Cannot test reachability between non-adjacent tiles from " +
-                    _start.getLocation() + " towards " + _direction;
+                    _start.getLocation() + " towards " + _goal.getLocation();
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
 
     if (_clearance < 1) {
       String msg = "Map: Cannot test reachability for a clearance < 1 from " +
-              _start.getLocation() + " towards " + _direction;
+              _start.getLocation() + " towards " + _goal.getLocation();
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
 
     if (_capabilities == null || _capabilities.size() == 0) {
       String msg = "Map: Cannot test reachability without knowing the capabilities " +
-              _start.getLocation() + " towards " + _direction;
+              _start.getLocation() + " towards " + _goal.getLocation();
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
 
-    boolean blockedByWalls = blockedByWalls(_direction, _start, _goal);
+    boolean blockedByWalls = blockedByWalls(_start, _goal);
 
     boolean blockedByTerrain = false;
 
@@ -574,7 +573,7 @@ public class MFMap implements MFISaveable
    */
   boolean canWalkTo(MFTile _start, MFTile _goal, MFEDirection _direction)
   {
-    return this.canMoveTo(_start, _goal, _direction, 1, EnumSet.of(MFEMovementType.WALK));
+    return this.canMoveTo(_start, _goal, 1, EnumSet.of(MFEMovementType.WALK));
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -679,20 +678,20 @@ public class MFMap implements MFISaveable
 
   /**
    * Checks to see if two adjacent tiles are walled off from each other.
-   * @param _direction
    * @param _start
    * @param _goal
    * @return
    */
-  private boolean blockedByWalls(final MFEDirection _direction,
-                                    final MFTile _start, final MFTile _goal)
+  private boolean blockedByWalls(final MFTile _start, final MFTile _goal)
   {
     boolean blockedByWalls = false;
 
-    if (MFEDirection.straight().contains(_direction)) {
-      blockedByWalls = _start.hasWall(_direction);
-    } else if (MFEDirection.diagonals().contains(_direction)) {
-      switch (_direction) {
+    final MFEDirection direction = _start.getLocation().directionOf(_goal.getLocation());
+    
+    if (MFEDirection.straight().contains(direction)) {
+      blockedByWalls = _start.hasWall(direction);
+    } else if (MFEDirection.diagonals().contains(direction)) {
+      switch (direction) {
         case NE:
           blockedByWalls = _start.hasWallNorth() || _start.hasWallEast() ||
                            _goal.hasWallSouth()  || _goal.hasWallWest();

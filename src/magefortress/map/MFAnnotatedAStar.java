@@ -92,7 +92,7 @@ public class MFAnnotatedAStar extends MFTemplateAStar
         }
 
         // skip if unreachable from current tile
-        if (!this.getMap().canMoveTo(currentNode.tile, neighbor, dir,
+        if (!this.getMap().canMoveTo(currentNode.tile, neighbor,
                                  this.getClearance(), this.getCapabilities())) {
           continue;
         }

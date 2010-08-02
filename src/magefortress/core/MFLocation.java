@@ -66,7 +66,7 @@ public class MFLocation
    * Calculates the direction of one location to another one a plain.
    * @param _other the location to get the direction to
    * @return which way to go to reach the other location. Returns <code>null</code>
-   * if the other location is the same as this location.
+   * if the other location is the same as this location or nowhere.
    */
   public MFEDirection directionOf(MFLocation _other)
   {
@@ -85,22 +85,24 @@ public class MFLocation
     }
 
     MFEDirection result = null;
-    
-    if (_other.x == this.x && _other.y < this.y) {
+    final int vertical   = _other.y - this.y;
+    final int horizontal = _other.x - this.x;
+
+    if (horizontal==0 && vertical < 0) {
       result = MFEDirection.N;
-    } else if (_other.x > this.x && _other.y < this.y) {
+    } else if (horizontal > 0 && vertical < 0) {
       result = MFEDirection.NE;
-    } else if (_other.x > this.x && _other.y == this.y) {
+    } else if (horizontal > 0 && vertical == 0) {
       result = MFEDirection.E;
-    } else if (_other.x > this.x && _other.y > this.y) {
+    } else if (horizontal > 0 && vertical > 0) {
       result = MFEDirection.SE;
-    } else if (_other.x == this.x && _other.y > this.y) {
+    } else if (horizontal == 0 && vertical > 0) {
       result = MFEDirection.S;
-    } else if (_other.x < this.x && _other.y > this.y) {
+    } else if (horizontal < 0 && vertical > 0) {
       result = MFEDirection.SW;
-    } else if (_other.x < this.x && _other.y == this.y) {
+    } else if (horizontal < 0 && vertical == 0) {
       result = MFEDirection.W;
-    } else if (_other.x < this.x && _other.y < this.y) {
+    } else if (horizontal < 0 && vertical < 0) {
       result = MFEDirection.NW;
     }
 
