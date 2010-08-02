@@ -22,9 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures;
 
 import java.util.logging.Logger;
+import magefortress.core.Immutable;
+import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.MFIMovable;
 import magefortress.storage.MFISaveable;
 
 /**

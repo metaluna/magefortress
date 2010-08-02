@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFCreature;
+import magefortress.creatures.MFCreature;
 import magefortress.core.MFLocation;
 import org.junit.Before;
 import org.junit.Test;

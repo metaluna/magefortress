@@ -28,7 +28,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.EnumSet;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFEMovementType;
+import magefortress.creatures.behavior.MFEMovementType;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;

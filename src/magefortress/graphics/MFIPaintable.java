@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2010 Simon Hardijanto
+ *  Copyright (c) 2009 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,33 +22,15 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.graphics;
+
+import java.awt.Graphics2D;
 
 /**
  *
  */
-public class MFMockHoldable implements MFIHoldable
+public interface MFIPaintable
 {
-
-  public boolean canHold()
-  {
-    return true;
-  }
-
-  public boolean pickup()
-  {
-    return true;
-  }
-
-  public void addItem(MFItem _item)
-  {
-  }
-
-  public boolean putItem(MFRoom _room)
-  {
-    return true;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+  public void update(long _newTime);
+  public void paint(Graphics2D g, int x_translation, int y_translation);
 }

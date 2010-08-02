@@ -24,11 +24,10 @@
  */
 package magefortress.map;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.logging.Logger;
 import magefortress.core.Immutable;
-import magefortress.core.MFEMovementType;
+import magefortress.creatures.behavior.MFEMovementType;
 
 /**
  * Stores the costs to traverse the distance between two {@link MFSectionEntrance nodes} for a

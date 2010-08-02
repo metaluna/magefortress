@@ -31,11 +31,11 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFEMovementType;
-import magefortress.core.MFIPaintable;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
+import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.graphics.MFIPaintable;
 import magefortress.storage.MFISaveable;
 
 /**

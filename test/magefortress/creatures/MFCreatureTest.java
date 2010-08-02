@@ -22,8 +22,17 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures;
 
+import magefortress.creatures.MFRace;
+import magefortress.creatures.MFCreature;
+import magefortress.core.MFLocation;
+import magefortress.creatures.behavior.MFMockHoldable;
+import magefortress.creatures.behavior.MFMockMovable;
+import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.MFNullMovable;
+import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.MFNullHoldable;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -32,8 +41,8 @@ public class MFCreatureTest
 {
   private static final String NAME = "Test Creature";
   private static final String RACE_NAME = "Test Race";
-  private static final String MOVING_BEHAVIOR = "magefortress.core.MFMockMovable";
-  private static final String HOLDING_BEHAVIOR = "magefortress.core.MFMockHoldable";
+  private static final String MOVING_BEHAVIOR = "magefortress.creatures.behavior.MFMockMovable";
+  private static final String HOLDING_BEHAVIOR = "magefortress.creatures.behavior.MFMockHoldable";
   private MFRace race;
   private MFCreature creature;
 

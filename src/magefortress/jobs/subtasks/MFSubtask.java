@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFCreature;
+import magefortress.creatures.MFCreature;
 
 /**
  * Base class for all subtasks.

@@ -35,8 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
+import magefortress.creatures.behavior.MFEMovementType;
 
 /**
  * Stores all found entrances and sections.

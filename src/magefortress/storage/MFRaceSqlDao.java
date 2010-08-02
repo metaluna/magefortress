@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import magefortress.core.Immutable;
-import magefortress.core.MFRace;
+import magefortress.creatures.MFRace;
 
 /**
  *

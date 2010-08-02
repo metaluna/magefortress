@@ -24,7 +24,7 @@
  */
 package magefortress.storage;
 
-import magefortress.core.MFRace;
+import magefortress.creatures.MFRace;
 
 /**
  *

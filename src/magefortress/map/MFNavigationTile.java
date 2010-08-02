@@ -27,7 +27,7 @@ package magefortress.map;
 import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import magefortress.core.MFEMovementType;
+import magefortress.creatures.behavior.MFEMovementType;
 
 /**
  * Represents data used for navigation specific to a tile.

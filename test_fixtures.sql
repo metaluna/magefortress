@@ -1,7 +1,7 @@
 // races
 DELETE FROM races;
-INSERT INTO races (name, hold_behavior, move_behavior) VALUES ("Martian", "magefortress.core.MFNullHoldable", "magefortress.core.MFNullMovable");
-INSERT INTO races (name, hold_behavior, move_behavior) VALUES ("Venusian", "magefortress.core.MFNullHoldable", "magefortress.core.MFNullMovable");
+INSERT INTO races (name, hold_behavior, move_behavior) VALUES ("Martian", "magefortress.creatures.behavior.MFNullHoldable", "magefortress.creatures.behavior.MFNullMovable");
+INSERT INTO races (name, hold_behavior, move_behavior) VALUES ("Venusian", "magefortress.creatures.behavior.MFNullHoldable", "magefortress.creatures.behavior.MFNullMovable");
 DELETE FROM maps;
 INSERT INTO maps (width, height, depth) VALUES (13, 14, 15);
 INSERT INTO maps (width, height, depth) VALUES (4, 4, 1);

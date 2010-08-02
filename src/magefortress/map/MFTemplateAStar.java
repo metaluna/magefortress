@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.logging.Logger;
-import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
+import magefortress.creatures.behavior.MFEMovementType;
 
 /**
  * Base class for path finding algorithms.

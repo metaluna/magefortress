@@ -24,7 +24,11 @@
  */
 package magefortress.core;
 
-import magefortress.map.MFMap;
+import magefortress.creatures.MFRace;
+import magefortress.graphics.MFImageLibrary;
+import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFWalksOnTwoLegs;
+import magefortress.creatures.behavior.MFNullHoldable;
 import magefortress.input.MFInputManager;
 import java.awt.Canvas;
 import java.awt.Graphics2D;
@@ -39,7 +43,6 @@ import javax.swing.JFrame;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;
-import magefortress.storage.DataAccessException;
 import magefortress.storage.MFDaoFactory;
 
 /**

@@ -24,8 +24,8 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFCreature;
 import magefortress.core.MFLocation;
+import magefortress.creatures.MFCreature;
 
 /**
  * Locates the closest unoccupied, walkable neighbor to the specified location

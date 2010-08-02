@@ -25,7 +25,7 @@
 package magefortress.storage;
 
 import java.util.Properties;
-import magefortress.core.MFRace;
+import magefortress.creatures.MFRace;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import org.junit.Before;

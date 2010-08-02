@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,12 +22,33 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.graphics;
+
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 /**
  *
  */
-public enum MFEMovementType
+public class MFStillPaintable implements MFIPaintable
 {
-  WALK, FLY;
+
+  public MFStillPaintable(BufferedImage _image)
+  {
+    this.image = _image;
+  }
+
+  public void update(long _newTime)
+  {
+    //noop
+  }
+
+  public void paint(Graphics2D _g, int _x, int _y)
+  {
+    _g.drawImage(image, _x, _y, null);
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private final BufferedImage image;
+
 }

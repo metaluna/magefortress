@@ -22,9 +22,15 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
+import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFNullMovable;
+import magefortress.creatures.behavior.MFIMovable;
 import java.util.EnumSet;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFIllegalMoveException;
+import magefortress.core.MFLocation;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;

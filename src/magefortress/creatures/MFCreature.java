@@ -22,11 +22,22 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures;
 
 import java.awt.Graphics2D;
 import java.util.EnumSet;
 import java.util.logging.Logger;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFItem;
+import magefortress.core.MFLocation;
+import magefortress.core.MFRoom;
+import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.MFNullMovable;
+import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.graphics.MFIPaintable;
+import magefortress.graphics.MFNullPaintable;
 import magefortress.map.MFTile;
 
 /**

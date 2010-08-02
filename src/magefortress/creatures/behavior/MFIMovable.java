@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2010 Simon Hardijanto
+ *  Copyright (c) 2009 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,68 +22,26 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
 import java.util.EnumSet;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFLocation;
 
 /**
  *
  */
-public class MFMockMovable implements MFIMovable
+public interface MFIMovable
 {
-
-  public boolean canMove()
-  {
-    return true;
-  }
-
-  public void move(MFEDirection _direction)
-  {
-  }
-
-  public void setSpeed(int _speed)
-  {
-  }
-
-  public int getSpeed()
-  {
-    return 1;
-  }
-
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  public MFLocation getCurrentHeading()
-  {
-    return new MFLocation(1,1,1);
-  }
-
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.of(MFEMovementType.WALK);
-  }
-
-  public int getClearance()
-  {
-    return 1;
-  }
-
-  public void setClearance(int _clearance)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public MFLocation getLocation()
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public void setLocation(MFLocation _location)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+  public boolean canMove();
+  public void move(MFEDirection _direction);
+  public void setSpeed(int _speed);
+  public int getSpeed();
+  public void setCurrentHeading(MFLocation _heading);
+  public MFLocation getCurrentHeading();
+  public EnumSet<MFEMovementType> getCapabilities();
+  public int getClearance();
+  public void setClearance(int _clearance);
+  public MFLocation getLocation();
+  public void setLocation(MFLocation _location);
 }

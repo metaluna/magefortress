@@ -22,78 +22,36 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
-import java.util.EnumSet;
+import magefortress.core.Immutable;
+import magefortress.core.MFItem;
+import magefortress.core.MFRoom;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ * Null implementation of MFIHoldable not being able to hold anything or to put
+ * anything down.
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFNullHoldable implements MFIHoldable, Immutable
 {
 
-  @Override
-  public boolean canMove()
+  public boolean canHold()
   {
     return false;
   }
 
-  @Override
-  public void move(MFEDirection _direction)
+  public boolean pickup()
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
+    return false;
   }
 
-  @Override
-  public void setSpeed(int _speed)
-  {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
+  public void addItem(MFItem _item)
   {
   }
 
-  @Override
-  public MFLocation getCurrentHeading()
+  public boolean putItem(MFRoom _room)
   {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public EnumSet<MFEMovementType> getCapabilities()
-  {
-    return EnumSet.noneOf(MFEMovementType.class);
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
-  {
+    return false;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

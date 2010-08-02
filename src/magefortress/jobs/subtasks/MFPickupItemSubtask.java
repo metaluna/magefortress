@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFCreature;
+import magefortress.creatures.MFCreature;
 
 /**
  * Picks up an item at the owner's current location. The item must be set on

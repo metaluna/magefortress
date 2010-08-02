@@ -22,8 +22,9 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.graphics;
 
+import magefortress.graphics.MFImageLibrary;
 import java.awt.image.BufferedImage;
 import org.junit.Before;
 import org.junit.Test;

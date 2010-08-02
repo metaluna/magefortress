@@ -25,7 +25,7 @@
 package magefortress.jobs.subtasks;
 
 import magefortress.core.MFWorkshop;
-import magefortress.core.MFCreature;
+import magefortress.creatures.MFCreature;
 import magefortress.jobs.MFBlueprint;
 
 /**

@@ -22,32 +22,82 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.map;
+package magefortress.creatures.behavior;
 
 import java.util.EnumSet;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.core.Immutable;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFIllegalMoveException;
+import magefortress.core.MFLocation;
 
 /**
- * Empty implementation of an A-Star search algorithm.
+ * Null implementation of MFIMovable being unable to move. Its clearance and 
+ * speed is 0 and it has no movement types.
  */
-public class MFMockAStar extends MFTemplateAStar
+public class MFNullMovable implements MFIMovable, Immutable
 {
-  public MFMockAStar(MFMap _map, MFTile _start, MFTile _goal,
-                        int _clearance, EnumSet<MFEMovementType> _capabilities)
+
+  @Override
+  public boolean canMove()
   {
-    super(_map, _start, _goal, _clearance, _capabilities);
+    return false;
   }
 
   @Override
-  MFPath runSearch()
+  public void move(MFEDirection _direction)
   {
-    return null;
+    throw new MFIllegalMoveException("Creature is unable to move.");
   }
 
   @Override
-  int costFunction(MFTile _start, MFTile _goal)
+  public void setSpeed(int _speed)
   {
-    return 1;
+  }
+
+  @Override
+  public int getSpeed()
+  {
+    return 0;
+  }
+
+  @Override
+  public void setCurrentHeading(MFLocation _heading)
+  {
+  }
+
+  @Override
+  public MFLocation getCurrentHeading()
+  {
+    return MFLocation.NOWHERE;
+  }
+
+  @Override
+  public EnumSet<MFEMovementType> getCapabilities()
+  {
+    return EnumSet.noneOf(MFEMovementType.class);
+  }
+
+  @Override
+  public int getClearance()
+  {
+    return 0;
+  }
+
+  @Override
+  public void setClearance(int _clearance)
+  {
+    
+  }
+
+  @Override
+  public MFLocation getLocation()
+  {
+    return MFLocation.NOWHERE;
+  }
+
+  @Override
+  public void setLocation(MFLocation _location)
+  {
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

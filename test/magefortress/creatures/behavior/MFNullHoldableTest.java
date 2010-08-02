@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,15 +22,52 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
-import java.awt.Graphics2D;
+import magefortress.core.MFItem;
+import magefortress.core.MFRoom;
+import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.MFNullHoldable;
+import org.junit.Before;
+import org.junit.Test;
 
-/**
- *
- */
-public interface MFIPaintable
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+
+public class MFNullHoldableTest
 {
-  public void update(long _newTime);
-  public void paint(Graphics2D g, int x_translation, int y_translation);
+  private MFIHoldable holdable;
+
+  @Before
+  public void setUp()
+  {
+    this.holdable = new MFNullHoldable();
+  }
+
+  @Test
+  public void shouldNotHold()
+  {
+    assertFalse(this.holdable.canHold());
+  }
+
+  @Test
+  public void shouldNeverPickup()
+  {
+    assertFalse(this.holdable.pickup());
+  }
+
+  @Test
+  public void shouldNotAddAndPutItem()
+  {
+    this.holdable.addItem(mock(MFItem.class));
+    assertFalse(this.holdable.putItem(mock(MFRoom.class)));
+  }
+
+  @Test
+  public void shouldNotPutNoItem()
+  {
+    assertFalse(this.holdable.putItem(mock(MFRoom.class)));
+  }
+
 }

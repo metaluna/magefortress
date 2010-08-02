@@ -26,7 +26,7 @@ package magefortress.storage;
 
 import java.util.Properties;
 import java.util.logging.Logger;
-import magefortress.core.MFRace;
+import magefortress.creatures.MFRace;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 

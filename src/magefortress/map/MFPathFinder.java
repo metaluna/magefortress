@@ -28,8 +28,8 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
-import magefortress.core.MFEMovementType;
 import magefortress.core.Singleton;
+import magefortress.creatures.behavior.MFEMovementType;
 
 /**
  * Singleton that manages finding paths. Classes that wish to find a path

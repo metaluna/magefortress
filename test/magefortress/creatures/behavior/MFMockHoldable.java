@@ -22,36 +22,37 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
-import java.awt.Graphics2D;
+import magefortress.core.MFItem;
+import magefortress.core.MFRoom;
+import magefortress.creatures.behavior.MFIHoldable;
 
 /**
- * Does no painting
+ *
  */
-public class MFNullPaintable implements MFIPaintable
+public class MFMockHoldable implements MFIHoldable
 {
-  public MFNullPaintable()
+
+  public boolean canHold()
   {
-    this.lastUpdate = System.currentTimeMillis();
-    this.interval = 100;
+    return true;
   }
 
-  public void update(long _currentTime)
+  public boolean pickup()
   {
-    final int diff = (int) (_currentTime - this.lastUpdate);
-    if (diff >= interval) {
-      // do stuff
-      this.lastUpdate = _currentTime;
-    }
+    return true;
   }
 
-  public void paint(Graphics2D g, int x_translation, int y_translation)
+  public void addItem(MFItem _item)
   {
+  }
+
+  public boolean putItem(MFRoom _room)
+  {
+    return true;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private long lastUpdate;
-  private int interval;
 
 }

@@ -24,15 +24,16 @@
  */
 package magefortress.core;
 
-import magefortress.map.MFTile;
-import magefortress.map.MFMap;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFCommunicationChannel;
+import magefortress.creatures.MFCreature;
 import magefortress.gui.MFScreen;
+import magefortress.map.MFMap;
+import magefortress.map.MFTile;
 import magefortress.storage.MFDaoFactory;
 
 /**

@@ -24,8 +24,8 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFCreature;
 import magefortress.core.MFRoom;
+import magefortress.creatures.MFCreature;
 
 /**
  * Puts the currently held item into the workshop at the present location. If

@@ -22,34 +22,36 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.graphics;
+
+import java.awt.Graphics2D;
 
 /**
- * Null implementation of MFIHoldable not being able to hold anything or to put
- * anything down.
+ * Does no painting
  */
-public class MFNullHoldable implements MFIHoldable, Immutable
+public class MFNullPaintable implements MFIPaintable
 {
-
-  public boolean canHold()
+  public MFNullPaintable()
   {
-    return false;
+    this.lastUpdate = System.currentTimeMillis();
+    this.interval = 100;
   }
 
-  public boolean pickup()
+  public void update(long _currentTime)
   {
-    return false;
+    final int diff = (int) (_currentTime - this.lastUpdate);
+    if (diff >= interval) {
+      // do stuff
+      this.lastUpdate = _currentTime;
+    }
   }
 
-  public void addItem(MFItem _item)
+  public void paint(Graphics2D g, int x_translation, int y_translation)
   {
-  }
-
-  public boolean putItem(MFRoom _room)
-  {
-    return false;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private long lastUpdate;
+  private int interval;
 
 }

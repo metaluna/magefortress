@@ -22,33 +22,72 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFIMovable;
+import java.util.EnumSet;
+import magefortress.core.MFEDirection;
+import magefortress.core.MFLocation;
 
 /**
  *
  */
-class MFStillPaintable implements MFIPaintable
+public class MFMockMovable implements MFIMovable
 {
 
-  public MFStillPaintable(BufferedImage _image)
+  public boolean canMove()
   {
-    this.image = _image;
+    return true;
   }
 
-  public void update(long _newTime)
+  public void move(MFEDirection _direction)
   {
-    //noop
   }
 
-  public void paint(Graphics2D _g, int _x, int _y)
+  public void setSpeed(int _speed)
   {
-    _g.drawImage(image, _x, _y, null);
+  }
+
+  public int getSpeed()
+  {
+    return 1;
+  }
+
+  public void setCurrentHeading(MFLocation _heading)
+  {
+  }
+
+  public MFLocation getCurrentHeading()
+  {
+    return new MFLocation(1,1,1);
+  }
+
+  public EnumSet<MFEMovementType> getCapabilities()
+  {
+    return EnumSet.of(MFEMovementType.WALK);
+  }
+
+  public int getClearance()
+  {
+    return 1;
+  }
+
+  public void setClearance(int _clearance)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public MFLocation getLocation()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void setLocation(MFLocation _location)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final BufferedImage image;
 
 }

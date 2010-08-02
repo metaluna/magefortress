@@ -22,16 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.creatures.behavior;
 
 /**
- * Defines wether and how a creature can hold things.
+ *
  */
-public interface MFIHoldable
+public enum MFEMovementType
 {
-  public boolean canHold();
-  public boolean pickup();
-  public void addItem(MFItem _item);
-  public boolean putItem(MFRoom _room);
-
+  WALK, FLY;
 }

@@ -25,10 +25,10 @@
 package magefortress.jobs.subtasks;
 
 import java.util.EnumSet;
-import magefortress.core.MFCreature;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFEMovementType;
 import magefortress.core.MFLocation;
+import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFMap;
 import magefortress.map.MFPath;

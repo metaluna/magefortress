@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.graphics;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import magefortress.core.Singleton;
 
 /**
  * Singleton object that handles all image file i/o operations.

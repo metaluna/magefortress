@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.logging.Logger;
 import java.util.Queue;
 import magefortress.channel.MFIChannelSender;
-import magefortress.core.MFCreature;
+import magefortress.creatures.MFCreature;
 import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFSubtaskCanceledException;
 

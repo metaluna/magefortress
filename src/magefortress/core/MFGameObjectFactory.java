@@ -25,6 +25,10 @@
 package magefortress.core;
 
 import java.awt.image.BufferedImage;
+import magefortress.creatures.MFRace;
+import magefortress.creatures.MFCreature;
+import magefortress.graphics.MFImageLibrary;
+import magefortress.graphics.MFStillPaintable;
 
 /**
  *
