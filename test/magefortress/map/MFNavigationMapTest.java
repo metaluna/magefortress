@@ -424,6 +424,41 @@ public class MFNavigationMapTest
     assertEquals(5*5-2, sections.get(0).getSize());
   }
 
+  @Test
+  public void shouldFindNoEntranceInCorneredShape()
+  {
+    this.naviMap = createMap(4, 4, 1);
+    /*
+     *  _____
+     * |     |
+     * |    _|
+     * |___|/|
+     * |/////|
+     */
+    // build top space room
+    this.map.getTile(0, 2, 0).setWallSouth(true);
+    this.map.getTile(1, 2, 0).setWallSouth(true);
+    this.map.getTile(2, 2, 0).setWallSouth(true);
+    this.map.getTile(2, 2, 0).setWallEast(true);
+    this.map.getTile(3, 1, 0).setWallSouth(true);
+    // build bottom earth room
+    // fill other area
+    for (int x=0; x < 4; ++x) {
+     this.map.getTile(x, 3, 0).setDugOut(false);
+    }
+    this.map.getTile(3, 2, 0).setDugOut(false);
+
+    this.naviMap.updateAllEntrances();
+    List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
+    assertEquals(0, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(1, sections.size());
+    int expTileCount = 11;
+    int gotTileCount = sections.get(0).getSize();
+    assertEquals(expTileCount, gotTileCount);
+  }
+
   //--------------------- addMovementCombination() TESTS -----------------------
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddCombinationWithIllegalClearance()
