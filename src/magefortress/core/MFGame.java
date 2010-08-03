@@ -118,6 +118,15 @@ public class MFGame
   }
 
   /**
+   * The game object producer
+   * @return The game object factory
+   */
+  public MFGameObjectFactory getGameObjectFactory()
+  {
+    return this.gameObjectFactory;
+  }
+
+  /**
    * Important! Set this after you've initialized the view.
    * @param _screen The view of the game
    */

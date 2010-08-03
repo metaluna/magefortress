@@ -26,6 +26,7 @@ package magefortress.map;
 
 import java.util.EnumSet;
 import magefortress.core.MFEDirection;
+import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.MFEMovementType;
 import org.junit.Before;
 import org.junit.Test;
@@ -202,6 +203,7 @@ public class MFHierarchicalAStarTest
   //                        WITH VALID PATHS
 
   @Test
+  @SuppressWarnings("unchecked")
   public void shouldFindPathInSameSection()
   {
     final MFTile startTile = this.map.getTile(0, 2, 0);
@@ -223,9 +225,9 @@ public class MFHierarchicalAStarTest
 
     final MFPath path = search.findPath();
     assertNotNull(path);
-    verify(this.pathFinder, never()).enqueuePathSearch(any(MFMap.class), 
-                          any(MFTile.class), any(MFTile.class), anyInt(), 
-                          any(EnumSet.class), any(MFIPathFinderListener.class));
+    verify(this.pathFinder, never()).enqueuePathSearch(any(MFLocation.class),
+                            any(MFLocation.class), anyInt(), any(EnumSet.class),
+                            any(MFIPathFinderListener.class));
 
     int gotPathLength = 0;
     while (path.hasNext()) {
@@ -274,10 +276,10 @@ public class MFHierarchicalAStarTest
     assertNotNull(path);
     assertTrue(path instanceof MFHierarchicalPath);
 
-    verify(this.pathFinder).enqueuePathSearch(this.map, startTile, gateway.getTile(),
-                            clearance, capabilities, (MFHierarchicalPath) path);
-    verify(this.pathFinder).enqueuePathSearch(this.map, gateway.getTile(), goalTile, 
-                            clearance, capabilities, (MFHierarchicalPath) path);
+    verify(this.pathFinder).enqueuePathSearch(startTile.getLocation(), 
+            gateway.getLocation(), clearance, capabilities, (MFHierarchicalPath) path);
+    verify(this.pathFinder).enqueuePathSearch(gateway.getLocation(), 
+            goalTile.getLocation(), clearance, capabilities, (MFHierarchicalPath) path);
     verifyNoMoreInteractions(this.pathFinder);
   }
 
@@ -347,10 +349,10 @@ public class MFHierarchicalAStarTest
     assertTrue(path instanceof MFHierarchicalPath);
 
     final MFHierarchicalPath hierarchicalPath = (MFHierarchicalPath) path;
-    verify(this.pathFinder).enqueuePathSearch(this.map, startTile, gateway1,
-                            clearance, capabilities, hierarchicalPath);
-    verify(this.pathFinder).enqueuePathSearch(this.map, gateway1, gateway2,
-                            clearance, capabilities, hierarchicalPath);
+    verify(this.pathFinder).enqueuePathSearch(startTile.getLocation(), 
+            gateway1.getLocation(), clearance, capabilities, hierarchicalPath);
+    verify(this.pathFinder).enqueuePathSearch(gateway1.getLocation(), 
+            gateway2.getLocation(), clearance, capabilities, hierarchicalPath);
     verifyNoMoreInteractions(this.pathFinder);
 
     // return some 1-tile-long long
@@ -359,8 +361,8 @@ public class MFHierarchicalAStarTest
 
     hierarchicalPath.next();
 
-    verify(this.pathFinder).enqueuePathSearch(this.map, gateway2, goalTile,
-                            clearance, capabilities, hierarchicalPath);
+    verify(this.pathFinder).enqueuePathSearch(gateway2.getLocation(), 
+            goalTile.getLocation(), clearance, capabilities, hierarchicalPath);
     verifyNoMoreInteractions(this.pathFinder);
 
 

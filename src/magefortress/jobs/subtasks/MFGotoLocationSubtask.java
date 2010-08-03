@@ -30,10 +30,8 @@ import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.map.MFIPathFinderListener;
-import magefortress.map.MFMap;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
-import magefortress.map.MFTile;
 
 /**
  * Grabs the current heading from the owner, calculates a path and moves
@@ -45,25 +43,25 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   /**
    * Find a path to the location stored as the creature's current heading by a
    * previous subtask.
-   * @param _map the map to move on
    * @param _owner The creature to move
+   * @param _pathFinder The path finder to query for paths
    */
-  public MFGotoLocationSubtask(MFMap _map, MFCreature _owner)
+  public MFGotoLocationSubtask(MFCreature _owner, MFPathFinder _pathFinder)
   {
     super(_owner);
-    this.map = _map;
+    this.pathFinder = _pathFinder;
   }
 
   /**
    * Find a path to a location. Stores the location argument as the creature's
    * current heading.
-   * @param _map the map to move on
    * @param _owner The creature to move
    * @param _location The target location
+   * @param _pathFinder The path finder to query for paths
    */
-  public MFGotoLocationSubtask(MFMap _map, MFCreature _owner, MFLocation _location)
+  public MFGotoLocationSubtask(MFCreature _owner, MFLocation _location, MFPathFinder _pathFinder)
   {
-    this(_map, _owner);
+    this(_owner, _pathFinder);
     _owner.setCurrentHeading(_location);
   }
 
@@ -73,8 +71,9 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     if (!this.searchingForPath) {
       // path search returned no path
       if (this.noPathFound) {
-        throw new MFSubtaskCanceledException(this.getOwner().getName() +
-             " couldn't find a path to " + this.getOwner().getCurrentHeading());
+        throw new MFNoPathFoundException(this.getOwner().getName() +
+             " couldn't find a path to " + this.getOwner().getCurrentHeading(),
+             this.getOwner().getLocation(), this.getOwner().getCurrentHeading());
       // calculate new path if the subtask is updated for the first time
       // or if the current path is no longer valid
       } else if (this.path == null || !this.path.isPathValid()) {
@@ -131,8 +130,8 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** Stores the map */
-  private final MFMap map;
+  /** The path finding algorithm */
+  private final MFPathFinder pathFinder;
   
   /** Stores the time past since the last move */
   private int updateCount;
@@ -148,13 +147,11 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
    */
   private void searchPath()
   {
-    final MFTile startTile = this.map.getTile(this.getOwner().getLocation());
-    final MFTile goalTile  = this.map.getTile(this.getOwner().getCurrentHeading());
     final int clearance = this.getOwner().getClearance();
     final EnumSet<MFEMovementType> capabilities = this.getOwner().getCapabilities();
     
-    MFPathFinder.getInstance().enqueuePathSearch(this.map, startTile, goalTile,
-       clearance, capabilities, this);
+    this.pathFinder.enqueuePathSearch(this.getOwner().getLocation(),
+            this.getOwner().getCurrentHeading(),clearance, capabilities, this);
 
     this.noPathFound = false;
     this.searchingForPath = true;

@@ -44,7 +44,7 @@ public class MFLocateSimilarItemSubtask extends MFSubtask
   @Override
   public boolean update() throws MFSubtaskCanceledException
   {
-    MFLocation location = this.getOwner().lookForSimilarItems(itemType);
+    MFLocation location = null;//this.getOwner().lookForSimilarItems(itemType);
 
     if (location == null) {
       throw new MFSubtaskCanceledException("Couldn't locate similar items: " + itemType.getName());

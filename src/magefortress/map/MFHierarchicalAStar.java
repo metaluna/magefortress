@@ -171,7 +171,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
 
     final MFPath result = 
             new MFHierarchicalPath(this.getStart(), this.getGoal(), path,
-                    this.getClearance(), this.getCapabilities(), this.getMap(),
+                    this.getClearance(), this.getCapabilities(),
                     this.pathFinder);
     return result;
   }

@@ -28,6 +28,8 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
+import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.core.Singleton;
 import magefortress.creatures.behavior.MFEMovementType;
 
@@ -49,22 +51,36 @@ public class MFPathFinder implements Singleton
     return pathFinderInstance;
   }
 
+  public void setMap(MFMap _map)
+  {
+    this.map = _map;
+  }
+
   /**
    * Enqueues a search into the queue for later execution.
    * @param _map the map to search
-   * @param _start the starting tile
-   * @param _goal the target tile
+   * @param _start the starting location
+   * @param _goal the target location
    * @param _clearance the size of the creature
    * @param _capabilities the movement modes of the creature
    * @param _listener the listener to notify when the search was executed
    */
-  public void enqueuePathSearch(final MFMap _map, final MFTile _start,
-                                final MFTile _goal, final int _clearance,
+  public void enqueuePathSearch(final MFLocation _start,
+                                final MFLocation _goal, final int _clearance,
                                 final EnumSet<MFEMovementType> _capabilities,
                                 final MFIPathFinderListener _listener)
   {
-    final MFHierarchicalAStar search = new MFHierarchicalAStar(_map, _start,
-                                        _goal, _clearance, _capabilities, this);
+    if (this.map == null) {
+      String msg = this.getClass().getName() + ": Map must be set before " +
+              "searching for paths.";
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    final MFTile startTile = this.map.getTile(_start);
+    final MFTile goalTile  = this.map.getTile(_goal);
+
+    final MFHierarchicalAStar search = new MFHierarchicalAStar(this.map, startTile,
+                                        goalTile, _clearance, _capabilities, this);
     this.enqueuePathSearch(search, _listener);
   }
 
@@ -114,6 +130,8 @@ public class MFPathFinder implements Singleton
   /** Singleton instance */
   private static MFPathFinder pathFinderInstance;
 
+  /** The map - must be set after getting the first instance */
+  private MFMap map;
   /** The list of searches */
   private final Queue<MFTemplateAStar> searchQueue;
   /** The list of listeners */

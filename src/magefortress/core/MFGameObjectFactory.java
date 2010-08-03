@@ -30,6 +30,7 @@ import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
 import magefortress.jobs.MFJobFactory;
+import magefortress.map.MFPathFinder;
 
 /**
  *
@@ -49,6 +50,11 @@ public class MFGameObjectFactory
     MFStillPaintable sprite = new MFStillPaintable(img);
     result.setDrawingBehavior(sprite);
     return result;
+  }
+
+  public MFPathFinder createPathFinder()
+  {
+    return MFPathFinder.getInstance();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

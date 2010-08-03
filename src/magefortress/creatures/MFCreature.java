@@ -167,16 +167,6 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
     return this.drawingBehavior;
   }
 
-  public MFLocation lookForSimilarItems(MFItem _item)
-  {
-    throw new UnsupportedOperationException("Not yet implemented");
-  }
-
-  public MFLocation findNearestNeighboringTile(MFLocation _location)
-  {
-    throw new UnsupportedOperationException("Not yet implemented");
-  }
-
   //---vvv---     MOVABLE INTERFACE     ---vvv---
   @Override
   public void setSpeed(int _speed)

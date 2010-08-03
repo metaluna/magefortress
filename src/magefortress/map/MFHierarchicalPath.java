@@ -39,7 +39,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
 {
   MFHierarchicalPath(final MFTile _start, final MFTile _goal, 
                  final Deque<MFTile> _path, final int _clearance,
-                 final EnumSet<MFEMovementType> _capabilities, final MFMap _map,
+                 final EnumSet<MFEMovementType> _capabilities,
                  final MFPathFinder _pathFinder)
   {
     super(_start, _goal);
@@ -65,13 +65,6 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_map == null) {
-      String msg = "Hierarchical Path " + _start.getLocation() + "->" +
-                    _goal.getLocation() + ": Cannot create hierarchical path " +
-                    "without a copy of the map.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
     if (_pathFinder == null) {
       String msg = "Hierarchical Path " + _start.getLocation() + "->" +
                     _goal.getLocation() + ": Cannot create hierarchical path " +
@@ -83,7 +76,6 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
     this.path = _path;
     this.clearance = _clearance;
     this.capabilities = EnumSet.copyOf(_capabilities);
-    this.map = _map;
     this.pathFinder = _pathFinder;
     
     this.searchNextSubpath();
@@ -162,6 +154,12 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   }
 
   @Override
+  public int getLength()
+  {
+    return this.path.size();
+  }
+
+  @Override
   public void pathSearchFinished(MFPath _path)
   {
     // next subpath was found
@@ -192,8 +190,6 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   private final int clearance;
   /** Capabilities needed to traverse this path */
   private final EnumSet<MFEMovementType> capabilities;
-  /** Caches the map */
-  private final MFMap map;
   /** Caches the path finder used to find subpaths */
   private final MFPathFinder pathFinder;
   
@@ -229,7 +225,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
     final MFTile start = this.path.poll();
     final MFTile goal  = this.path.peek();
 
-    this.pathFinder.enqueuePathSearch(this.map, start, goal,
+    this.pathFinder.enqueuePathSearch(start.getLocation(), goal.getLocation(),
                                       this.clearance, this.capabilities, this);
   }
 

@@ -121,6 +121,12 @@ public class MFAnnotatedPath extends MFPath
     throw new UnsupportedOperationException(msg);
   }
 
+  @Override
+  public int getLength()
+  {
+    return this.path.size();
+  }
+
   //---vvv---      PACKAGE-PRIVATE METHODS      ---vvv---
 
   /**

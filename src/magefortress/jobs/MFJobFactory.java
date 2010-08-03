@@ -45,7 +45,8 @@ public class MFJobFactory
   
   public MFAssignableJob createDiggingJob(MFDiggingSite _site)
   {
-    return new MFDiggingJob(_site, game.getMap(), _site.getLocation());
+    return new MFDiggingJob(_site, game.getMap(), _site.getLocation(),
+                                game.getGameObjectFactory().createPathFinder());
   }
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final MFGame game;

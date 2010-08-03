@@ -24,12 +24,13 @@
  */
 package magefortress.jobs;
 
-import magefortress.jobs.subtasks.MFLocateWalkableNeighorSubtask;
+import magefortress.jobs.subtasks.MFLocateNearestNeighorSubtask;
 import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFDigOutTileSubtask;
 import magefortress.jobs.subtasks.MFGotoLocationSubtask;
 import magefortress.core.MFLocation;
 import magefortress.map.MFMap;
+import magefortress.map.MFPathFinder;
 
 /**
  * Digs out a single tile.
@@ -37,19 +38,24 @@ import magefortress.map.MFMap;
 public class MFDiggingJob extends MFAssignableJob
 {
 
-  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location)
+  public MFDiggingJob(MFDiggingSite _sender, MFMap _map, MFLocation _location,
+                                                       MFPathFinder _pathFinder)
   {
     super(_sender);
     this.map = _map;
     this.location = _location;
+    this.pathFinder = _pathFinder;
   }
 
   @Override
   protected void initJob()
   {
-    MFSubtask findNeighbor = new MFLocateWalkableNeighorSubtask(this.getOwner(), this.location);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(this.map, this.getOwner());
-    MFSubtask digTile   = new MFDigOutTileSubtask(this.getOwner(), this.map, this.location);
+    MFSubtask findNeighbor = new MFLocateNearestNeighorSubtask(
+                    this.getOwner(), this.location, this.map, this.pathFinder);
+    MFSubtask gotoTile  = new MFGotoLocationSubtask(
+                                this.getOwner(), this.pathFinder);
+    MFSubtask digTile   = new MFDigOutTileSubtask(
+                                this.getOwner(), this.map, this.location);
     this.addSubtask(findNeighbor);
     this.addSubtask(gotoTile);
     this.addSubtask(digTile);
@@ -68,5 +74,6 @@ public class MFDiggingJob extends MFAssignableJob
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final MFMap map;
   private final MFLocation location;
+  private final MFPathFinder pathFinder;
 
 }

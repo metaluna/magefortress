@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -25,33 +25,38 @@
 package magefortress.jobs.subtasks;
 
 import magefortress.core.MFLocation;
-import magefortress.creatures.MFCreature;
 
 /**
- * Locates the closest unoccupied, walkable neighbor to the specified location
+ *
  */
-public class MFLocateWalkableNeighorSubtask extends MFSubtask
+public class MFNoPathFoundException extends MFSubtaskCanceledException
 {
 
-  public MFLocateWalkableNeighorSubtask(MFCreature _owner, MFLocation _location)
+  public MFNoPathFoundException(String _msg, MFLocation _start, MFLocation _goal)
   {
-    super(_owner);
-    this.location = _location;
+    super(_msg);
+    this.start = _start;
+    this.goal = _goal;
   }
-  
-  @Override
-  public boolean update() throws MFSubtaskCanceledException
+
+  public MFNoPathFoundException(String _msg, MFLocation _start, MFLocation _goal, Throwable _t)
   {
-    final MFLocation goal = this.getOwner().findNearestNeighboringTile(this.location);
-    if (goal == null) {
-      throw new MFSubtaskCanceledException(this.getOwner().getName() +
-              ": Could not find path to " + this.location);
-    }
-    this.getOwner().setCurrentHeading(goal);
-    return true;
+    super(_msg, _t);
+    this.start = _start;
+    this.goal = _goal;
+  }
+
+  public MFLocation getStart()
+  {
+    return this.start;
+  }
+
+  public MFLocation getGoal()
+  {
+    return this.goal;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFLocation location;
-
+  private final MFLocation start;
+  private final MFLocation goal;
 }

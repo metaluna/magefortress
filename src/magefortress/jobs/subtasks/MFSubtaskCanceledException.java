@@ -31,11 +31,14 @@ public class MFSubtaskCanceledException extends Exception
 {
   private static final long serialVersionUID = 927348798723948L;
 
-  public MFSubtaskCanceledException(String message)
+  public MFSubtaskCanceledException(String _msg)
   {
-    super(message);
+    super(_msg);
   }
 
-    //---vvv---      PRIVATE METHODS      ---vvv---
+  public MFSubtaskCanceledException(String _msg, Throwable _t)
+  {
+    super(_msg, _t);
+  }
 
 }

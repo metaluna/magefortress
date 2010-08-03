@@ -27,18 +27,18 @@ package magefortress.jobs;
 import magefortress.jobs.subtasks.*;
 import magefortress.core.MFItem;
 import magefortress.core.MFWorkshop;
-import magefortress.map.MFMap;
+import magefortress.map.MFPathFinder;
 
 /**
  * Produces a single item.
  */
 public class MFProduceItemJob extends MFAssignableJob
 {
-  public MFProduceItemJob(final MFWorkshop _sender, final MFMap _map, final MFBlueprint _blueprint)
+  public MFProduceItemJob(MFWorkshop _sender, MFBlueprint _blueprint, MFPathFinder _pathFinder)
   {
     super(_sender);
-    this.map = _map;
     this.blueprint = _blueprint;
+    this.pathFinder = _pathFinder;
   }
 
   @Override
@@ -48,9 +48,9 @@ public class MFProduceItemJob extends MFAssignableJob
 
     for (MFItem material : this.blueprint.getMaterials()) {
       MFSubtask locateMaterial = new MFLocateSimilarItemSubtask(this.getOwner(), material);
-      MFSubtask gotoMaterial   = new MFGotoLocationSubtask(this.map, this.getOwner());
+      MFSubtask gotoMaterial   = new MFGotoLocationSubtask(this.getOwner(), this.pathFinder);
       MFSubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());
-      MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.map, this.getOwner(), workshop.getLocation());
+      MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.getOwner(), workshop.getLocation(), this.pathFinder);
       MFSubtask dropMaterial   = new MFPutDraggedItemSubtask(this.getOwner(), workshop);
       this.addSubtask(locateMaterial);
       this.addSubtask(gotoMaterial);
@@ -77,7 +77,7 @@ public class MFProduceItemJob extends MFAssignableJob
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFMap map;
   private final MFBlueprint blueprint;
+  private final MFPathFinder pathFinder;
 
 }

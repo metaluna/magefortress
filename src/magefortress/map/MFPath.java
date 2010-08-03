@@ -91,7 +91,13 @@ public abstract class MFPath implements Iterator<MFEDirection>
   {
     this.isPathValid = false;
   }
-  
+
+  /**
+   * The length of the path. The length is always positive.
+   * @return the length of the path (> 0)
+   */
+  abstract public int getLength();
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Logger */
   private static Logger logger = Logger.getLogger(MFPath.class.getName());
