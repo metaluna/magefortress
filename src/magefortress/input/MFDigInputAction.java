@@ -28,6 +28,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.jobs.MFConstructionSite;
+import magefortress.jobs.MFDiggingSite;
 
 /**
  * Digs out a tile
@@ -49,11 +51,34 @@ public class MFDigInputAction extends MFInputAction
   public void execute()
   {
     for (MFLocation location : markedForDigging) {
-      this.game.getMap().digOut(location);
+      if (!alreadyMarked(location)) {
+        this.game.addConstructionSite(this.game.getGameObjectFactory().createDiggingSite(location));
+      } else {
+        this.game.removeConstructionSite(location);
+      }
     }
+
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   private final MFLocation[] markedForDigging;
+
+  /**
+   * Checks for the presence of a digging site.
+   * @param _location The location
+   * @return if there's previous digging site
+   */
+  private boolean alreadyMarked(MFLocation _location)
+  {
+    boolean marked = false;
+    // check for presence
+    for (MFConstructionSite site : this.game.getConstructionSites()) {
+      if (site instanceof MFDiggingSite && site.getLocation().equals(_location)) {
+        return true;
+      }
+    }
+
+    return marked;
+  }
 }

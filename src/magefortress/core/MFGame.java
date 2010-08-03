@@ -26,13 +26,16 @@ package magefortress.core;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFCommunicationChannel;
 import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
+import magefortress.jobs.MFConstructionSite;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFNavigationMap;
@@ -55,8 +58,10 @@ public class MFGame
   public MFGame(MFMap _map, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
   {
     // init channels
-    this.channels = new ArrayList<MFCommunicationChannel>();
-    this.creatures = new ArrayList<MFCreature>();
+    this.channels = new LinkedList<MFCommunicationChannel>();
+    this.creatures = new LinkedList<MFCreature>();
+    this.constructionSites = new LinkedList<MFConstructionSite>();
+    this.garbageConstructionSites = new LinkedList<MFConstructionSite>();
     
     // init map
     this.map = _map;
@@ -72,31 +77,22 @@ public class MFGame
 
   public void update(long _currentTime)
   {
-    processCommunicationChannels();
+    removeMarkedConstructionSites();
 
-    for (MFCreature creature : this.creatures) {
-      creature.update(_currentTime);
-    }
+    processCommunicationChannels();
+    processCreatures(_currentTime);
+    processConstructionSites(_currentTime);
   }
 
   public void paint(Graphics2D _g, int _currentLevel, Rectangle _clippingRect)
   {
     this.map.paint(_g, _currentLevel, _clippingRect);
 
-    MFLocation start = this.map.getVisibleStart(_currentLevel, _clippingRect);
-    MFLocation end   = this.map.getVisibleEnd(_currentLevel, _clippingRect);
+    final MFLocation start = this.map.getVisibleStart(_currentLevel, _clippingRect);
+    final MFLocation end   = this.map.getVisibleEnd(_currentLevel, _clippingRect);
     
-    // render all visible creatures
-    for (MFCreature creature : this.creatures) {
-      MFLocation location = creature.getLocation();
-      if (location.z == _currentLevel &&
-          start.x <= location.x && location.x <= end.x &&
-          start.y <= location.y && location.y <= end.y) {
-        creature.paint(_g, _clippingRect.x, _clippingRect.y);
-      }
-    }
-
-    // TODO paint objects - move to map.paint()?
+    paintCreatures(_currentLevel, start, end, _g, _clippingRect);
+    paintConstructionSites(_currentLevel, start, end, _g, _clippingRect);
   }
 
   /**
@@ -158,15 +154,38 @@ public class MFGame
     this.creatures.add(_creature);
   }
 
+  public void addConstructionSite(MFConstructionSite _constructionSite)
+  {
+    this.constructionSites.add(_constructionSite);
+  }
+
+  public void removeConstructionSite(MFLocation _location)
+  {
+    for (MFConstructionSite site : this.constructionSites) {
+      if (site.getLocation().equals(_location)) {
+        // mark for removal
+        this.garbageConstructionSites.add(site);
+      }
+    }
+  }
+
+  public Iterable<MFConstructionSite> getConstructionSites()
+  {
+    return Collections.unmodifiableList(this.constructionSites);
+  }
+  
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** The view on the game */
   private MFScreen screen;
   /** The map */
   private MFMap map;
   /** Communications channels*/
-  private final ArrayList<MFCommunicationChannel> channels;
+  private final List<MFCommunicationChannel> channels;
   /** Relevant creatures */
-  private final ArrayList<MFCreature> creatures;
+  private final List<MFCreature> creatures;
+  /** Construction sites */
+  private final List<MFConstructionSite> constructionSites;
+  private final List<MFConstructionSite> garbageConstructionSites;
   /** Factory for all game object like creatures, items, plants */
   private final MFGameObjectFactory gameObjectFactory;
   /** DAO factory */
@@ -186,4 +205,44 @@ public class MFGame
     }
   }
 
+  private void processCreatures(long _currentTime)
+  {
+    for (MFCreature creature : this.creatures) {
+      creature.update(_currentTime);
+    }
+  }
+
+  private void processConstructionSites(long _currentTime)
+  {
+    for (MFConstructionSite site: this.constructionSites) {
+      site.update(_currentTime);
+    }
+  }
+
+  private void paintCreatures(int _currentLevel, MFLocation _start,
+                        MFLocation _end, Graphics2D _g, Rectangle _clippingRect)
+  {
+    for (MFCreature creature : this.creatures) {
+      MFLocation location = creature.getLocation();
+      if (location.z == _currentLevel && _start.x <= location.x && location.x <= _end.x && _start.y <= location.y && location.y <= _end.y) {
+        creature.paint(_g, _clippingRect.x, _clippingRect.y);
+      }
+    }
+  }
+
+  private void paintConstructionSites(int _currentLevel, MFLocation _start,
+                        MFLocation _end, Graphics2D _g, Rectangle _clippingRect)
+  {
+    for (MFConstructionSite site : this.constructionSites) {
+      MFLocation location = site.getLocation();
+      if (location.z == _currentLevel && _start.x <= location.x && location.x <= _end.x && _start.y <= location.y && location.y <= _end.y) {
+        site.paint(_g, _clippingRect.x, _clippingRect.y);
+      }
+    }
+  }
+
+  private void removeMarkedConstructionSites()
+  {
+    this.constructionSites.removeAll(this.garbageConstructionSites);
+  }
 }

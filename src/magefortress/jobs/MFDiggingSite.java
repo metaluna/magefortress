@@ -24,6 +24,7 @@
  */
 package magefortress.jobs;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import magefortress.channel.MFChannelMessage;
 import magefortress.channel.MFCommunicationChannel;
@@ -70,11 +71,27 @@ public class MFDiggingSite extends MFConstructionSite
   @Override
   public void update(long _currentTime)
   {
+    if (_currentTime >= NEXT_SWITCH) {
+      PAINT_BLACK = !PAINT_BLACK;
+      NEXT_SWITCH = _currentTime + BLINKING_INTERVAL;
+    }
   }
 
   @Override
   public void paint(Graphics2D _g, int _x_translation, int _y_translation)
   {
+    // set color
+    if (PAINT_BLACK) {
+      _g.setColor(Color.BLACK);
+    } else {
+      _g.setColor(Color.lightGray);
+    }
+    // calculate position
+    int size = MFTile.TILESIZE;
+    int x = this.getLocation().x*size + _x_translation;
+    int y = this.getLocation().y*size + _y_translation;
+
+    _g.fillRect(x, y, size, size);
   }
 
   @Override
@@ -112,6 +129,9 @@ public class MFDiggingSite extends MFConstructionSite
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private static final int BLINKING_INTERVAL = 750;
+  private static long NEXT_SWITCH;
+  private static boolean PAINT_BLACK;
   private final MFMap map;
   private boolean jobAvailable;
   private boolean unreachable;
@@ -123,10 +143,12 @@ public class MFDiggingSite extends MFConstructionSite
 
     for (MFEDirection direction : MFEDirection.values()) {
       MFLocation loc = this.getLocation().locationOf(direction);
-      MFTile tile = this.map.getTile(loc);
-      if (tile != null && (!tile.isUnderground() || tile.isDugOut())) {
-        this.unreachable = false;
-        return;
+      if (this.map.isInsideMap(loc)) {
+        MFTile tile = this.map.getTile(loc);
+        if (!tile.isUnderground() || tile.isDugOut()) {
+          this.unreachable = false;
+          return;
+        }
       }
     }
   }

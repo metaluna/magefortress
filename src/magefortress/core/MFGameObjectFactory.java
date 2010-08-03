@@ -25,16 +25,20 @@
 package magefortress.core;
 
 import java.awt.image.BufferedImage;
+import magefortress.channel.MFChannelFactory;
+import magefortress.channel.MFEChannel;
 import magefortress.creatures.MFRace;
 import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
+import magefortress.jobs.MFDiggingSite;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFPathFinder;
 
 /**
- *
+ * In addition to the construction parameters it instantiates a path finder and
+ * a channel factory (singletons).
  */
 public class MFGameObjectFactory
 {
@@ -42,8 +46,10 @@ public class MFGameObjectFactory
   {
     this.imgLib = _imgLib;
     this.jobFactory = _jobFactory;
+    this.map = _map;
     this.pathFinder = MFPathFinder.getInstance();
-    this.pathFinder.setMap(_map);
+    this.pathFinder.setMap(this.map);
+    this.channelFactory = MFChannelFactory.getInstance();
   }
 
   public MFCreature createCreature(MFRace _race)
@@ -60,9 +66,17 @@ public class MFGameObjectFactory
     return this.pathFinder;
   }
 
+  public MFDiggingSite createDiggingSite(MFLocation _location)
+  {
+    return new MFDiggingSite(_location, this.map, jobFactory, 
+                            this.channelFactory.getChannel(MFEChannel.DIGGING));
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final String DEFAULT_CREATURE_SPRITE = "sticky.png";
   private final MFImageLibrary imgLib;
   private final MFJobFactory jobFactory;
+  private final MFMap map;
   private final MFPathFinder pathFinder;
+  private final MFChannelFactory channelFactory;
 }
