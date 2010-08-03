@@ -40,7 +40,7 @@ public class MFDiggingSiteTest
 {
   private MFDiggingSite diggingSite;
   private MFDiggingSite unreachableDiggingSite;
-  private MFMap mockMap;
+  private MFMap map;
   private MFMap unreachableMockMap;
   private MFJobFactory mockJobFactory;
   private MFLocation location;
@@ -50,24 +50,21 @@ public class MFDiggingSiteTest
   @Before
   public void setUp() throws Exception
   {
+
     this.mockChannel = mock(MFCommunicationChannel.class);
     this.location = new MFLocation(0, 0, 0);
-    this.mockMap = mock(MFMap.class);
-    when(this.mockMap.getWidth()).thenReturn(2);
-    when(this.mockMap.getHeight()).thenReturn(2);
-    when(this.mockMap.getDepth()).thenReturn(2);
-    MFTile tile = new MFTile(-1, 1, 0, 0, true, true, true, false, false, true, true);
-    when(mockMap.getTile(new MFLocation(1,0,0))).thenReturn(tile);
-    tile = new MFTile(-1, 0, 1, 0, true, false, false, true, true, true, true);
-    when(mockMap.getTile(new MFLocation(0,1,0))).thenReturn(tile);
-    tile = new MFTile(-1, 1, 1, 0, true, false, true, true, true, true, true);
-    when(mockMap.getTile(new MFLocation(1,1,0))).thenReturn(tile);
+    MFMap realMap = new MFMap(-1, 5, 5, 1);
+    realMap.digOut(location);
+    realMap.digOut(new MFLocation(1,0,0));
+    realMap.digOut(new MFLocation(0,1,0));
+    realMap.digOut(new MFLocation(1,1,0));
+    this.map = spy(realMap);
 
     this.mockJobFactory = mock(MFJobFactory.class);
     MFAssignableJob job = mock(MFAssignableJob.class);
     when(this.mockJobFactory.createDiggingJob(any(MFDiggingSite.class))).thenReturn(job);
 
-    this.diggingSite = new MFDiggingSite(this.location, this.mockMap, this.mockJobFactory, this.mockChannel);
+    this.diggingSite = new MFDiggingSite(this.location, this.map, this.mockJobFactory, this.mockChannel);
 
     // unreachable digging site
     unreachableMockChannel = mock(MFCommunicationChannel.class);
@@ -85,7 +82,7 @@ public class MFDiggingSiteTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutLocation()
   {
-    new MFDiggingSite(null, mockMap, mockJobFactory, mockChannel);
+    new MFDiggingSite(null, map, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -93,7 +90,7 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(5, 0, 0);
     
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -101,7 +98,7 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(0, 5, 0);
 
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
   }
 
 
@@ -110,7 +107,7 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(0, 0, 5);
 
-    new MFDiggingSite(invalidLocation, mockMap, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -122,19 +119,19 @@ public class MFDiggingSiteTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutJobFactory()
   {
-    new MFDiggingSite(mock(MFLocation.class), mockMap, null, mockChannel);
+    new MFDiggingSite(mock(MFLocation.class), map, null, mockChannel);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutCommunicationChannel()
   {
-    new MFDiggingSite(mock(MFLocation.class), mockMap, mockJobFactory, null);
+    new MFDiggingSite(mock(MFLocation.class), map, mockJobFactory, null);
   }
 
   @Test
   public void shouldCheckReachabilityDuringConstruction()
   {
-    verify(mockMap, times(3)).getTile(any(MFLocation.class));
+    verify(this.map).getTile(any(MFLocation.class));
   }
 
   @Test
