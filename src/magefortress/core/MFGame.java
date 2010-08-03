@@ -64,7 +64,7 @@ public class MFGame
     this.daoFactory = _daoFactory;
 
     this.jobFactory = new MFJobFactory(this);
-    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory);
+    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map);
 
     this.naviMap = new MFNavigationMap(this.map);
     this.naviMap.updateAllEntrances();

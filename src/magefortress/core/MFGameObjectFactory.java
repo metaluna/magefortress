@@ -30,6 +30,7 @@ import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
 import magefortress.jobs.MFJobFactory;
+import magefortress.map.MFMap;
 import magefortress.map.MFPathFinder;
 
 /**
@@ -37,10 +38,12 @@ import magefortress.map.MFPathFinder;
  */
 public class MFGameObjectFactory
 {
-  public MFGameObjectFactory(MFImageLibrary _imgLib, MFJobFactory _jobFactory)
+  public MFGameObjectFactory(MFImageLibrary _imgLib, MFJobFactory _jobFactory, MFMap _map)
   {
     this.imgLib = _imgLib;
     this.jobFactory = _jobFactory;
+    this.pathFinder = MFPathFinder.getInstance();
+    this.pathFinder.setMap(_map);
   }
 
   public MFCreature createCreature(MFRace _race)
@@ -54,11 +57,12 @@ public class MFGameObjectFactory
 
   public MFPathFinder createPathFinder()
   {
-    return MFPathFinder.getInstance();
+    return this.pathFinder;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final String DEFAULT_CREATURE_SPRITE = "sticky.png";
   private final MFImageLibrary imgLib;
   private final MFJobFactory jobFactory;
+  private final MFPathFinder pathFinder;
 }
