@@ -30,6 +30,7 @@ import magefortress.map.MFTile;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
 import magefortress.input.MFInputManager;
+import magefortress.jobs.MFConstructionSite;
 import magefortress.storage.MFDaoFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,6 +79,22 @@ public class MFGameTest
   {
     game.quit();
     verify(mockScreensManager, never()).pop();
+  }
+
+  @Test
+  public void shouldAddConstructionSites()
+  {
+    MFConstructionSite newSite = mock(MFConstructionSite.class);
+    game.addConstructionSite(newSite);
+
+    boolean found = false;
+    for (MFConstructionSite site : game.getConstructionSites()) {
+      if (site == newSite) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue(found);
   }
 
 }
