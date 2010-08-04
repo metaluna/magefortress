@@ -27,6 +27,7 @@ package magefortress.jobs.subtasks;
 import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
+import magefortress.core.MFUnexpectedStateException;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.map.MFIPathFinderListener;
@@ -68,7 +69,14 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   @Override
   public boolean update() throws MFSubtaskCanceledException
   {
+    if (this.goalReached) {
+      String msg = this.getClass().getSimpleName() + ": Trying to update " +
+                                                     "after goal was reached";
+      throw new MFUnexpectedStateException(msg);
+    }
+    
     if (!this.searchingForPath) {
+      
       // path search returned no path
       if (this.noPathFound) {
         throw new MFNoPathFoundException(this.getOwner().getName() +
@@ -79,35 +87,20 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
       } else if (this.path == null || !this.path.isPathValid()) {
         searchPath();
       // check if it's time to move and the search for a subpath has finished
-      } else if (this.updateCount >= this.getOwner().getSpeed() && this.path.hasNext()) {
-        // get next tile to move to
-        MFEDirection nextMove = this.path.next();
+      } else if (this.path.hasNext()) {
+        if (this.updateCount >= this.getOwner().getSpeed()) {
 
-        this.getOwner().move(nextMove);
-        // reset counter
-        this.updateCount = 0;
-
-        // couldn't move to target tile
-//        if (!movedSuccessful) {
-//          // recalculate path
-//          this.searchPath();
-//          return false;
-//        }
-
-        // check if we made the last move of the path
-        if (!this.path.hasNext()) {
-          // target reached?
-          if (this.getOwner().getLocation().equals(this.getOwner().getCurrentHeading())) {
+          move();
+          boolean done = wasTargetReached();
+          if (done) {
+            this.goalReached = true;
             return true;
-          } else {
-            // error during pathfinding
-            throw new MFSubtaskCanceledException(this.getOwner().getName() +
-                  " couldn't reach target (" + this.getOwner().getCurrentHeading() + ")");
           }
         }
+        ++this.updateCount;
       }
+        
     }
-    ++this.updateCount;
     return false;
   }
 
@@ -141,6 +134,8 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   private boolean noPathFound;
   /** Flag for the state */
   private boolean searchingForPath;
+  /** Reached goal */
+  private boolean goalReached;
 
   /**
    * Enqueues a path
@@ -156,4 +151,48 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     this.noPathFound = false;
     this.searchingForPath = true;
   }
+  /**
+   * Moves the owner of the subtask
+   */
+  private void move() throws MFSubtaskCanceledException
+  {
+    // get next tile to move to
+    final MFEDirection nextMove = this.path.next();
+    this.getOwner().move(nextMove);
+
+    // reset counter
+    this.updateCount = 0;
+    // couldn't move to target tile
+    //        if (!movedSuccessful) {
+    //          // recalculate path
+    //          this.searchPath();
+    //          return false;
+    //        }
+  }
+
+  private boolean wasTargetReached() throws MFSubtaskCanceledException
+  {
+    boolean result = false;
+
+    // check if we made the last move of the path
+    if (!this.path.hasNext()) {
+
+      // target reached?
+      MFLocation currentLoc = this.getOwner().getLocation();
+      MFLocation goal = this.getOwner().getCurrentHeading();
+      
+      if (currentLoc.equals(goal)) {
+        result = true;
+      } else {
+        // error during pathfinding
+        throw new MFUnexpectedStateException(this.getOwner().getName() +
+                                  " couldn't reach target (" +
+                                  this.getOwner().getCurrentHeading() + ")");
+      }
+
+    }
+
+    return result;
+  }
+
 }

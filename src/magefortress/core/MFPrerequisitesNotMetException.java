@@ -27,7 +27,7 @@ package magefortress.core;
 /**
  *
  */
-public class MFPrerequisitesNotMetException extends RuntimeException
+public class MFPrerequisitesNotMetException extends MFUnexpectedStateException
 {
 
   public MFPrerequisitesNotMetException(String _msg)

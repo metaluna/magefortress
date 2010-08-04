@@ -29,7 +29,7 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 
 /**
- *
+ * Speed is measured in ticks/move.
  */
 public interface MFIMovable
 {
