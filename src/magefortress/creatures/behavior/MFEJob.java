@@ -29,7 +29,7 @@ package magefortress.creatures.behavior;
  */
 public enum MFEJob
 {
-  DIGGING;
+  DIGGING, WOODCUTTING;
 
   @Override
   public String toString()

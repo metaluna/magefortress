@@ -27,6 +27,8 @@ package magefortress.creatures;
 import java.awt.Graphics2D;
 import java.util.EnumSet;
 import java.util.logging.Logger;
+import magefortress.channel.MFChannelMessage;
+import magefortress.channel.MFIChannelSubscriber;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFItem;
 import magefortress.core.MFLocation;
@@ -47,7 +49,8 @@ import magefortress.map.MFTile;
 /**
  * Base class for all creatures
  */
-public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIInstrumentable
+public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIInstrumentable,
+        MFIChannelSubscriber
 {
   public MFCreature(String _name, MFRace _race)
   {
@@ -346,6 +349,14 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
                     _y_translation + SPRITE_OFFSET_Y;
 
     this.drawingBehavior.paint(_g, x, y);
+  }
+
+  //---vvv---      CHANNEL SUBSCRIBER INTERFACE       ---vvv---
+
+  @Override
+  public void update(MFChannelMessage _message)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
