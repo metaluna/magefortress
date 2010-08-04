@@ -30,12 +30,16 @@ import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFItem;
 import magefortress.core.MFLocation;
-import magefortress.core.MFRoom;
+import magefortress.core.MFTool;
+import magefortress.creatures.behavior.MFEJob;
 import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFEToolLevel;
 import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.MFIInstrumentable;
 import magefortress.creatures.behavior.MFIMovable;
 import magefortress.creatures.behavior.MFNullMovable;
 import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.creatures.behavior.MFNullInstrumentable;
 import magefortress.graphics.MFIPaintable;
 import magefortress.graphics.MFNullPaintable;
 import magefortress.map.MFTile;
@@ -43,7 +47,7 @@ import magefortress.map.MFTile;
 /**
  * Base class for all creatures
  */
-public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
+public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIInstrumentable
 {
   public MFCreature(String _name, MFRace _race)
   {
@@ -63,6 +67,7 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
     this.holdingBehavior = NULL_HOLDABLE;
     this.moveBehavior = NULL_MOVABLE;
     this.drawingBehavior = NULL_PAINTABLE;
+    this.toolUsingBehavior = NULL_INSTRUMENTABLE;
     this.size = 1;
   }
 
@@ -167,6 +172,22 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
     return this.drawingBehavior;
   }
 
+  public void setToolUsingBehavior(MFIInstrumentable _toolUsingBehavior)
+  {
+    if (_toolUsingBehavior == null) {
+      String message = "Creature '" + this.name + "': " +
+                        "Tool using behavior must not be null.";
+      logger.severe(message);
+      throw new IllegalArgumentException(message);
+    }
+    this.toolUsingBehavior = _toolUsingBehavior;
+  }
+
+  public MFIInstrumentable getToolUsingBehavior()
+  {
+    return this.toolUsingBehavior;
+  }
+
   //---vvv---     MOVABLE INTERFACE     ---vvv---
   @Override
   public void setSpeed(int _speed)
@@ -268,6 +289,49 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
     return this.holdingBehavior.putItem(_tile);
   }
 
+  //---vvv---     INSTRUMENTABLE INTERFACE    ---vvv---
+  @Override
+  public boolean canUseTools()
+  {
+    return this.toolUsingBehavior.canUseTools();
+  }
+
+  @Override
+  public boolean addTool(MFTool _tool)
+  {
+    return this.toolUsingBehavior.addTool(_tool);
+  }
+
+  @Override
+  public MFTool removeTool(MFEJob _job)
+  {
+    return this.toolUsingBehavior.removeTool(_job);
+  }
+
+  @Override
+  public int getToolSkill(MFEJob _job)
+  {
+    return this.toolUsingBehavior.getToolSkill(_job);
+  }
+
+  @Override
+  public int getJobSkill(MFEJob _job)
+  {
+    return this.toolUsingBehavior.getJobSkill(_job);
+  }
+
+  @Override
+  public void gainJobExperience(MFEJob _job, int _xp)
+  {
+    this.toolUsingBehavior.gainJobExperience(_job, _xp);
+  }
+
+  @Override
+  public MFEToolLevel getToolSkillLevel(MFEJob _job)
+  {
+    return this.toolUsingBehavior.getToolSkillLevel(_job);
+  }
+
   //---vvv---     PAINTABLE INTERFACE    ---vvv---
   public void update()
   {
@@ -289,6 +353,7 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
   private static final MFIMovable NULL_MOVABLE = new MFNullMovable();
   private static final MFIHoldable NULL_HOLDABLE = new MFNullHoldable();
   private static final MFIPaintable NULL_PAINTABLE = new MFNullPaintable();
+  private static final MFIInstrumentable NULL_INSTRUMENTABLE = new MFNullInstrumentable();
   private static final int SPRITE_OFFSET_X = 8;
   private static final int SPRITE_OFFSET_Y = 4;
 
@@ -299,4 +364,5 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
   private MFIMovable moveBehavior;
   private MFIHoldable holdingBehavior;
   private MFIPaintable drawingBehavior;
+  private MFIInstrumentable toolUsingBehavior;
 }

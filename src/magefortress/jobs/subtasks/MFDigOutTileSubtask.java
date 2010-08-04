@@ -26,6 +26,7 @@ package magefortress.jobs.subtasks;
 
 import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFEJob;
 import magefortress.map.MFMap;
 
 /**
@@ -39,7 +40,7 @@ public class MFDigOutTileSubtask extends MFSubtask
     super(_owner);
     this.map = _map;
     this.location = _location;
-    this.timeLeft = -1;
+    this.timeLeft = 0;
   }
 
   @Override
@@ -47,7 +48,7 @@ public class MFDigOutTileSubtask extends MFSubtask
   {
     boolean subtaskDone;
 
-    if (this.timeLeft == -1) {
+    if (this.timeLeft == 0) {
       // check if the tile can be dug out
       if (this.map.getTile(this.location).isDugOut()) {
         String msg = "Tile@" + this.location + " is already dug out.";
@@ -63,8 +64,9 @@ public class MFDigOutTileSubtask extends MFSubtask
       }
       this.timeLeft = calculateDiggingTime();
       subtaskDone = false;
-    } else if (this.timeLeft == 0) {
+    } else if (this.timeLeft == 1) {
       this.map.digOut(this.location);
+      this.getOwner().gainJobExperience(JOB_SKILL_USED, 2);
       subtaskDone = true;
     } else {
       --this.timeLeft;
@@ -75,17 +77,26 @@ public class MFDigOutTileSubtask extends MFSubtask
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private static final int MIN_DIGGING_TIME = 10;
+  private static final MFEJob JOB_SKILL_USED = MFEJob.DIGGING;
   private final MFMap map;
   private final MFLocation location;
   private int timeLeft;
 
   /**
    * Calculates the time it will take the creature to dig out the tile. Takes
-   * into account how hard the stone is and how skilled the miner is.
-   * @return The time left until the tile is dug out
+   * the stone's hardness and the miner's skill into account.
+   * @return The time left in ticks until the tile is dug out
    */
   private int calculateDiggingTime()
   {
-    return 75;
+    //hardness should be between 200 and 800 (1st draft)
+    final int hardness = 500;
+    final int jobSkill = this.getOwner().getJobSkill(JOB_SKILL_USED);
+
+    int result = MIN_DIGGING_TIME;
+    result += Math.max(0, hardness-jobSkill);
+
+    return result;
   }
 }

@@ -27,6 +27,7 @@ package magefortress.jobs.subtasks;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
 import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFEJob;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import org.junit.Before;
@@ -69,5 +70,25 @@ public class MFDigOutTileSubtaskTest
     when(mockMap.getTile(goal)).thenReturn(mockTile);
 
     this.digTask.update();
+  }
+
+  @Test
+  public void shouldNotBeDoneUntilDugOut() throws MFSubtaskCanceledException
+  {
+    when(this.mockOwner.getJobSkill(MFEJob.DIGGING)).thenReturn(501);
+    when(this.mockOwner.getLocation()).thenReturn(new MFLocation(2,2,3));
+    MFTile mockTile = mock(MFTile.class);
+    when(mockMap.getTile(goal)).thenReturn(mockTile);
+
+    boolean done = true;
+    for (int i=0; i<10; ++i) {
+      done = this.digTask.update();
+      assertFalse(done);
+    }
+
+    done = this.digTask.update();
+    assertTrue(done);
+    verify(mockMap).digOut(goal);
+    verify(mockOwner).gainJobExperience(eq(MFEJob.DIGGING), anyInt());
   }
 }
