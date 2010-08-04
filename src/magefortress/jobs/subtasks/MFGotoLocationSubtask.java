@@ -30,6 +30,7 @@ import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFIMovable;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
@@ -49,21 +50,22 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
    */
   public MFGotoLocationSubtask(MFCreature _owner, MFPathFinder _pathFinder)
   {
-    super(_owner);
-    this.pathFinder = _pathFinder;
+    this(_owner, null, _pathFinder);
   }
 
   /**
-   * Find a path to a location. Stores the location argument as the creature's
-   * current heading.
+   * Find a path to a location. Stores the location argument and sets it as the 
+   * creature's current heading when the task begins to search for a path.
    * @param _owner The creature to move
    * @param _location The target location
    * @param _pathFinder The path finder to query for paths
    */
   public MFGotoLocationSubtask(MFCreature _owner, MFLocation _location, MFPathFinder _pathFinder)
   {
-    this(_owner, _pathFinder);
-    _owner.setCurrentHeading(_location);
+    super(_owner);
+    this.movable = _owner;
+    this.heading = _location;
+    this.pathFinder = _pathFinder;
   }
 
   @Override
@@ -80,15 +82,15 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
       // path search returned no path
       if (this.noPathFound) {
         throw new MFNoPathFoundException(this.getOwner().getName() +
-             " couldn't find a path to " + this.getOwner().getCurrentHeading(),
-             this.getOwner().getLocation(), this.getOwner().getCurrentHeading());
+             " couldn't find a path to " + this.movable.getCurrentHeading(),
+             this.movable.getLocation(), this.movable.getCurrentHeading());
       // calculate new path if the subtask is updated for the first time
       // or if the current path is no longer valid
       } else if (this.path == null || !this.path.isPathValid()) {
         searchPath();
       // check if it's time to move and the search for a subpath has finished
       } else if (this.path.hasNext()) {
-        if (this.updateCount >= this.getOwner().getSpeed()) {
+        if (this.updateCount >= this.movable.getSpeed()) {
 
           move();
           boolean done = wasTargetReached();
@@ -116,17 +118,22 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     this.path = _path;
     this.searchingForPath = false;
     if (_path != null) {
-      this.updateCount = this.getOwner().getSpeed();
+      this.updateCount = this.movable.getSpeed();
     } else {
       this.noPathFound = true;
     }
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
+  /** The moving object */
+  private final MFIMovable movable;
   /** The path finding algorithm */
   private final MFPathFinder pathFinder;
+  /** Stores the heading for later use. May be null if the creature's current
+   * heading is supposed to be used. */
+  private final MFLocation heading;
   
-  /** Stores the time past since the last move */
+  /** Stores the time passed since the last move */
   private int updateCount;
   /** The path the creature will take */
   private MFPath path;
@@ -142,6 +149,10 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
    */
   private void searchPath()
   {
+    if (this.heading != null) {
+      this.movable.setCurrentHeading(heading);
+    }
+
     final int clearance = this.getOwner().getClearance();
     final EnumSet<MFEMovementType> capabilities = this.getOwner().getCapabilities();
     

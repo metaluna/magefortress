@@ -211,4 +211,18 @@ public class MFGotoLocationSubtaskTest
     gotoTask.update();
   }
 
+  @Test
+  public void shouldSetHeadingWhenSearchingForAPath() throws MFSubtaskCanceledException
+  {
+    MFLocation goal = new MFLocation(1,2,3);
+    gotoTask = new MFGotoLocationSubtask(mockOwner, goal, mockPathFinder);
+
+    MFLocation prevGoal = new MFLocation (3,2,1);
+    when(mockOwner.getCurrentHeading()).thenReturn(prevGoal);
+
+    gotoTask.update();
+
+    verify(mockOwner).setCurrentHeading(goal);
+  }
+
 }
