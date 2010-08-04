@@ -25,8 +25,7 @@
 package magefortress.creatures.behavior;
 
 import magefortress.core.MFItem;
-import magefortress.core.MFRoom;
-import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.map.MFTile;
 
 /**
  *
@@ -44,11 +43,16 @@ public class MFMockHoldable implements MFIHoldable
     return true;
   }
 
+  public boolean putDown()
+  {
+    return true;
+  }
+
   public void addItem(MFItem _item)
   {
   }
 
-  public boolean putItem(MFRoom _room)
+  public boolean putItem(MFTile _tile)
   {
     return true;
   }

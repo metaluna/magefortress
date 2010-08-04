@@ -29,7 +29,7 @@ import magefortress.creatures.MFCreature;
 /**
  * Base class for all subtasks.
  */
-public abstract class MFSubtask
+public abstract class MFSubtask implements MFISubtask
 {
 
   public MFSubtask(MFCreature _owner)
@@ -46,8 +46,6 @@ public abstract class MFSubtask
   {
     this.owner = _owner;
   }
-
-  public abstract boolean update() throws MFSubtaskCanceledException;
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private MFCreature owner;

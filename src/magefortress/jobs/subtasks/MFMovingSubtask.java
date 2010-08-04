@@ -22,44 +22,30 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior;
+package magefortress.jobs.subtasks;
 
-import magefortress.core.Immutable;
-import magefortress.core.MFItem;
-import magefortress.core.MFRoom;
-import magefortress.map.MFTile;
+import java.util.logging.Logger;
+import magefortress.creatures.behavior.MFIMovable;
 
 /**
- * Null implementation of MFIHoldable not being able to hold anything or to put
- * anything down.
+ *
  */
-public class MFNullHoldable implements MFIHoldable, Immutable
+abstract class MFMovingSubtask implements MFISubtask
 {
 
-  public boolean canHold()
+  public MFMovingSubtask(MFIMovable _owner)
   {
-    return false;
+    this.movable = _owner;
   }
 
-  public boolean pickup()
+  final public MFIMovable getMovable()
   {
-    return false;
+    return this.movable;
   }
 
-  public boolean putDown()
-  {
-    return false;
-  }
-
-  public void addItem(MFItem _item)
-  {
-  }
-
-  public boolean putItem(MFTile _tile)
-  {
-    return false;
-  }
+  //---vvv---     PROTECTED METHODS     ---vvv---
+  protected static final Logger logger = Logger.getLogger(MFMovingSubtask.class.getName());
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-
+  private final MFIMovable movable;
 }

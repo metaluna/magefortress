@@ -24,13 +24,13 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.LinkedList;
 import java.util.List;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.MFIMovable;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFMap;
 import magefortress.map.MFPath;
@@ -40,17 +40,24 @@ import magefortress.map.MFTile;
 /**
  * Locates the closest unoccupied, walkable neighbor to the specified location
  */
-public class MFLocateNearestNeighorSubtask extends MFSubtask implements MFIPathFinderListener
+public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MFIPathFinderListener
 {
 
-  public MFLocateNearestNeighorSubtask(MFCreature _owner,
+  /**
+   * Constructor
+   * @param _movable The game object to move
+   * @param _location The ultimate goal whose neighbors will be calculated
+   * @param _map The map
+   * @param _pathFinder The path finding queue
+   */
+  public MFLocateNearestNeighorSubtask(MFIMovable _movable,
                                 MFLocation _location, MFMap _map, MFPathFinder _pathFinder)
   {
-    super(_owner);
+    super(_movable);
     this.location = _location;
     this.map = _map;
     this.pathFinder = _pathFinder;
-    this.paths = new ArrayList<MFPath>();
+    this.paths = new LinkedList<MFPath>();
   }
   
   @Override
@@ -60,14 +67,13 @@ public class MFLocateNearestNeighorSubtask extends MFSubtask implements MFIPathF
       this.searchNearestNeighboringTile();
     } else if (this.finishedSearchesCount == this.startedSearchesCount) {
       // no path found
-      if (this.paths.size() == 0) {
-        throw new MFNoPathFoundException(this.getOwner().getName() +
-                                  ": Could not find path to " + this.location,
-                                  this.getOwner().getLocation(), this.location);
+      if (this.paths.isEmpty()) {
+        throw new MFNoPathFoundException("Could not find path to " + this.location,
+                                  this.getMovable().getLocation(), this.location);
       } else {
         MFPath path = this.selectShortestPath();
         MFLocation goal = path.getGoal().getLocation();
-        this.getOwner().setCurrentHeading(goal);
+        this.getMovable().setCurrentHeading(goal);
       }
       // done in any case
       return true;
@@ -105,7 +111,7 @@ public class MFLocateNearestNeighorSubtask extends MFSubtask implements MFIPathF
       MFTile neighboringTile = this.map.getTile(neighboringLocation);
 
       if (neighboringTile != null) {
-        for (MFEMovementType movementType : this.getOwner().getCapabilities()) {
+        for (MFEMovementType movementType : this.getMovable().getCapabilities()) {
           // TODO!! check for clearance
           if (neighboringTile.isWalkable(movementType)) {
             this.searchPath(neighboringLocation);
@@ -123,10 +129,10 @@ public class MFLocateNearestNeighorSubtask extends MFSubtask implements MFIPathF
    */
   private void searchPath(MFLocation _goal)
   {
-    final int clearance = this.getOwner().getClearance();
-    final EnumSet<MFEMovementType> capabilities = this.getOwner().getCapabilities();
+    final int clearance = this.getMovable().getClearance();
+    final EnumSet<MFEMovementType> capabilities = this.getMovable().getCapabilities();
 
-    this.pathFinder.enqueuePathSearch(this.getOwner().getLocation(), _goal,
+    this.pathFinder.enqueuePathSearch(this.getMovable().getLocation(), _goal,
                                                  clearance, capabilities, this);
   }
 

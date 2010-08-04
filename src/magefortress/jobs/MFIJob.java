@@ -25,7 +25,7 @@
 package magefortress.jobs;
 
 import magefortress.creatures.MFCreature;
-import magefortress.jobs.subtasks.MFSubtask;
+import magefortress.jobs.subtasks.MFISubtask;
 
 /**
  * Jobs take control of creatures to fulfill the task they were
@@ -40,6 +40,6 @@ public interface MFIJob
 {
   public boolean update();
   public boolean isActive();
-  public MFSubtask getActiveSubtask();
+  public MFISubtask getActiveSubtask();
   public MFCreature getOwner();
 }

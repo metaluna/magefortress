@@ -24,11 +24,11 @@
  */
 package magefortress.jobs;
 
+import magefortress.core.MFLocation;
 import magefortress.jobs.subtasks.MFLocateNearestNeighorSubtask;
-import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFDigOutTileSubtask;
 import magefortress.jobs.subtasks.MFGotoLocationSubtask;
-import magefortress.core.MFLocation;
+import magefortress.jobs.subtasks.MFISubtask;
 import magefortress.map.MFMap;
 import magefortress.map.MFPathFinder;
 
@@ -50,11 +50,11 @@ public class MFDiggingJob extends MFAssignableJob
   @Override
   protected void initJob()
   {
-    MFSubtask findNeighbor = new MFLocateNearestNeighorSubtask(
+    MFISubtask findNeighbor = new MFLocateNearestNeighorSubtask(
                     this.getOwner(), this.location, this.map, this.pathFinder);
-    MFSubtask gotoTile  = new MFGotoLocationSubtask(
+    MFISubtask gotoTile  = new MFGotoLocationSubtask(
                                 this.getOwner(), this.pathFinder);
-    MFSubtask digTile   = new MFDigOutTileSubtask(
+    MFISubtask digTile   = new MFDigOutTileSubtask(
                                 this.getOwner(), this.map, this.location);
     this.addSubtask(findNeighbor);
     this.addSubtask(gotoTile);

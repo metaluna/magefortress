@@ -24,30 +24,30 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFIHoldable;
 
 /**
  * Picks up an item at the owner's current location. The item must be set on
  * the owner by an earlier subtask of the type {@link
  * MFLocateSimilarItemSubtask}.
  */
-public class MFPickupItemSubtask extends MFSubtask
+public class MFPickupItemSubtask extends MFHoldingSubtask
 {
   
-  public MFPickupItemSubtask(MFCreature _owner)
+  public MFPickupItemSubtask(MFIHoldable _holdable)
   {
-    super(_owner);
+    super(_holdable);
   }
 
   @Override
   public boolean update() throws MFSubtaskCanceledException
   {    
     // grabs it
-    final boolean success = this.getOwner().pickup();
+    final boolean success = this.getHoldable().pickup();
 
     if (!success) {
-      throw new MFSubtaskCanceledException(this.getOwner().getName() +
-              " didn't find an item where it was supposed to be.");
+      throw new MFSubtaskCanceledException("Did not find an item where it " +
+                                            "was supposed to be.");
     }
 
     return true;

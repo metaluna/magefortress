@@ -251,15 +251,21 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
   }
 
   @Override
+  public boolean putDown()
+  {
+    return this.holdingBehavior.putDown();
+  }
+
+  @Override
   public void addItem(MFItem _item)
   {
     this.holdingBehavior.addItem(_item);
   }
 
   @Override
-  public boolean putItem(MFRoom _room)
+  public boolean putItem(MFTile _tile)
   {
-    return this.holdingBehavior.putItem(_room);
+    return this.holdingBehavior.putItem(_tile);
   }
 
   //---vvv---     PAINTABLE INTERFACE    ---vvv---

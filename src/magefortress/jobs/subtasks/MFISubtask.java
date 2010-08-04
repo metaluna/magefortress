@@ -22,44 +22,22 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior;
-
-import magefortress.core.Immutable;
-import magefortress.core.MFItem;
-import magefortress.core.MFRoom;
-import magefortress.map.MFTile;
+package magefortress.jobs.subtasks;
 
 /**
- * Null implementation of MFIHoldable not being able to hold anything or to put
- * anything down.
+ * Interface implemented by all subtasks. The only method returns
+ * <code>true</true> when the subtask is finished and throws an exception
+ * if an error occurs.
  */
-public class MFNullHoldable implements MFIHoldable, Immutable
+public interface MFISubtask
 {
 
-  public boolean canHold()
-  {
-    return false;
-  }
-
-  public boolean pickup()
-  {
-    return false;
-  }
-
-  public boolean putDown()
-  {
-    return false;
-  }
-
-  public void addItem(MFItem _item)
-  {
-  }
-
-  public boolean putItem(MFTile _tile)
-  {
-    return false;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
+  /**
+   * Returns <code>true</code> when the subtask is finished and throws
+   * an exception if an error occurs.
+   * @return <code>true</code> when finished
+   * @throws MFSubtaskCanceledException if an error occurs.
+   */
+  boolean update() throws MFSubtaskCanceledException;
 
 }

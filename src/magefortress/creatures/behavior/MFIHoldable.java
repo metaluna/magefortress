@@ -25,7 +25,7 @@
 package magefortress.creatures.behavior;
 
 import magefortress.core.MFItem;
-import magefortress.core.MFRoom;
+import magefortress.map.MFTile;
 
 /**
  * Defines wether and how a creature can hold things.
@@ -34,7 +34,8 @@ public interface MFIHoldable
 {
   public boolean canHold();
   public boolean pickup();
+  public boolean putDown();
   public void addItem(MFItem _item);
-  public boolean putItem(MFRoom _room);
+  public boolean putItem(MFTile _tile);
 
 }

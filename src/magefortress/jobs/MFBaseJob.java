@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 import magefortress.creatures.MFCreature;
+import magefortress.jobs.subtasks.MFISubtask;
 import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFSubtaskCanceledException;
 
@@ -58,7 +59,7 @@ abstract class MFBaseJob implements MFIJob
   public MFBaseJob(MFCreature _owner)
   {
     this.owner = _owner;
-    this.subtaskQueue = new LinkedList<MFSubtask>();
+    this.subtaskQueue = new LinkedList<MFISubtask>();
   }
 
   /**
@@ -72,7 +73,7 @@ abstract class MFBaseJob implements MFIJob
   @Override
   public boolean update()
   {
-    final MFSubtask currentTask = this.subtaskQueue.peek();
+    final MFISubtask currentTask = this.subtaskQueue.peek();
 
     // stores if the current subtask is done
     boolean subtaskDone = true;
@@ -116,7 +117,7 @@ abstract class MFBaseJob implements MFIJob
    * @return The subtask or <code>null</code>
    */
   @Override
-  public MFSubtask getActiveSubtask()
+  public MFISubtask getActiveSubtask()
   {
     if (!this.isActive()) {
       return null;
@@ -141,7 +142,7 @@ abstract class MFBaseJob implements MFIJob
   /** The creature currently doing the job */
   protected MFCreature owner;
 
-  protected void addSubtask(MFSubtask _subtask)
+  protected void addSubtask(MFISubtask _subtask)
   {
     this.subtaskQueue.add(_subtask);
   }
@@ -157,6 +158,6 @@ abstract class MFBaseJob implements MFIJob
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** List of subtasks */
-  private final Queue<MFSubtask> subtaskQueue;
+  private final Queue<MFISubtask> subtaskQueue;
 
 }

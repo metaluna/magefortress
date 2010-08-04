@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
-import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.creatures.behavior.MFIMovable;
 import magefortress.map.MFIPathFinderListener;
@@ -39,31 +38,30 @@ import magefortress.map.MFPathFinder;
  * Grabs the current heading from the owner, calculates a path and moves
  * forward with the creatures speed until it reaches the goal.
  */
-public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderListener
+public class MFGotoLocationSubtask extends MFMovingSubtask implements MFIPathFinderListener
 {
 
   /**
    * Find a path to the location stored as the creature's current heading by a
    * previous subtask.
-   * @param _owner The creature to move
+   * @param _movable The game object to move
    * @param _pathFinder The path finder to query for paths
    */
-  public MFGotoLocationSubtask(MFCreature _owner, MFPathFinder _pathFinder)
+  public MFGotoLocationSubtask(MFIMovable _movable, MFPathFinder _pathFinder)
   {
-    this(_owner, null, _pathFinder);
+    this(_movable, null, _pathFinder);
   }
 
   /**
    * Find a path to a location. Stores the location argument and sets it as the 
    * creature's current heading when the task begins to search for a path.
-   * @param _owner The creature to move
-   * @param _location The target location
+   * @param _movable The game object to move
+   * @param _location The target location. Will be set as current heading later.
    * @param _pathFinder The path finder to query for paths
    */
-  public MFGotoLocationSubtask(MFCreature _owner, MFLocation _location, MFPathFinder _pathFinder)
+  public MFGotoLocationSubtask(MFIMovable _movable, MFLocation _location, MFPathFinder _pathFinder)
   {
-    super(_owner);
-    this.movable = _owner;
+    super(_movable);
     this.heading = _location;
     this.pathFinder = _pathFinder;
   }
@@ -74,6 +72,7 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     if (this.goalReached) {
       String msg = this.getClass().getSimpleName() + ": Trying to update " +
                                                      "after goal was reached";
+      logger.severe(msg);
       throw new MFUnexpectedStateException(msg);
     }
     
@@ -81,16 +80,19 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
       
       // path search returned no path
       if (this.noPathFound) {
-        throw new MFNoPathFoundException(this.getOwner().getName() +
-             " couldn't find a path to " + this.movable.getCurrentHeading(),
-             this.movable.getLocation(), this.movable.getCurrentHeading());
+        String msg = "Could not find a path to " +
+                                         this.getMovable().getCurrentHeading();
+        logger.fine(msg);
+        throw new MFNoPathFoundException(msg,
+                                         this.getMovable().getLocation(),
+                                         this.getMovable().getCurrentHeading());
       // calculate new path if the subtask is updated for the first time
       // or if the current path is no longer valid
       } else if (this.path == null || !this.path.isPathValid()) {
         searchPath();
       // check if it's time to move and the search for a subpath has finished
       } else if (this.path.hasNext()) {
-        if (this.updateCount >= this.movable.getSpeed()) {
+        if (this.updateCount >= this.getMovable().getSpeed()) {
 
           move();
           boolean done = wasTargetReached();
@@ -118,15 +120,13 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     this.path = _path;
     this.searchingForPath = false;
     if (_path != null) {
-      this.updateCount = this.movable.getSpeed();
+      this.updateCount = this.getMovable().getSpeed();
     } else {
       this.noPathFound = true;
     }
   }
-  
+
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** The moving object */
-  private final MFIMovable movable;
   /** The path finding algorithm */
   private final MFPathFinder pathFinder;
   /** Stores the heading for later use. May be null if the creature's current
@@ -150,14 +150,14 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   private void searchPath()
   {
     if (this.heading != null) {
-      this.movable.setCurrentHeading(heading);
+      this.getMovable().setCurrentHeading(heading);
     }
 
-    final int clearance = this.getOwner().getClearance();
-    final EnumSet<MFEMovementType> capabilities = this.getOwner().getCapabilities();
+    final int clearance = this.getMovable().getClearance();
+    final EnumSet<MFEMovementType> capabilities = this.getMovable().getCapabilities();
     
-    this.pathFinder.enqueuePathSearch(this.getOwner().getLocation(),
-            this.getOwner().getCurrentHeading(),clearance, capabilities, this);
+    this.pathFinder.enqueuePathSearch(this.getMovable().getLocation(),
+            this.getMovable().getCurrentHeading(),clearance, capabilities, this);
 
     this.noPathFound = false;
     this.searchingForPath = true;
@@ -169,7 +169,7 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
   {
     // get next tile to move to
     final MFEDirection nextMove = this.path.next();
-    this.getOwner().move(nextMove);
+    this.getMovable().move(nextMove);
 
     // reset counter
     this.updateCount = 0;
@@ -189,16 +189,18 @@ public class MFGotoLocationSubtask extends MFSubtask implements MFIPathFinderLis
     if (!this.path.hasNext()) {
 
       // target reached?
-      MFLocation currentLoc = this.getOwner().getLocation();
-      MFLocation goal = this.getOwner().getCurrentHeading();
+      MFLocation currentLoc = this.getMovable().getLocation();
+      MFLocation goal = this.getMovable().getCurrentHeading();
       
       if (currentLoc.equals(goal)) {
         result = true;
       } else {
         // error during pathfinding
-        throw new MFUnexpectedStateException(this.getOwner().getName() +
-                                  " couldn't reach target (" +
-                                  this.getOwner().getCurrentHeading() + ")");
+        String msg = this.getClass().getSimpleName() + ": Could not reach target (" +
+                                  this.getMovable().getLocation() + "->" +
+                                  this.getMovable().getCurrentHeading() + ")";
+        logger.severe(msg);
+        throw new MFUnexpectedStateException(msg);
       }
 
     }

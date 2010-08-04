@@ -25,9 +25,7 @@
 package magefortress.creatures.behavior;
 
 import magefortress.core.MFItem;
-import magefortress.core.MFRoom;
-import magefortress.creatures.behavior.MFIHoldable;
-import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.map.MFTile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,13 +59,13 @@ public class MFNullHoldableTest
   public void shouldNotAddAndPutItem()
   {
     this.holdable.addItem(mock(MFItem.class));
-    assertFalse(this.holdable.putItem(mock(MFRoom.class)));
+    assertFalse(this.holdable.putItem(mock(MFTile.class)));
   }
 
   @Test
   public void shouldNotPutNoItem()
   {
-    assertFalse(this.holdable.putItem(mock(MFRoom.class)));
+    assertFalse(this.holdable.putItem(mock(MFTile.class)));
   }
 
 }

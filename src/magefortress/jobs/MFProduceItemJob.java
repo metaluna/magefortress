@@ -47,11 +47,11 @@ public class MFProduceItemJob extends MFAssignableJob
     MFWorkshop workshop = (MFWorkshop) this.getSender();
 
     for (MFItem material : this.blueprint.getMaterials()) {
-      MFSubtask locateMaterial = new MFLocateSimilarItemSubtask(this.getOwner(), material);
-      MFSubtask gotoMaterial   = new MFGotoLocationSubtask(this.getOwner(), this.pathFinder);
-      MFSubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());
-      MFSubtask gotoWorkshop   = new MFGotoLocationSubtask(this.getOwner(), workshop.getLocation(), this.pathFinder);
-      MFSubtask dropMaterial   = new MFPutDraggedItemSubtask(this.getOwner(), workshop);
+      MFISubtask locateMaterial = new MFLocateSimilarItemSubtask(this.getOwner(), material);
+      MFISubtask gotoMaterial   = new MFGotoLocationSubtask(this.getOwner(), this.pathFinder);
+      MFISubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());
+      MFISubtask gotoWorkshop   = new MFGotoLocationSubtask(this.getOwner(), workshop.getLocation(), this.pathFinder);
+      MFISubtask dropMaterial   = new MFPutDraggedItemSubtask(this.getOwner());
       this.addSubtask(locateMaterial);
       this.addSubtask(gotoMaterial);
       this.addSubtask(pickupMaterial);
@@ -59,7 +59,7 @@ public class MFProduceItemJob extends MFAssignableJob
       this.addSubtask(dropMaterial);
     }
 
-    MFSubtask produceItem = new MFProduceItemSubtask(this.getOwner(), workshop, this.blueprint);
+    MFISubtask produceItem = new MFProduceItemSubtask(this.getOwner(), workshop, this.blueprint);
     this.addSubtask(produceItem);
   }
 

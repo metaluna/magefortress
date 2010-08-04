@@ -24,36 +24,35 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFRoom;
-import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.map.MFTile;
 
 /**
  * Puts the currently held item into the workshop at the present location. If
  * the target workshop isn't at the current location an exception will be thrown.
  */
-public class MFPutDraggedItemSubtask extends MFSubtask
+public class MFPutDraggedItemSubtask extends MFHoldingSubtask
 {
 
-  public MFPutDraggedItemSubtask(final MFCreature _owner, final MFRoom _room)
+  public MFPutDraggedItemSubtask(final MFIHoldable _holdable)
   {
-    super(_owner);
-    this.room = _room;
+    super(_holdable);
   }
 
   @Override
   public boolean update() throws MFSubtaskCanceledException
   {
     // puts it down
-    final boolean success = this.getOwner().putItem(this.room);
+    final boolean success = this.getHoldable().putDown();
 
     if (!success) {
-      throw new MFSubtaskCanceledException(this.getOwner().getName() +
-              " couldn't put item into workshop '" + this.room.getName() + "'");
+      String msg = "Could not put down item.";
+      logger.severe(msg);
+      throw new MFSubtaskCanceledException(msg);
     }
 
     return true;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFRoom room;
 }

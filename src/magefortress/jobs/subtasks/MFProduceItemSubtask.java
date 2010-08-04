@@ -33,9 +33,6 @@ import magefortress.jobs.MFBlueprint;
  */
 public class MFProduceItemSubtask extends MFSubtask
 {
-  private MFWorkshop workshop;
-  private MFBlueprint blueprint;
-
   public MFProduceItemSubtask(MFCreature _owner, MFWorkshop _workshop, MFBlueprint _blueprint)
   {
     super(_owner);
@@ -49,6 +46,9 @@ public class MFProduceItemSubtask extends MFSubtask
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
-    //---vvv---      PRIVATE METHODS      ---vvv---
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private final MFWorkshop workshop;
+  private final MFBlueprint blueprint;
+
 
 }
