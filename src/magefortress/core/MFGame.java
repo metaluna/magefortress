@@ -75,13 +75,13 @@ public class MFGame
     this.naviMap.updateAllEntrances();
   }
 
-  public void update(long _currentTime)
+  public void update()
   {
     removeMarkedConstructionSites();
 
     processCommunicationChannels();
-    processCreatures(_currentTime);
-    processConstructionSites(_currentTime);
+    processCreatures();
+    processConstructionSites();
   }
 
   public void paint(Graphics2D _g, int _currentLevel, Rectangle _clippingRect)
@@ -205,17 +205,17 @@ public class MFGame
     }
   }
 
-  private void processCreatures(long _currentTime)
+  private void processCreatures()
   {
     for (MFCreature creature : this.creatures) {
-      creature.update(_currentTime);
+      creature.update();
     }
   }
 
-  private void processConstructionSites(long _currentTime)
+  private void processConstructionSites()
   {
     for (MFConstructionSite site: this.constructionSites) {
-      site.update(_currentTime);
+      site.update();
     }
   }
 

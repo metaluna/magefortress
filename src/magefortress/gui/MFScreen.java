@@ -89,7 +89,7 @@ public abstract class MFScreen
   /**
    * Called when the game tells the screen to update its contents.
    */
-  public abstract void update(long _currentTime);
+  public abstract void update();
   /**
    * Called when the game tells the screen to display its contents.
    * @param _g The canvas

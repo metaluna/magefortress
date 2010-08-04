@@ -95,7 +95,7 @@ public class MageFortress extends JFrame implements Runnable
           Graphics2D g = null;
 
           // process data
-          currentScreen.update(System.currentTimeMillis());
+          currentScreen.update();
 
           // render
           try {

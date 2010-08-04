@@ -95,7 +95,7 @@ public class MFConstructionSiteTest
     }
 
     @Override
-    public void update(long _currentTime)
+    public void update()
     {
     }
 

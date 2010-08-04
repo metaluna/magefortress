@@ -260,8 +260,9 @@ public class MFTile implements MFIPaintable, MFISaveable
     return this.placedObject;
   }
 
+  //---vvv---        PAINTABLE INTERFACE        ---vvv---
   @Override
-  public void update(long _currentTime)
+  public void update()
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }

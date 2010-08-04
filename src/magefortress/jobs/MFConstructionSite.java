@@ -108,7 +108,7 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
   }
 
   @Override
-  public abstract void update(long _currentTime);
+  public abstract void update();
   @Override
   public abstract void paint(Graphics2D _g, int _x_translation, int _y_translation);
 

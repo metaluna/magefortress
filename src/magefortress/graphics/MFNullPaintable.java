@@ -37,12 +37,13 @@ public class MFNullPaintable implements MFIPaintable
     this.interval = 100;
   }
 
-  public void update(long _currentTime)
+  public void update()
   {
-    final int diff = (int) (_currentTime - this.lastUpdate);
+    long currentTime = System.currentTimeMillis();
+    final int diff = (int) (currentTime - this.lastUpdate);
     if (diff >= interval) {
       // do stuff
-      this.lastUpdate = _currentTime;
+      this.lastUpdate = currentTime;
     }
   }
 

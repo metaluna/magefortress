@@ -92,10 +92,10 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   }
 
   @Override
-  public void update(long _currentTime)
+  public void update()
   {
     this.processInput();
-    this.game.update(_currentTime);
+    this.game.update();
   }
 
   @Override

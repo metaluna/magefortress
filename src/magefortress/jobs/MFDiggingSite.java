@@ -41,7 +41,8 @@ import magefortress.map.MFTile;
 public class MFDiggingSite extends MFConstructionSite
 {
 
-  public MFDiggingSite(MFLocation _location, MFMap _map, MFJobFactory _jobFactory, MFCommunicationChannel _channel)
+  public MFDiggingSite(MFLocation _location, MFMap _map,
+                      MFJobFactory _jobFactory, MFCommunicationChannel _channel)
   {
     super(_location, 1, 1, _jobFactory, _channel);
     if (_map == null) {
@@ -69,11 +70,12 @@ public class MFDiggingSite extends MFConstructionSite
   }
 
   @Override
-  public void update(long _currentTime)
+  public void update()
   {
-    if (_currentTime >= NEXT_SWITCH) {
-      PAINT_BLACK = !PAINT_BLACK;
-      NEXT_SWITCH = _currentTime + BLINKING_INTERVAL;
+    long currentTime = System.currentTimeMillis();
+    if (currentTime >= NEXT_SWITCH) {
+      HIGHLIGHT = !HIGHLIGHT;
+      NEXT_SWITCH = currentTime + BLINKING_INTERVAL;
     }
   }
 
@@ -81,17 +83,15 @@ public class MFDiggingSite extends MFConstructionSite
   public void paint(Graphics2D _g, int _x_translation, int _y_translation)
   {
     // set color
-    if (PAINT_BLACK) {
-      _g.setColor(Color.BLACK);
-    } else {
+    if (HIGHLIGHT) {
       _g.setColor(Color.lightGray);
-    }
-    // calculate position
-    int size = MFTile.TILESIZE;
-    int x = this.getLocation().x*size + _x_translation;
-    int y = this.getLocation().y*size + _y_translation;
+      // calculate position
+      int size = MFTile.TILESIZE;
+      int x = this.getLocation().x*size + _x_translation;
+      int y = this.getLocation().y*size + _y_translation;
 
-    _g.fillRect(x, y, size, size);
+      _g.fillRect(x, y, size, size);
+    }
   }
 
   @Override
@@ -129,9 +129,13 @@ public class MFDiggingSite extends MFConstructionSite
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  /** Interval in ms between color changes. Used for sychronization */
   private static final int BLINKING_INTERVAL = 750;
+  /** Time when the next color change will be. Used for sychronization */
   private static long NEXT_SWITCH;
-  private static boolean PAINT_BLACK;
+  /** Current color. Used for sychronization */
+  private static boolean HIGHLIGHT;
+  
   private final MFMap map;
   private boolean jobAvailable;
   private boolean unreachable;

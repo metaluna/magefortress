@@ -38,7 +38,7 @@ public class MFStillPaintable implements MFIPaintable
     this.image = _image;
   }
 
-  public void update(long _newTime)
+  public void update()
   {
     //noop
   }

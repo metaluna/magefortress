@@ -263,9 +263,9 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable
   }
 
   //---vvv---     PAINTABLE INTERFACE    ---vvv---
-  public void update(long _currentTime)
+  public void update()
   {
-    this.drawingBehavior.update(_currentTime);
+    this.drawingBehavior.update();
   }
 
   public void paint(Graphics2D _g, int _x_translation, int _y_translation)
