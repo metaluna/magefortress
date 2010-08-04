@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.creatures.MFCreature;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
@@ -82,6 +83,16 @@ public class MFGameTest
   }
 
   @Test
+  public void shouldUpdateCreatures()
+  {
+    MFCreature creature = mock(MFCreature.class);
+    game.addCreature(creature);
+    game.update();
+
+    verify(creature).update();
+  }
+
+  @Test
   public void shouldAddConstructionSites()
   {
     MFConstructionSite newSite = mock(MFConstructionSite.class);
@@ -97,4 +108,44 @@ public class MFGameTest
     assertTrue(found);
   }
 
+  @Test
+  public void shouldRemoveConstructionSitesWithDelay()
+  {
+    MFConstructionSite newSite = mock(MFConstructionSite.class);
+    MFLocation loc = new MFLocation(2,3,4);
+    when(newSite.getLocation()).thenReturn(loc);
+
+    game.addConstructionSite(newSite);
+    game.removeConstructionSite(loc);
+
+    boolean found = false;
+    for (MFConstructionSite site : game.getConstructionSites()) {
+      if (site == newSite) {
+        found = true;
+        break;
+      }
+    }
+    assertTrue(found);
+
+    game.update();
+    
+    found = false;
+    for (MFConstructionSite site : game.getConstructionSites()) {
+      if (site == newSite) {
+        found = true;
+        break;
+      }
+    }
+    assertFalse(found);
+  }
+
+  @Test
+  public void shouldUpdateConstructionSites()
+  {
+    MFConstructionSite newSite = mock(MFConstructionSite.class);
+    game.addConstructionSite(newSite);
+    game.update();
+
+    verify(newSite).update();
+  }
 }

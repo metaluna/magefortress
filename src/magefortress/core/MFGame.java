@@ -154,11 +154,21 @@ public class MFGame
     this.creatures.add(_creature);
   }
 
+  /**
+   * Adds a construction site. Does not check if there's already a site at
+   * the position of the new construction site.
+   * @param _constructionSite The construction site to add
+   */
   public void addConstructionSite(MFConstructionSite _constructionSite)
   {
     this.constructionSites.add(_constructionSite);
   }
 
+  /**
+   * Marks a construction site for removal. Removing will take place at the
+   * beginning of the next game update.
+   * @param _location The location of the site to remove.
+   */
   public void removeConstructionSite(MFLocation _location)
   {
     for (MFConstructionSite site : this.constructionSites) {
@@ -169,6 +179,11 @@ public class MFGame
     }
   }
 
+  /**
+   * Iterates over all construction site. Do not try to remove sites directly,
+   * but use {@link #removeConstructionSite}.
+   * @return An iterator over all construction sites
+   */
   public Iterable<MFConstructionSite> getConstructionSites()
   {
     return Collections.unmodifiableList(this.constructionSites);
@@ -224,7 +239,9 @@ public class MFGame
   {
     for (MFCreature creature : this.creatures) {
       MFLocation location = creature.getLocation();
-      if (location.z == _currentLevel && _start.x <= location.x && location.x <= _end.x && _start.y <= location.y && location.y <= _end.y) {
+      if (location.z == _currentLevel && 
+          _start.x <= location.x && location.x <= _end.x &&
+          _start.y <= location.y && location.y <= _end.y) {
         creature.paint(_g, _clippingRect.x, _clippingRect.y);
       }
     }
@@ -235,7 +252,9 @@ public class MFGame
   {
     for (MFConstructionSite site : this.constructionSites) {
       MFLocation location = site.getLocation();
-      if (location.z == _currentLevel && _start.x <= location.x && location.x <= _end.x && _start.y <= location.y && location.y <= _end.y) {
+      if (location.z == _currentLevel && 
+          _start.x <= location.x && location.x <= _end.x &&
+          _start.y <= location.y && location.y <= _end.y) {
         site.paint(_g, _clippingRect.x, _clippingRect.y);
       }
     }
