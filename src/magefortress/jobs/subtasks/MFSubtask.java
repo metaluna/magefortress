@@ -24,6 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
+import java.util.logging.Logger;
 import magefortress.creatures.MFCreature;
 
 /**
@@ -47,7 +48,10 @@ public abstract class MFSubtask implements MFISubtask
     this.owner = _owner;
   }
 
-  //---vvv---      PRIVATE METHODS      ---vvv---
+  //---vvv---     PROTECTED METHODS      ---vvv---
+  protected static final Logger logger = Logger.getLogger(MFSubtask.class.getName());
+
+  //---vvv---      PRIVATE METHODS       ---vvv---
   private MFCreature owner;
 
 }

@@ -49,13 +49,17 @@ public class MFDigOutTileSubtask extends MFSubtask
 
     if (this.timeLeft == -1) {
       // check if the tile can be dug out
-      if (this.map.getTile(location.x, location.y, location.z).isDugOut()) {
-        throw new MFSubtaskCanceledException("Tile is already dug out.");
+      if (this.map.getTile(this.location).isDugOut()) {
+        String msg = "Tile@" + this.location + " is already dug out.";
+        logger.warning(msg);
+        throw new MFSubtaskCanceledException(msg);
       }
       // check if creature's position is adjacent to the tile
       MFLocation pos = this.getOwner().getLocation();
       if (!pos.isNeighborOf(this.location)) {
-        throw new MFSubtaskCanceledException("Miner does not stand close enough to tile.");
+        String msg = "Miner does not stand close enough to tile@" + this.location;
+        logger.warning(msg);
+        throw new MFSubtaskCanceledException(msg);
       }
       this.timeLeft = calculateDiggingTime();
       subtaskDone = false;
