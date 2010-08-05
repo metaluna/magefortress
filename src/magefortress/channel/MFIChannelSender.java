@@ -25,7 +25,7 @@
 package magefortress.channel;
 
 import magefortress.core.*;
-import magefortress.jobs.MFIJob;
+import magefortress.jobs.MFAssignableJob;
 
 /**
  * Each object that has jobs to offer has to implement this interface. Actors
@@ -49,11 +49,11 @@ public interface MFIChannelSender
 
   /**
    * When a job applicant has checked if there's still a job available he is
-   * allowed to grab it.
+   * allowed to grab it. Job takers have to assign themselves to the job.
    * @return Returns <code>null</code> if no job is available. Otherwise it
    * returns a job.
    */
-  public MFIJob getJob();
+  public MFAssignableJob getJob();
 
   /**
    * The location of the sender.

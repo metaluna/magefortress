@@ -24,23 +24,7 @@
  */
 package magefortress.jobs;
 
-import magefortress.creatures.MFCreature;
-import magefortress.jobs.subtasks.MFISubtask;
-
-/**
- * Jobs take control of creatures to fulfill the task they were
- * created to do step-by-step.
- *
- * <p><strong>MFJobs hierarchy</strong>: It's now using an interface (MFIJob) 
- * and a job base class (MFBaseJob) implementing all basic operations. The next
- * level are MFAssignableJob and MFNeedsJob with a switchable owner and a fixed
- * owner respectively.
- */
-public interface MFIJob
+public enum MFEPriority
 {
-  public boolean update();
-  public boolean isActive();
-  public MFISubtask getActiveSubtask();
-  public MFCreature getOwner();
-  public MFEPriority getPriority();
+  HIGHEST, HIGHER, NORMAL, LOWER, LOWEST;
 }

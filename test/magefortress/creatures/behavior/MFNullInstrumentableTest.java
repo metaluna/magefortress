@@ -24,6 +24,7 @@
  */
 package magefortress.creatures.behavior;
 
+import magefortress.channel.MFCommunicationChannel;
 import magefortress.core.MFTool;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,10 @@ public class MFNullInstrumentableTest
   @Test
   public void shouldNotAddTool()
   {
-    MFTool mockTool = mock(MFTool.class);
+    MFCommunicationChannel channel = mock(MFCommunicationChannel.class);
+    when(channel.getName()).thenReturn(MFEJob.DIGGING.toString());
+    MFTool mockTool = new MFTool("Test Tool", MFEJob.DIGGING,
+            channel, MFEToolLevel.APPRENTICE, 50, 100);
     assertFalse(this.instrumentable.addTool(mockTool));
   }
 

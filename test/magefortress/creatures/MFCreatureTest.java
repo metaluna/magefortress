@@ -24,8 +24,7 @@
  */
 package magefortress.creatures;
 
-import magefortress.creatures.MFRace;
-import magefortress.creatures.MFCreature;
+import magefortress.channel.MFChannelMessage;
 import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.MFMockHoldable;
 import magefortress.creatures.behavior.MFMockMovable;
@@ -33,9 +32,11 @@ import magefortress.creatures.behavior.MFIHoldable;
 import magefortress.creatures.behavior.MFNullMovable;
 import magefortress.creatures.behavior.MFIMovable;
 import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.jobs.MFJobQueue;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class MFCreatureTest
 {
@@ -133,6 +134,18 @@ public class MFCreatureTest
     Class<? extends MFIHoldable> expHoldingBehavior = MFNullHoldable.class;
     Class<? extends MFIHoldable> gotHoldingBehavior = creature.getHoldingBehavior().getClass();
     assertEquals(expHoldingBehavior, gotHoldingBehavior);
+  }
+
+  @Test
+  public void shouldAddChannelMessageToJobQueue()
+  {
+    MFJobQueue mockQueue = mock(MFJobQueue.class);
+    this.creature.setJobQueue(mockQueue);
+
+    MFChannelMessage mockMessage = mock(MFChannelMessage.class);
+    this.creature.update(mockMessage);
+
+    verify(mockQueue).addMessage(mockMessage);
   }
 
 }

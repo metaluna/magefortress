@@ -28,7 +28,7 @@ import magefortress.map.MFTile;
 import java.util.Set;
 import magefortress.channel.MFIChannelSender;
 import magefortress.channel.MFIChannelSubscriber;
-import magefortress.jobs.MFIJob;
+import magefortress.jobs.MFAssignableJob;
 
 /**
  * A workshop is a place where items are produced. Before anything can be
@@ -58,7 +58,7 @@ public class MFWorkshop extends MFRoom implements MFIChannelSender
   }
 
   @Override
-  public MFIJob getJob()
+  public MFAssignableJob getJob()
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }

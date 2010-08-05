@@ -29,7 +29,6 @@ import java.util.Queue;
 import java.util.logging.Logger;
 import magefortress.creatures.MFCreature;
 import magefortress.jobs.subtasks.MFISubtask;
-import magefortress.jobs.subtasks.MFSubtask;
 import magefortress.jobs.subtasks.MFSubtaskCanceledException;
 
 /**
@@ -60,6 +59,7 @@ abstract class MFBaseJob implements MFIJob
   {
     this.owner = _owner;
     this.subtaskQueue = new LinkedList<MFISubtask>();
+    this.priority = MFEPriority.NORMAL;
   }
 
   /**
@@ -136,6 +136,12 @@ abstract class MFBaseJob implements MFIJob
     return this.owner;
   }
 
+  @Override
+  final public MFEPriority getPriority()
+  {
+    return this.priority;
+  }
+
   //---vvv---      PROTECTED METHODS      ---vvv---
   /** Log */
   protected static final Logger logger = Logger.getLogger(MFBaseJob.class.getName());
@@ -159,5 +165,7 @@ abstract class MFBaseJob implements MFIJob
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** List of subtasks */
   private final Queue<MFISubtask> subtaskQueue;
+  /** The priority */
+  private MFEPriority priority;
 
 }

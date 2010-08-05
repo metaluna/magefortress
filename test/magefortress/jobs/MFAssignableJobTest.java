@@ -119,29 +119,4 @@ public class MFAssignableJobTest
     assertFalse(job.isActive());
   }
 
-  public class MFAssignableJobMock extends MFAssignableJob
-  {
-
-    public MFAssignableJobMock(MFIChannelSender _sender)
-    {
-      super(_sender);
-    }
-
-    @Override
-    protected void initJob()
-    {
-      this.addSubtask(mock(MFSubtask.class));
-    }
-
-    @Override
-    public void pauseJob()
-    {
-    }
-
-    @Override
-    public void cancelJob()
-    {
-    }
-  }
-
 }

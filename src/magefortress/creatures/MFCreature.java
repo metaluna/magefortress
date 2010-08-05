@@ -44,6 +44,7 @@ import magefortress.creatures.behavior.MFNullHoldable;
 import magefortress.creatures.behavior.MFNullInstrumentable;
 import magefortress.graphics.MFIPaintable;
 import magefortress.graphics.MFNullPaintable;
+import magefortress.jobs.MFJobQueue;
 import magefortress.map.MFTile;
 
 /**
@@ -71,6 +72,7 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
     this.moveBehavior = NULL_MOVABLE;
     this.drawingBehavior = NULL_PAINTABLE;
     this.toolUsingBehavior = NULL_INSTRUMENTABLE;
+    this.jobQueue = new MFJobQueue(this);
     this.size = 1;
   }
 
@@ -191,6 +193,21 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
     return this.toolUsingBehavior;
   }
 
+  public void setJobQueue(MFJobQueue _jobQueue)
+  {
+    if (_jobQueue == null) {
+     String message = "Creature '" + this.name + "': " +
+                        "job queue must not be null.";
+      logger.severe(message);
+      throw new IllegalArgumentException(message);
+    }
+    this.jobQueue = _jobQueue;
+  }
+
+  public MFJobQueue getJobQueue()
+  {
+    return this.jobQueue;
+  }
   //---vvv---     MOVABLE INTERFACE     ---vvv---
   @Override
   public void setSpeed(int _speed)
@@ -335,9 +352,17 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
     return this.toolUsingBehavior.getToolSkillLevel(_job);
   }
 
+  //---vvv---      CHANNEL SUBSCRIBER INTERFACE       ---vvv---
+  @Override
+  public void update(MFChannelMessage _message)
+  {
+    this.jobQueue.addMessage(_message);
+  }
+
   //---vvv---     PAINTABLE INTERFACE    ---vvv---
   public void update()
   {
+    this.jobQueue.update();
     this.drawingBehavior.update();
   }
 
@@ -349,14 +374,6 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
                     _y_translation + SPRITE_OFFSET_Y;
 
     this.drawingBehavior.paint(_g, x, y);
-  }
-
-  //---vvv---      CHANNEL SUBSCRIBER INTERFACE       ---vvv---
-
-  @Override
-  public void update(MFChannelMessage _message)
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -376,4 +393,6 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
   private MFIHoldable holdingBehavior;
   private MFIPaintable drawingBehavior;
   private MFIInstrumentable toolUsingBehavior;
+  private MFJobQueue jobQueue;
+
 }

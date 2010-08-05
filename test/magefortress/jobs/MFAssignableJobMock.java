@@ -24,23 +24,34 @@
  */
 package magefortress.jobs;
 
-import magefortress.creatures.MFCreature;
-import magefortress.jobs.subtasks.MFISubtask;
+import magefortress.channel.MFIChannelSender;
+import magefortress.jobs.subtasks.MFSubtask;
+import static org.mockito.Mockito.*;
 
 /**
- * Jobs take control of creatures to fulfill the task they were
- * created to do step-by-step.
  *
- * <p><strong>MFJobs hierarchy</strong>: It's now using an interface (MFIJob) 
- * and a job base class (MFBaseJob) implementing all basic operations. The next
- * level are MFAssignableJob and MFNeedsJob with a switchable owner and a fixed
- * owner respectively.
  */
-public interface MFIJob
+public class MFAssignableJobMock extends MFAssignableJob
 {
-  public boolean update();
-  public boolean isActive();
-  public MFISubtask getActiveSubtask();
-  public MFCreature getOwner();
-  public MFEPriority getPriority();
+
+  public MFAssignableJobMock(MFIChannelSender _sender)
+  {
+    super(_sender);
+  }
+
+  @Override
+  protected void initJob()
+  {
+    this.addSubtask(mock(MFSubtask.class));
+  }
+
+  @Override
+  public void pauseJob()
+  {
+  }
+
+  @Override
+  public void cancelJob()
+  {
+  }
 }
