@@ -74,21 +74,32 @@ public class MFUnlimitedToolbelt implements MFIInstrumentable
   public boolean addTool(MFTool _tool)
   {
     boolean result = false;
-    
-    if (this.toolbelt.get(_tool.getJob()) == null) {
 
-      this.toolbelt.put(_tool.getJob(), _tool);
-      _tool.getChannel().subscribe(this.channelSubscriber);
-      result = true;
+    // check if tool skill is high enough, but only if it's not the lowest category
+    if (_tool.getToolLevel().ordinal() > MFEToolLevel.APPRENTICE.ordinal() &&
+        _tool.getToolLevel().ordinal() > this.getToolSkillLevel(_tool.getJob()).ordinal()) {
 
-    } else {
+      String msg = this.getClass().getSimpleName() + ": Cannot add the '" +
+              _tool.getName() + "'. Need higher tool skill. " +
+              this.getToolSkillLevel(_tool.getJob()) + " < " + _tool.getToolLevel();
+      logger.warning(msg);
+      
+    // check if the slot is already taken
+    } else if (this.toolbelt.get(_tool.getJob()) != null) {
 
       String msg = this.getClass().getSimpleName() + ": Cannot add the '" +
               _tool.getName() + "'. There's already a '" +
               this.toolbelt.get(_tool.getJob()).getName() + "' in the slot '" +
               _tool.getJob() + "'.";
       logger.warning(msg);
-      
+
+    // success
+    } else {
+
+      this.toolbelt.put(_tool.getJob(), _tool);
+      _tool.getChannel().subscribe(this.channelSubscriber);
+      result = true;
+
     }
 
     return result;

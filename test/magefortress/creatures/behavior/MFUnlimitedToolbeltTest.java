@@ -98,6 +98,27 @@ public class MFUnlimitedToolbeltTest
   }
 
   @Test
+  public void shouldNotAddToolWithoutNecessaryQualification()
+  {
+    MFTool difficultToUse = new MFTool("Difficult Tool", job, channel,
+                  MFEToolLevel.GRANDMASTER, jobSkillWoodBase, jobSkillWoodMax);
+    boolean success = this.toolbelt.addTool(difficultToUse);
+    assertFalse(success);
+  }
+
+  @Test
+  public void shouldAddToolOfLowestToolLevelToUnexperiencedUser()
+  {
+    MFCommunicationChannel digChannel = mock(MFCommunicationChannel.class);
+    when(digChannel.getName()).thenReturn(MFEJob.DIGGING.toString());
+
+    MFTool easyToUse = new MFTool("Simple Tool", MFEJob.DIGGING, digChannel,
+                    MFEToolLevel.APPRENTICE, jobSkillWoodBase, jobSkillWoodMax);
+    boolean success = this.toolbelt.addTool(easyToUse);
+    assertTrue(success);
+  }
+
+  @Test
   public void shouldRegisterWithJobChannel()
   {
     this.toolbelt.addTool(this.tool);
