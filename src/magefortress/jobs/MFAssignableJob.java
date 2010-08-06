@@ -77,8 +77,13 @@ public abstract class MFAssignableJob extends MFBaseJob
 
   }
 
+  final public boolean isDone()
+  {
+    return this.isDone;
+  }
+
   @Override
-  final public boolean update()
+  public boolean update()
   {
     if (this.owner == null) {
       String msg = "Job: update() must not be called when the job has no owner.";
@@ -86,7 +91,13 @@ public abstract class MFAssignableJob extends MFBaseJob
       throw new MFPrerequisitesNotMetException(msg);
     }
 
-    return super.update();
+    this.isDone = super.update();
+
+    if (this.isDone) {
+      this.sender.jobDone(this);
+    }
+
+    return this.isDone;
   }
 
   /**
@@ -109,5 +120,7 @@ public abstract class MFAssignableJob extends MFBaseJob
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Where we got the job */
   private final MFIChannelSender sender;
+  /** Job done */
+  private boolean isDone;
   
 }

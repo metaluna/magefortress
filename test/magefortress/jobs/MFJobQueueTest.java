@@ -140,7 +140,7 @@ public class MFJobQueueTest
     // start test
     this.jobQueue.update();
     verify(lowPriority, never()).update();
-    verify(advertisedJob).update();
+    assertTrue(advertisedJob.isDone());
   }
 
 }

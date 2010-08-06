@@ -56,7 +56,8 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
    * @param _channel Communication channel where job offers are sent to
    */
   public MFConstructionSite(MFLocation _topLeftLocation, int _width, int _height,
-                      MFJobFactory _jobFactory, MFCommunicationChannel _channel)
+                      MFJobFactory _jobFactory, MFCommunicationChannel _channel,
+                      MFIConstructionSiteListener _siteListener)
   {
     if (_topLeftLocation == null) {
       String msg = this.getClass().getSimpleName() + ": Top left location " +
@@ -83,12 +84,19 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
+    if (_siteListener == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+              "a construction site listener.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
 
     this.location = _topLeftLocation;
     this.width = _width;
     this.height = _height;
     this.jobFactory = _jobFactory;
     this.channel = _channel;
+    this.siteListener = _siteListener;
   }
 
   @Override
@@ -123,10 +131,16 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
     return this.channel;
   }
 
+  protected MFIConstructionSiteListener getSiteListener()
+  {
+    return this.siteListener;
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final MFCommunicationChannel channel;
   private final MFJobFactory jobFactory;
   private final MFLocation location;
+  private final MFIConstructionSiteListener siteListener;
   private final int width;
   private final int height;
   final Logger logger = Logger.getLogger(MFConstructionSite.class.getName());

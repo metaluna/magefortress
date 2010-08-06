@@ -41,10 +41,11 @@ import magefortress.map.MFTile;
 public class MFDiggingSite extends MFConstructionSite
 {
 
-  public MFDiggingSite(MFLocation _location, MFMap _map,
-                      MFJobFactory _jobFactory, MFCommunicationChannel _channel)
+  public MFDiggingSite(MFLocation _location, MFMap _map, 
+                      MFJobFactory _jobFactory, MFCommunicationChannel _channel,
+                      MFIConstructionSiteListener _siteListener)
   {
-    super(_location, 1, 1, _jobFactory, _channel);
+    super(_location, 1, 1, _jobFactory, _channel, _siteListener);
     if (_map == null) {
       String msg = "DiggingSite: Map must not be null. Cannot instantiate " +
               "DiggingSite";
@@ -59,12 +60,11 @@ public class MFDiggingSite extends MFConstructionSite
       throw new IllegalArgumentException(msg);
     }
     this.map = _map;
-    this.jobAvailable = true;
 
     this.checkReachability();
 
     // send job offer
-    if (!this.unreachable) {
+    if (!this.isUnreachable) {
       this.getChannel().subscribeSender(this);
       this.getChannel().enqueueMessage(this.getJobOfferMessage());
     }
@@ -98,24 +98,38 @@ public class MFDiggingSite extends MFConstructionSite
   @Override
   public boolean isJobAvailable()
   {
-    return this.jobAvailable && !this.unreachable;
+    return !this.wasJobAssigned && !this.isUnreachable && !this.isJobDone;
   }
 
   @Override
   public MFAssignableJob getJob()
   {
-    if (this.unreachable) {
+    if (this.isUnreachable) {
       String msg = this.getClass().getName() + ": Someone's trying " +
             "to get a digging job for an unreachable tile@" + this.getLocation();
       logger.severe(msg);
       throw new MFPrerequisitesNotMetException(msg);
     }
+    if (this.isJobDone) {
+      String msg = this.getClass().getName() + ": Someone's trying " +
+            "to get a digging job for an already finished job@" + this.getLocation();
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    if (this.wasJobAssigned) {
+      String msg = this.getClass().getName() + ": Someone's trying " +
+            "to get a digging job even though it was already assigned earlier@" +
+            this.getLocation();
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+
 
     MFAssignableJob result = null;
 
-    if (this.jobAvailable) {
-      result = this.getJobFactory().createDiggingJob(this);
-      this.jobAvailable = false;
+    if (!this.wasJobAssigned) {
+      result = this.assignedJob = this.getJobFactory().createDiggingJob(this);
+      this.wasJobAssigned = true;
     }
 
     return result;
@@ -124,9 +138,29 @@ public class MFDiggingSite extends MFConstructionSite
   @Override
   public void newSubscriber(MFIChannelSubscriber _subscriber)
   {
-    if (this.jobAvailable && !this.unreachable) {
+    if (this.isJobAvailable()) {
       _subscriber.update(this.getJobOfferMessage());
     }
+  }
+
+  @Override
+  public void jobDone(MFAssignableJob _finishedJob)
+  {
+    if (_finishedJob == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot set " +
+                                                          "null job finished.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_finishedJob != this.assignedJob) {
+      String msg = this.getClass().getSimpleName() + ": Finished job does " +
+                                              "not match job assigned earlier.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
+    this.isJobDone = true;
+    this.getSiteListener().constructionSiteFinished(this);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -138,20 +172,22 @@ public class MFDiggingSite extends MFConstructionSite
   private static boolean HIGHLIGHT;
   
   private final MFMap map;
-  private boolean jobAvailable;
-  private boolean unreachable;
+  private boolean wasJobAssigned;
+  private boolean isUnreachable;
+  private boolean isJobDone;
+  private MFAssignableJob assignedJob;
 
   // checks if there are any non-underground tiles around the digging site
   private void checkReachability()
   {
-    this.unreachable = true;
+    this.isUnreachable = true;
 
     for (MFEDirection direction : MFEDirection.values()) {
       MFLocation loc = this.getLocation().locationOf(direction);
       if (this.map.isInsideMap(loc)) {
         MFTile tile = this.map.getTile(loc);
         if (!tile.isUnderground() || tile.isDugOut()) {
-          this.unreachable = false;
+          this.isUnreachable = false;
           return;
         }
       }

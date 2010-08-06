@@ -164,7 +164,7 @@ public class MageFortress extends JFrame implements Runnable
 
     // Testing creatures
     MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
-    MFCreature sticky1 = new MFGameObjectFactory(imgLib, new MFJobFactory(game), game.getMap()).createCreature(stickies);
+    MFCreature sticky1 = new MFGameObjectFactory(imgLib, new MFJobFactory(game), game.getMap(), game).createCreature(stickies);
     sticky1.setLocation(new MFLocation(3, 3, 0));
     EnumMap<MFEJob, Integer> toolSkills = new EnumMap<MFEJob, Integer>(MFEJob.class);
     sticky1.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky1, toolSkills));

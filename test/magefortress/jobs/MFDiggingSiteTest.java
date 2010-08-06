@@ -46,6 +46,7 @@ public class MFDiggingSiteTest
   private MFLocation location;
   private MFCommunicationChannel mockChannel;
   private MFCommunicationChannel unreachableMockChannel;
+  private MFIConstructionSiteListener mockSiteListener;
 
   @Before
   public void setUp() throws Exception
@@ -64,7 +65,10 @@ public class MFDiggingSiteTest
     MFAssignableJob job = mock(MFAssignableJob.class);
     when(this.mockJobFactory.createDiggingJob(any(MFDiggingSite.class))).thenReturn(job);
 
-    this.diggingSite = new MFDiggingSite(this.location, this.map, this.mockJobFactory, this.mockChannel);
+    this.mockSiteListener = mock(MFIConstructionSiteListener.class);
+
+    this.diggingSite = new MFDiggingSite(this.location, this.map,
+          this.mockJobFactory, this.mockChannel, this.mockSiteListener);
 
     // unreachable digging site
     unreachableMockChannel = mock(MFCommunicationChannel.class);
@@ -75,14 +79,15 @@ public class MFDiggingSiteTest
     MFTile undergroundTile = new MFTile(-1,0,0,0);
     when(unreachableMockMap.getTile(any(MFLocation.class))).thenReturn(undergroundTile);
 
-    unreachableDiggingSite = new MFDiggingSite(location, unreachableMockMap, mockJobFactory, unreachableMockChannel);
+    unreachableDiggingSite = new MFDiggingSite(location, unreachableMockMap, 
+         mockJobFactory, unreachableMockChannel, this.mockSiteListener);
 
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutLocation()
   {
-    new MFDiggingSite(null, map, mockJobFactory, mockChannel);
+    new MFDiggingSite(null, map, mockJobFactory, mockChannel, mockSiteListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -90,7 +95,7 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(5, 0, 0);
     
-    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel, mockSiteListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -98,7 +103,7 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(0, 5, 0);
 
-    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel, mockSiteListener);
   }
 
 
@@ -107,25 +112,31 @@ public class MFDiggingSiteTest
   {
     MFLocation invalidLocation = new MFLocation(0, 0, 5);
 
-    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel);
+    new MFDiggingSite(invalidLocation, map, mockJobFactory, mockChannel, mockSiteListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFDiggingSite(mock(MFLocation.class), null, mockJobFactory, mockChannel);
+    new MFDiggingSite(mock(MFLocation.class), null, mockJobFactory, mockChannel, mockSiteListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutJobFactory()
   {
-    new MFDiggingSite(mock(MFLocation.class), map, null, mockChannel);
+    new MFDiggingSite(mock(MFLocation.class), map, null, mockChannel, mockSiteListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutCommunicationChannel()
   {
-    new MFDiggingSite(mock(MFLocation.class), map, mockJobFactory, null);
+    new MFDiggingSite(mock(MFLocation.class), map, mockJobFactory, null, mockSiteListener);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutConstructionSiteListener()
+  {
+    new MFDiggingSite(mock(MFLocation.class), map, mockJobFactory, mockChannel, null);
   }
 
   @Test
@@ -151,9 +162,6 @@ public class MFDiggingSiteTest
     MFAssignableJob gotJob = this.diggingSite.getJob();
     assertNotNull(gotJob);
     assertFalse(this.diggingSite.isJobAvailable());
-
-    gotJob = this.diggingSite.getJob();
-    assertNull(gotJob);
   }
 
   @Test
@@ -214,10 +222,60 @@ public class MFDiggingSiteTest
     unreachableDiggingSite.getJob();
   }
 
+  @Test(expected=MFPrerequisitesNotMetException.class)
+  public void shouldNotGiveOutJobIfAlreadyAssigned()
+  {
+    // given a job was assigned
+    MFAssignableJob job1 = diggingSite.getJob();
+
+    // when someone else tries to get the job
+    MFAssignableJob job2 = diggingSite.getJob();
+
+    // then an exception should be thrown
+  }
+
   @Test
   public void shoulSubscribeToChannelIfReachable()
   {
     verify(mockChannel).subscribeSender(diggingSite);
+  }
+
+  @Test
+  public void shouldNotifyConstructionSiteListenerWhenDone()
+  {
+    // given a job was assigned
+    MFAssignableJob job = this.diggingSite.getJob();
+
+    // when the job finishes
+    this.diggingSite.jobDone(job);
+
+    // then notify the construction site listener
+    verify(mockSiteListener).constructionSiteFinished(diggingSite);
+
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAcceptFinishedJobWhenNull()
+  {
+    // given a job was assigned
+    MFAssignableJob job = this.diggingSite.getJob();
+
+    // when a null job is reported as finished
+    this.diggingSite.jobDone(null);
+
+    // then an exception should be thrown
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAcceptFinishedJobIfItsDifferentFromAssignedJob()
+  {
+    // given a job was assigned
+    MFAssignableJob job = this.diggingSite.getJob();
+
+    // when a job different from the job assigned is reported finished
+    this.diggingSite.jobDone(mock(MFAssignableJob.class));
+
+    // then an exception should be thrown
   }
 
   @Ignore

@@ -33,6 +33,7 @@ import magefortress.creatures.behavior.MFWalksOnTwoLegs;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
 import magefortress.jobs.MFDiggingSite;
+import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFPathFinder;
@@ -43,11 +44,12 @@ import magefortress.map.MFPathFinder;
  */
 public class MFGameObjectFactory
 {
-  public MFGameObjectFactory(MFImageLibrary _imgLib, MFJobFactory _jobFactory, MFMap _map)
+  public MFGameObjectFactory(MFImageLibrary _imgLib, MFJobFactory _jobFactory, MFMap _map, MFIConstructionSiteListener _siteListener)
   {
     this.imgLib = _imgLib;
     this.jobFactory = _jobFactory;
     this.map = _map;
+    this.siteListener = _siteListener;
     this.pathFinder = MFPathFinder.getInstance();
     this.pathFinder.setMap(this.map);
     this.channelFactory = MFChannelFactory.getInstance();
@@ -71,7 +73,8 @@ public class MFGameObjectFactory
   public MFDiggingSite createDiggingSite(MFLocation _location)
   {
     return new MFDiggingSite(_location, this.map, jobFactory, 
-                            this.channelFactory.getChannel(MFEJob.DIGGING));
+                            this.channelFactory.getChannel(MFEJob.DIGGING),
+                            this.siteListener);
   }
 
   public MFChannelFactory createChannelFactory()
@@ -84,6 +87,7 @@ public class MFGameObjectFactory
   private final MFImageLibrary imgLib;
   private final MFJobFactory jobFactory;
   private final MFMap map;
+  private final MFIConstructionSiteListener siteListener;
   private final MFPathFinder pathFinder;
   private final MFChannelFactory channelFactory;
 }

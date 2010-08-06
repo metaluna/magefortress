@@ -91,7 +91,7 @@ public class MFConstructionSiteTest
     public MFConstructionSiteMock(MFLocation _location, int _width, int _height)
     {
       super(_location, _width, _height, mock(MFJobFactory.class),
-              mock(MFCommunicationChannel.class));
+              mock(MFCommunicationChannel.class), mock(MFIConstructionSiteListener.class));
     }
 
     @Override
@@ -113,6 +113,11 @@ public class MFConstructionSiteTest
 
     @Override
     public void newSubscriber(MFIChannelSubscriber subscriber)
+    {
+    }
+
+    @Override
+    public void jobDone(MFAssignableJob _finishedJob)
     {
     }
 

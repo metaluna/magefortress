@@ -24,43 +24,10 @@
  */
 package magefortress.jobs;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import magefortress.channel.MFIChannelSender;
-import magefortress.jobs.subtasks.MFISubtask;
-import magefortress.jobs.subtasks.MFSubtaskCanceledException;
-import static org.mockito.Mockito.*;
-
 /**
  *
  */
-public class MFAssignableJobMock extends MFAssignableJob
+public interface MFIConstructionSiteListener
 {
-
-  public MFAssignableJobMock(MFIChannelSender _sender)
-  {
-    super(_sender);
-  }
-
-  @Override
-  protected void initJob()
-  {
-    MFISubtask subtask = mock(MFISubtask.class);
-    try {
-      when(subtask.update()).thenReturn(true);
-    } catch (MFSubtaskCanceledException ex) {
-      Logger.getLogger(MFAssignableJobMock.class.getName()).log(Level.SEVERE, null, ex);
-    }
-    this.addSubtask(subtask);
-  }
-
-  @Override
-  public void pauseJob()
-  {
-  }
-
-  @Override
-  public void cancelJob()
-  {
-  }
+  public void constructionSiteFinished(MFConstructionSite _constructionSite);
 }

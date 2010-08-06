@@ -26,7 +26,6 @@ package magefortress.jobs;
 
 import magefortress.channel.MFIChannelSender;
 import magefortress.creatures.MFCreature;
-import magefortress.jobs.subtasks.MFSubtask;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -119,4 +118,17 @@ public class MFAssignableJobTest
     assertFalse(job.isActive());
   }
 
+  @Test
+  public void shouldNotifySenderWhenDone()
+  {
+    // given an assigned job
+    job.setOwner(mock(MFCreature.class));
+
+    // when the job is done
+    boolean done = this.job.update();
+    assertTrue(done);
+
+    // then notify the sender
+    verify(this.mockSender).jobDone(job);
+  }
 }

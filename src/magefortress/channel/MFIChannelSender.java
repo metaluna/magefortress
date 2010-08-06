@@ -68,4 +68,9 @@ public interface MFIChannelSender
    * @param subscriber The new subscriber
    */
   public void newSubscriber(MFIChannelSubscriber subscriber);
+
+  /**
+   * Will be called by the job, when all subtasks have finished.
+   */
+  public void jobDone(MFAssignableJob _finishedJob);
 }

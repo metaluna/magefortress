@@ -76,6 +76,12 @@ public class MFWorkshop extends MFRoom implements MFIChannelSender
   }
 
   @Override
+  public void jobDone(MFAssignableJob _finishedJob)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
   public void tileAdded(MFTile _tile)
   {
     throw new UnsupportedOperationException("Not supported yet.");

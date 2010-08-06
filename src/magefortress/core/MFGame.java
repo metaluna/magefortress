@@ -39,6 +39,7 @@ import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
 import magefortress.jobs.MFConstructionSite;
+import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFNavigationMap;
@@ -49,7 +50,7 @@ import magefortress.storage.MFDaoFactory;
 /**
  * Single place for all game data.
  */
-public class MFGame
+public class MFGame implements MFIConstructionSiteListener
 {
 
   public static MFGame loadGame(int _mapId, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
@@ -77,7 +78,7 @@ public class MFGame
     this.daoFactory = _daoFactory;
 
     this.jobFactory = new MFJobFactory(this);
-    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map);
+    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map, this);
 
     this.channels = new LinkedList<MFCommunicationChannel>();
     initCommunicationChannels();
@@ -203,6 +204,14 @@ public class MFGame
   public Iterable<MFConstructionSite> getConstructionSites()
   {
     return Collections.unmodifiableList(this.constructionSites);
+  }
+
+  @Override
+  public void constructionSiteFinished(MFConstructionSite _constructionSite)
+  {
+    this.removeConstructionSite(_constructionSite.getLocation());
+    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateAllEntrances();
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
