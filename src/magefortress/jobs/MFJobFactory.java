@@ -24,6 +24,8 @@
  */
 package magefortress.jobs;
 
+import magefortress.jobs.digging.MFDiggingSite;
+import magefortress.jobs.digging.MFDiggingJob;
 import magefortress.core.MFGame;
 import magefortress.creatures.MFCreature;
 

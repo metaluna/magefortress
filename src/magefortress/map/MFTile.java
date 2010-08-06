@@ -34,7 +34,7 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.graphics.MFIPaintable;
 import magefortress.storage.MFISaveable;
 

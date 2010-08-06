@@ -26,7 +26,7 @@ package magefortress.map;
 
 import magefortress.map.MFTile;
 import java.util.HashSet;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFRoom;
 import magefortress.core.MFRoomMock;

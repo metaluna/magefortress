@@ -25,7 +25,7 @@
 package magefortress.jobs.subtasks;
 
 import java.util.logging.Logger;
-import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
 
 /**
  * Parent class for all tasks concerning holding and dragging things things.

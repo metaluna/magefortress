@@ -63,12 +63,12 @@ public class MFRaceSqlDaoTest
     mockDb = mock(MFSqlConnector.class);
     
     MFRace race = new MFRace(new MFRaceSqlDao(mockDb).getUnsavedMarker(),
-            "Unsaved Spy Race", "magefortress.creatures.behavior.MFNullMovable", "magefortress.creatures.behavior.MFNullHoldable");
+            "Unsaved Spy Race", "magefortress.creatures.behavior.movable.MFNullMovable", "magefortress.creatures.behavior.holdable.MFNullHoldable");
     spyRace = spy(race);
     unsavedRaceSqlDao = new MFRaceSqlDao(mockDb, spyRace);
 
     race = new MFRace(42,
-            "Saved Spy Race", "magefortress.creatures.behavior.MFNullMovable", "magefortress.creatures.behavior.MFNullHoldable");
+            "Saved Spy Race", "magefortress.creatures.behavior.movable.MFNullMovable", "magefortress.creatures.behavior.holdable.MFNullHoldable");
     savedMockRace = spy(race);
     savedRaceSqlDao = new MFRaceSqlDao(mockDb, savedMockRace);
 
@@ -165,8 +165,8 @@ public class MFRaceSqlDaoTest
 
     assertEquals(1, gotRace.getId());
     assertEquals("Martian", gotRace.getName());
-    assertEquals("magefortress.creatures.behavior.MFNullHoldable", gotRace.getHoldingBehaviorClass().getName());
-    assertEquals("magefortress.creatures.behavior.MFNullMovable", gotRace.getMovingBehaviorClass().getName());
+    assertEquals("magefortress.creatures.behavior.holdable.MFNullHoldable", gotRace.getHoldingBehaviorClass().getName());
+    assertEquals("magefortress.creatures.behavior.movable.MFNullMovable", gotRace.getMovingBehaviorClass().getName());
 
   }
 

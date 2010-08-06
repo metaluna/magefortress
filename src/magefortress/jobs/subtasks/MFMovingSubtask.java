@@ -25,7 +25,7 @@
 package magefortress.jobs.subtasks;
 
 import java.util.logging.Logger;
-import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.movable.MFIMovable;
 
 /**
  *

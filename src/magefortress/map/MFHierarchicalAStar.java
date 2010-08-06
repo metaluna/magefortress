@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
  * The main search algorithm. Hides all complexity of path finding from the

@@ -28,7 +28,7 @@ import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
-import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
 import org.junit.Before;

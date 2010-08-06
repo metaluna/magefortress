@@ -29,7 +29,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
  * The actual path finding algorithm. It utilizes an implementation of

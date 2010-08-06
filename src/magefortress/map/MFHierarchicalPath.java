@@ -29,7 +29,7 @@ import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
  * Encapsulates an hierarchical path.

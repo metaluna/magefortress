@@ -26,12 +26,12 @@ package magefortress.creatures;
 
 import magefortress.channel.MFChannelMessage;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.MFMockHoldable;
-import magefortress.creatures.behavior.MFMockMovable;
-import magefortress.creatures.behavior.MFIHoldable;
-import magefortress.creatures.behavior.MFNullMovable;
-import magefortress.creatures.behavior.MFIMovable;
-import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.creatures.behavior.holdable.MFMockHoldable;
+import magefortress.creatures.behavior.movable.MFMockMovable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
+import magefortress.creatures.behavior.movable.MFNullMovable;
+import magefortress.creatures.behavior.movable.MFIMovable;
+import magefortress.creatures.behavior.holdable.MFNullHoldable;
 import magefortress.jobs.MFJobQueue;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +42,8 @@ public class MFCreatureTest
 {
   private static final String NAME = "Test Creature";
   private static final String RACE_NAME = "Test Race";
-  private static final String MOVING_BEHAVIOR = "magefortress.creatures.behavior.MFMockMovable";
-  private static final String HOLDING_BEHAVIOR = "magefortress.creatures.behavior.MFMockHoldable";
+  private static final String MOVING_BEHAVIOR = "magefortress.creatures.behavior.movable.MFMockMovable";
+  private static final String HOLDING_BEHAVIOR = "magefortress.creatures.behavior.holdable.MFMockHoldable";
   private MFRace race;
   private MFCreature creature;
 

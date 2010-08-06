@@ -24,12 +24,13 @@
  */
 package magefortress.core;
 
+import magefortress.creatures.behavior.instrumentable.MFTool;
 import java.util.EnumMap;
 import magefortress.creatures.MFRace;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.creatures.MFCreature;
-import magefortress.creatures.behavior.MFWalksOnTwoLegs;
-import magefortress.creatures.behavior.MFNullHoldable;
+import magefortress.creatures.behavior.movable.MFWalksOnTwoLegs;
+import magefortress.creatures.behavior.holdable.MFNullHoldable;
 import magefortress.input.MFInputManager;
 import java.awt.Canvas;
 import java.awt.Graphics2D;
@@ -42,9 +43,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import magefortress.channel.MFChannelFactory;
-import magefortress.creatures.behavior.MFEJob;
-import magefortress.creatures.behavior.MFEToolLevel;
-import magefortress.creatures.behavior.MFUnlimitedToolbelt;
+import magefortress.creatures.behavior.instrumentable.MFEJob;
+import magefortress.creatures.behavior.instrumentable.MFEToolLevel;
+import magefortress.creatures.behavior.instrumentable.MFUnlimitedToolbelt;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;

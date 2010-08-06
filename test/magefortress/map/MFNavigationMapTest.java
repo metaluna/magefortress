@@ -27,7 +27,7 @@ package magefortress.map;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.core.MFLocation;
 import org.junit.Before;
 import org.junit.Test;

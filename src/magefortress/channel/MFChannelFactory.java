@@ -26,7 +26,7 @@ package magefortress.channel;
 
 import java.util.HashMap;
 import java.util.Map;
-import magefortress.creatures.behavior.MFEJob;
+import magefortress.creatures.behavior.instrumentable.MFEJob;
 
 /**
  *

@@ -26,8 +26,8 @@ package magefortress.creatures;
 
 import java.util.logging.Logger;
 import magefortress.core.Immutable;
-import magefortress.creatures.behavior.MFIHoldable;
-import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
+import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.storage.MFISaveable;
 
 /**

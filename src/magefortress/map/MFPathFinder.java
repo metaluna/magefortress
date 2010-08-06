@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.core.Singleton;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
  * Singleton that manages finding paths. Classes that wish to find a path

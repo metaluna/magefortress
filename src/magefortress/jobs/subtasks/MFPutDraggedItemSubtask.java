@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
 import magefortress.map.MFTile;
 
 /**

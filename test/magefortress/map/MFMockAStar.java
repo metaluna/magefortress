@@ -25,7 +25,7 @@
 package magefortress.map;
 
 import java.util.EnumSet;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
  * Empty implementation of an A-Star search algorithm.

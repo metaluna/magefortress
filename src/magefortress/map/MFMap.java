@@ -33,7 +33,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.map.MFTile.Corner;
 import magefortress.storage.DataAccessException;
 import magefortress.storage.MFDaoFactory;

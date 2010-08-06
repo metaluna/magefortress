@@ -121,6 +121,8 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
   public abstract void paint(Graphics2D _g, int _x_translation, int _y_translation);
 
   //---vvv---      PROTECTED METHODS      ---vvv---
+  protected final Logger logger = Logger.getLogger(MFConstructionSite.class.getName());
+
   protected MFJobFactory getJobFactory()
   {
     return this.jobFactory;
@@ -143,6 +145,5 @@ public abstract class MFConstructionSite implements MFIChannelSender, MFIPaintab
   private final MFIConstructionSiteListener siteListener;
   private final int width;
   private final int height;
-  final Logger logger = Logger.getLogger(MFConstructionSite.class.getName());
 
 }

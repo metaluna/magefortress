@@ -24,10 +24,10 @@
  */
 package magefortress.creatures;
 
-import magefortress.creatures.behavior.MFMockHoldable;
-import magefortress.creatures.behavior.MFMockMovable;
-import magefortress.creatures.behavior.MFIHoldable;
-import magefortress.creatures.behavior.MFIMovable;
+import magefortress.creatures.behavior.holdable.MFMockHoldable;
+import magefortress.creatures.behavior.movable.MFMockMovable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
+import magefortress.creatures.behavior.movable.MFIMovable;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -69,7 +69,7 @@ public class MFRaceTest
           throws ClassNotFoundException
   {
     final String movingBehaviorClassName = "MFMockMovable";
-    final String holdingBehaviorClassName = "magefortress.creatures.behavior.MFMockHoldable";
+    final String holdingBehaviorClassName = "magefortress.creatures.behavior.holdable.MFMockHoldable";
     race = new MFRace(ID, NAME, movingBehaviorClassName, holdingBehaviorClassName);
   }
 
@@ -77,7 +77,7 @@ public class MFRaceTest
   public void shouldNotCreateRaceWithNonExistingHoldingBehavior()
           throws ClassNotFoundException
   {
-    final String movingBehaviorClassName = "magefortress.creatures.behavior.MFMockMovable";
+    final String movingBehaviorClassName = "magefortress.creatures.behavior.movable.MFMockMovable";
     final String holdingBehaviorClassName = "MFMockHoldable";
     race = new MFRace(ID, NAME, movingBehaviorClassName, holdingBehaviorClassName);
   }
@@ -86,8 +86,8 @@ public class MFRaceTest
   public void shouldNotCreateRaceWithWrongMovingClassName()
           throws ClassNotFoundException
   {
-    final String wrongMovingBehaviorClassName = "magefortress.creatures.behavior.MFMockHoldable";
-    final String holdingBehaviorClassName = "magefortress.creatures.behavior.MFMockHoldable";
+    final String wrongMovingBehaviorClassName = "magefortress.creatures.behavior.holdable.MFMockHoldable";
+    final String holdingBehaviorClassName = "magefortress.creatures.behavior.holdable.MFMockHoldable";
 
     race = new MFRace(ID, NAME, wrongMovingBehaviorClassName, holdingBehaviorClassName);
   }
@@ -96,8 +96,8 @@ public class MFRaceTest
   public void shouldNotCreateRaceWithWrongHoldingClassName()
           throws ClassNotFoundException
   {
-    final String movingBehaviorClassName = "magefortress.creatures.behavior.MFMockMovable";
-    final String wrongHoldingBehaviorClassName = "magefortress.creatures.behavior.MFMockMovable";
+    final String movingBehaviorClassName = "magefortress.creatures.behavior.movable.MFMockMovable";
+    final String wrongHoldingBehaviorClassName = "magefortress.creatures.behavior.movable.MFMockMovable";
 
     race = new MFRace(ID, NAME, movingBehaviorClassName, wrongHoldingBehaviorClassName);
   }
@@ -106,8 +106,8 @@ public class MFRaceTest
   public void shouldCreateRaceWithBehaviorsByName()
           throws ClassNotFoundException
   {
-    final String movingBehaviorClassName = "magefortress.creatures.behavior.MFMockMovable";
-    final String holdingBehaviorClassName = "magefortress.creatures.behavior.MFMockHoldable";
+    final String movingBehaviorClassName = "magefortress.creatures.behavior.movable.MFMockMovable";
+    final String holdingBehaviorClassName = "magefortress.creatures.behavior.holdable.MFMockHoldable";
     race = new MFRace(ID, NAME, movingBehaviorClassName, holdingBehaviorClassName);
 
     assertEquals(movingBehaviorClassName, race.getMovingBehaviorClass().getName());

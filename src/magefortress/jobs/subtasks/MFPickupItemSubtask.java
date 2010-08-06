@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.creatures.behavior.MFIHoldable;
+import magefortress.creatures.behavior.holdable.MFIHoldable;
 
 /**
  * Picks up an item at the owner's current location. The item must be set on
