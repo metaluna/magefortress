@@ -356,6 +356,8 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
   @Override
   public void update(MFChannelMessage _message)
   {
+    logger.fine(this.getClass().getSimpleName() + ": Job offer received by " +
+                this.getName());
     this.jobQueue.addMessage(_message);
   }
 

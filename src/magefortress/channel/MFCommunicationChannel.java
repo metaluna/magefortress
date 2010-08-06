@@ -92,7 +92,7 @@ public class MFCommunicationChannel
       logger.log(Level.SEVERE, message);
       throw new IllegalArgumentException(message);
     }
-
+    logger.fine(this + ": new subscriber " + _subscriber);
     this.subscribers.add(_subscriber);
     this.newSubscribers.add(_subscriber);
   }
@@ -110,6 +110,7 @@ public class MFCommunicationChannel
       throw new IllegalArgumentException(message);
     }
 
+    logger.fine(this + ": subscriber " + _subscriber + " is unsubscribing");
     this.subscribers.remove(_subscriber);
     if (this.newSubscribers.contains(_subscriber)) {
       this.newSubscribers.remove(_subscriber);
@@ -130,6 +131,7 @@ public class MFCommunicationChannel
       throw new IllegalArgumentException(message);
     }
 
+    logger.fine(this + ": new sender " + _sender);
     this.senders.add(_sender);
   }
 
@@ -146,6 +148,7 @@ public class MFCommunicationChannel
       throw new IllegalArgumentException(message);
     }
 
+    logger.fine(this + ": sender " + _sender + " is unsubscribing");
     this.senders.remove(_sender);
     for(Iterator<MFChannelMessage> it = this.messageQueue.iterator();
           it.hasNext(); ) {
@@ -178,7 +181,9 @@ public class MFCommunicationChannel
       logger.log(Level.SEVERE, message);
       throw new IllegalArgumentException(message);
     }
-
+    logger.fine( this + ": enqueing message (" +
+                                      _message.getSender() +
+                                      "@" + _message.getSender().getLocation());
     this.messageQueue.add(_message);
   }
 

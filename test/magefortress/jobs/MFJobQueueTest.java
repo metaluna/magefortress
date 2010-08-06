@@ -87,13 +87,15 @@ public class MFJobQueueTest
   {
     MFIJob job1 = mock(MFIJob.class);
     when(job1.getPriority()).thenReturn(MFEPriority.NORMAL);
-    when(job1.update()).thenReturn(false);
+    when(job1.update()).thenReturn(true);
     this.jobQueue.add(job1);
     MFIJob job2 = mock(MFIJob.class);
     when(job2.getPriority()).thenReturn(MFEPriority.NORMAL);
+    when(job2.update()).thenReturn(true);
     this.jobQueue.add(job2);
     MFIJob job3 = mock(MFIJob.class);
     when(job3.getPriority()).thenReturn(MFEPriority.NORMAL);
+    when(job3.update()).thenReturn(true);
     this.jobQueue.add(job3);
 
     this.jobQueue.update();
@@ -109,6 +111,9 @@ public class MFJobQueueTest
     this.jobQueue.update();
     verify(job1).update();
     verify(job2).update();
+    verify(job3).update();
+
+    this.jobQueue.update();
     verify(job3).update();
 
   }

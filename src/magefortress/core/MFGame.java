@@ -31,14 +31,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.channel.MFChannelFactory;
 import magefortress.channel.MFCommunicationChannel;
 import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFEJob;
+import magefortress.creatures.behavior.MFEMovementType;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
 import magefortress.jobs.MFConstructionSite;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFNavigationMap;
+import magefortress.map.MFPathFinder;
 import magefortress.map.MFTile;
 import magefortress.storage.MFDaoFactory;
 
@@ -57,22 +61,35 @@ public class MFGame
 
   public MFGame(MFMap _map, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
   {
-    // init channels
+    if (_map == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create game " +
+              "without a map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_daoFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create game " +
+              "without a DAO factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.map = _map;
+    this.daoFactory = _daoFactory;
+
     this.channels = new LinkedList<MFCommunicationChannel>();
+    initCommunicationChannels();
     this.creatures = new LinkedList<MFCreature>();
     this.constructionSites = new LinkedList<MFConstructionSite>();
     this.garbageConstructionSites = new LinkedList<MFConstructionSite>();
     
-    // init map
-    this.map = _map;
-
-    this.daoFactory = _daoFactory;
 
     this.jobFactory = new MFJobFactory(this);
+
     this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map);
 
+    this.pathFinder = this.gameObjectFactory.createPathFinder();
     this.naviMap = new MFNavigationMap(this.map);
-    this.naviMap.updateAllEntrances();
+    initPathFinder();
   }
 
   public void update()
@@ -82,6 +99,7 @@ public class MFGame
     processCommunicationChannels();
     processCreatures();
     processConstructionSites();
+    processPathFinder();
   }
 
   public void paint(Graphics2D _g, int _currentLevel, Rectangle _clippingRect)
@@ -209,8 +227,24 @@ public class MFGame
   private final MFJobFactory jobFactory;
   /** Navigation map containing pathfinding information */
   private final MFNavigationMap naviMap;
+  /** Holds a queue of path searches */
+  private final MFPathFinder pathFinder;
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFGame.class.getName());
+
+  private final void initCommunicationChannels()
+  {
+    MFChannelFactory channelFactory = this.gameObjectFactory.createChannelFactory();
+    for (MFEJob channelType : MFEJob.values()) {
+      this.channels.add(channelFactory.getChannel(channelType));
+    }
+  }
+
+  private final void initPathFinder()
+  {
+    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateAllEntrances();
+  }
 
   private void processCommunicationChannels()
   {
@@ -232,6 +266,11 @@ public class MFGame
     for (MFConstructionSite site: this.constructionSites) {
       site.update();
     }
+  }
+
+  private void processPathFinder()
+  {
+    this.pathFinder.update();
   }
 
   private void paintCreatures(int _currentLevel, MFLocation _start,

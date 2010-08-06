@@ -24,6 +24,7 @@
  */
 package magefortress.channel;
 
+import magefortress.core.MFLocation;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
@@ -33,67 +34,58 @@ public class MFCommunicationChannelTest {
   private MFCommunicationChannel testChannel;
   private MFIChannelSubscriber mockSubscriber;
   private MFIChannelSender mockSender;
-  private MFChannelMessage testMessage;
+  private MFChannelMessage mockMessage;
 
   @Before
   public void setUp()
   {
+    testChannel = new MFCommunicationChannel("Test Channel");
+
+    mockSubscriber = mock(MFIChannelSubscriber.class);
+
+    mockSender = mock(MFIChannelSender.class);
+    when(mockSender.getLocation()).thenReturn(new MFLocation(1,2,3));
+
+    mockMessage = mock(MFChannelMessage.class);
+    when(mockMessage.getSender()).thenReturn(mockSender);
+
   }
 
   @Test
   public void shouldNotifySubscribers()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
     testChannel.subscribe(mockSubscriber);
-
-    testMessage = mock(MFChannelMessage.class);
-
-    testChannel.enqueueMessage(testMessage);
+    testChannel.enqueueMessage(mockMessage);
     testChannel.update();
 
-    verify(mockSubscriber).update(testMessage);
+    verify(mockSubscriber).update(mockMessage);
   }
 
   @Test
   public void shouldNotNotifyUnsubscribedSubscribers()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
     testChannel.subscribe(mockSubscriber);
     testChannel.unsubscribe(mockSubscriber);
-    testChannel.enqueueMessage(testMessage);
+    testChannel.enqueueMessage(mockMessage);
 
-    verify(mockSubscriber, never()).update(testMessage);
+    verify(mockSubscriber, never()).update(mockMessage);
   }
 
   @Test
   public void shouldNotNotifySubscribersOfUnsubscribedSenders()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    mockSender = mock(MFIChannelSender.class);
-    testMessage = new MFChannelMessage(mockSender);
-
     testChannel.subscribeSender(mockSender);
     testChannel.subscribe(mockSubscriber);
-    testChannel.enqueueMessage(testMessage);
+    testChannel.enqueueMessage(mockMessage);
     testChannel.unsubscribeSender(mockSender);
     testChannel.update();
 
-    verify(mockSubscriber, never()).update(testMessage);
+    verify(mockSubscriber, never()).update(mockMessage);
   }
 
   @Test
   public void shouldNotifySendersOfNewSubscribers()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
-    mockSender = mock(MFIChannelSender.class);
-
     testChannel.subscribeSender(mockSender);
     testChannel.subscribe(mockSubscriber);
     testChannel.update();
@@ -104,11 +96,6 @@ public class MFCommunicationChannelTest {
   @Test
   public void shouldNotNotifyUnsubscribedSendersOfNewSubscribers()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
-    mockSender = mock(MFIChannelSender.class);
-
     testChannel.subscribeSender(mockSender);
     testChannel.subscribe(mockSubscriber);
     testChannel.unsubscribeSender(mockSender);
@@ -120,11 +107,6 @@ public class MFCommunicationChannelTest {
   @Test
   public void shouldNotNotifySendersOfUnsubscribedSubscribers()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
-    mockSender = mock(MFIChannelSender.class);
-
     testChannel.subscribeSender(mockSender);
     testChannel.subscribe(mockSubscriber);
     testChannel.unsubscribe(mockSubscriber);
@@ -137,16 +119,11 @@ public class MFCommunicationChannelTest {
   @Test
   public void shouldRemoveMessagesFromQueue()
   {
-    testChannel = new MFCommunicationChannel("Test Channel");
-    mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
-    testMessage = mock(MFChannelMessage.class);
-
     testChannel.subscribe(mockSubscriber);
-    testChannel.enqueueMessage(testMessage);
+    testChannel.enqueueMessage(mockMessage);
 
     testChannel.update();
-    verify(mockSubscriber).update(testMessage);
+    verify(mockSubscriber).update(mockMessage);
 
     testChannel.update();
     verifyNoMoreInteractions(mockSubscriber);
@@ -157,7 +134,7 @@ public class MFCommunicationChannelTest {
   {
     testChannel = new MFCommunicationChannel("Test Channel");
     mockSubscriber = mock(MFIChannelSubscriber.class);
-    testMessage = mock(MFChannelMessage.class);
+    mockMessage = mock(MFChannelMessage.class);
     mockSender = mock(MFIChannelSender.class);
 
     testChannel.subscribeSender(mockSender);

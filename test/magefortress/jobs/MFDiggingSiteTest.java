@@ -214,6 +214,12 @@ public class MFDiggingSiteTest
     unreachableDiggingSite.getJob();
   }
 
+  @Test
+  public void shoulSubscribeToChannelIfReachable()
+  {
+    verify(mockChannel).subscribeSender(diggingSite);
+  }
+
   @Ignore
   @Test
   public void shouldSubscribeToChannelIfBecomesReachable()

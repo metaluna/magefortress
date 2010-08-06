@@ -26,6 +26,7 @@ package magefortress.channel;
 
 import java.util.HashMap;
 import java.util.Map;
+import magefortress.creatures.behavior.MFEJob;
 
 /**
  *
@@ -42,7 +43,7 @@ public class MFChannelFactory
    * @param _channelType The channel type
    * @return The communication channel
    */
-  public MFCommunicationChannel getChannel(MFEChannel _channelType)
+  public MFCommunicationChannel getChannel(MFEJob _channelType)
   {
     MFCommunicationChannel channel = this.channels.get(_channelType);
     return channel;
@@ -50,12 +51,12 @@ public class MFChannelFactory
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final MFChannelFactory instance = new MFChannelFactory();
-  private final Map<MFEChannel, MFCommunicationChannel> channels;
+  private final Map<MFEJob, MFCommunicationChannel> channels;
 
   private MFChannelFactory()
   {
-    this.channels = new HashMap<MFEChannel, MFCommunicationChannel>();
-    for (MFEChannel channelType : MFEChannel.values()) {
+    this.channels = new HashMap<MFEJob, MFCommunicationChannel>();
+    for (MFEJob channelType : MFEJob.values()) {
       this.channels.put(channelType, new MFCommunicationChannel(channelType.toString()));
     }
   }

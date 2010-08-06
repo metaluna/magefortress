@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import java.util.EnumMap;
 import magefortress.creatures.MFRace;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.creatures.MFCreature;
@@ -40,6 +41,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import magefortress.channel.MFChannelFactory;
+import magefortress.creatures.behavior.MFEJob;
+import magefortress.creatures.behavior.MFEToolLevel;
+import magefortress.creatures.behavior.MFUnlimitedToolbelt;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;
@@ -89,7 +94,7 @@ public class MageFortress extends JFrame implements Runnable
       try {
         graphicsDevice.setFullScreenWindow(this);
 
-        // Macht, dass Becci super is!
+        logger.fine("Starting game loop...");
         while(null != (currentScreen = screenStack.peek())) {
 
           Graphics2D g = null;
@@ -123,7 +128,7 @@ public class MageFortress extends JFrame implements Runnable
             }
           }
           else
-            System.out.println("Too slow (" + diff + "ms)");
+            logger.finest("Too slow (" + diff + "ms)");
           nextUpdate = System.currentTimeMillis() + interval;
         }
 
@@ -161,6 +166,12 @@ public class MageFortress extends JFrame implements Runnable
     MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
     MFCreature sticky1 = new MFGameObjectFactory(imgLib, new MFJobFactory(game), game.getMap()).createCreature(stickies);
     sticky1.setLocation(new MFLocation(3, 3, 0));
+    EnumMap<MFEJob, Integer> toolSkills = new EnumMap<MFEJob, Integer>(MFEJob.class);
+    sticky1.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky1, toolSkills));
+    MFTool tool = new MFTool("Pick",MFEJob.DIGGING, 
+                  MFChannelFactory.getInstance().getChannel(MFEJob.DIGGING),
+                  MFEToolLevel.APPRENTICE, 50, 100);
+    sticky1.addTool(tool);
     game.addCreature(sticky1);
     
     MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
@@ -194,10 +205,13 @@ public class MageFortress extends JFrame implements Runnable
   public static void main(String[] args)
   {
     MageFortress game = new MageFortress();
+    Logger.getLogger("").setLevel(Level.ALL);
+    logger.config("Setting log level to " + Logger.getLogger("").getLevel());
     Thread loop = new Thread(game);
     loop.start();
   }
-  
+
+  private static final Logger logger = Logger.getLogger(MageFortress.class.getName());
   private static final MFDaoFactory.Storage STORAGE = MFDaoFactory.Storage.SQL;
   private static final String DATABASE              = "magefortress.db";
   private static final int DEMOMAP_ID               = 1;

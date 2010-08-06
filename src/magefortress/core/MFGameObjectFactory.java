@@ -26,9 +26,10 @@ package magefortress.core;
 
 import java.awt.image.BufferedImage;
 import magefortress.channel.MFChannelFactory;
-import magefortress.channel.MFEChannel;
 import magefortress.creatures.MFRace;
 import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFEJob;
+import magefortress.creatures.behavior.MFWalksOnTwoLegs;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
 import magefortress.jobs.MFDiggingSite;
@@ -55,6 +56,7 @@ public class MFGameObjectFactory
   public MFCreature createCreature(MFRace _race)
   {
     MFCreature result = _race.createCreature();
+    result.setMovingBehavior(new MFWalksOnTwoLegs());
     BufferedImage img = this.imgLib.get(DEFAULT_CREATURE_SPRITE);
     MFStillPaintable sprite = new MFStillPaintable(img);
     result.setDrawingBehavior(sprite);
@@ -69,7 +71,12 @@ public class MFGameObjectFactory
   public MFDiggingSite createDiggingSite(MFLocation _location)
   {
     return new MFDiggingSite(_location, this.map, jobFactory, 
-                            this.channelFactory.getChannel(MFEChannel.DIGGING));
+                            this.channelFactory.getChannel(MFEJob.DIGGING));
+  }
+
+  public MFChannelFactory createChannelFactory()
+  {
+    return this.channelFactory;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

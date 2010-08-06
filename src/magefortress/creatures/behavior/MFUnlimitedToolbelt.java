@@ -96,6 +96,7 @@ public class MFUnlimitedToolbelt implements MFIInstrumentable
     // success
     } else {
 
+      logger.fine("Adding '" + _tool.getName() + "' to toolbelt");
       this.toolbelt.put(_tool.getJob(), _tool);
       _tool.getChannel().subscribe(this.channelSubscriber);
       result = true;

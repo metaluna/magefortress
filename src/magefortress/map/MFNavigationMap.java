@@ -180,7 +180,7 @@ public class MFNavigationMap
    * Calculates all clearance values and stores them inside the tiles.
    * @param _movementType The type of movement
    */
-  void updateClearanceValues(MFEMovementType _movementType)
+  public void updateClearanceValues(MFEMovementType _movementType)
   {
     for (int z = 0; z < this.map.getDepth(); ++z) {
       for (MFTile[] rows : this.map.getLevelMap(z)) {

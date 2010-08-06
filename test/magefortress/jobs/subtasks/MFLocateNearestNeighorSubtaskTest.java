@@ -29,6 +29,7 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.MFEMovementType;
+import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFMap;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
@@ -60,6 +61,7 @@ public class MFLocateNearestNeighorSubtaskTest
 
     this.goal = new MFLocation(4, 1, 0);
     this.mockMap = mock(MFMap.class);
+    when(this.mockMap.isInsideMap(any(MFLocation.class))).thenReturn(true);
     this.mockPathFinder = mock(MFPathFinder.class);
     this.task = new MFLocateNearestNeighorSubtask(mockCreature, goal,
                                                        mockMap, mockPathFinder);
@@ -225,6 +227,23 @@ public class MFLocateNearestNeighorSubtaskTest
     done = task.update();
     assertTrue(done);
     verify(this.mockCreature).setCurrentHeading(new MFLocation(1, 1, 0));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void shouldNotSearchPathIfAlreadyNeighbor() throws MFNoPathFoundException
+  {
+    MFLocation currentLocation = goal.locationOf(MFEDirection.N);
+    when(mockCreature.getLocation()).thenReturn(currentLocation);
+    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, true, true);
+    when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
+
+    boolean done = task.update();
+    verify(mockPathFinder, never()).enqueuePathSearch(any(MFLocation.class), 
+                          any(MFLocation.class), anyInt(),
+                          any(EnumSet.class), any(MFIPathFinderListener.class));
+    verify(mockCreature).setCurrentHeading(currentLocation);
+    assertTrue(done);
   }
 
 }

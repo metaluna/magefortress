@@ -36,7 +36,7 @@ public class MFWalksOnTwoLegs implements MFIMovable
 
   public MFWalksOnTwoLegs()
   {
-    this.speed = 1;
+    this.speed = 25;
     this.clearance = 1;
     this.location = MFLocation.NOWHERE;
     this.heading = MFLocation.NOWHERE;

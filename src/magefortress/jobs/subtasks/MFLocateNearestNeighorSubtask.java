@@ -63,8 +63,16 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
   @Override
   public boolean update() throws MFNoPathFoundException
   {
+    boolean result = false;
+
     if (this.startedSearchesCount == 0) {
-      this.searchNearestNeighboringTile();
+      // already there
+      if (this.getMovable().getLocation().isNeighborOf(this.location)) {
+        this.getMovable().setCurrentHeading(this.getMovable().getLocation());
+        result = true;
+      } else {
+        this.searchNearestNeighboringTile();
+      }
     } else if (this.finishedSearchesCount == this.startedSearchesCount) {
       // no path found
       if (this.paths.isEmpty()) {
@@ -76,10 +84,9 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
         this.getMovable().setCurrentHeading(goal);
       }
       // done in any case
-      return true;
+      result = true;
     }
-    return false;
-
+    return result;
   }
 
   @Override
@@ -108,14 +115,16 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
     for (MFEDirection dir : MFEDirection.values()) {
 
       MFLocation neighboringLocation = this.location.locationOf(dir);
-      MFTile neighboringTile = this.map.getTile(neighboringLocation);
+      if (this.map.isInsideMap(neighboringLocation)) {
+        MFTile neighboringTile = this.map.getTile(neighboringLocation);
 
-      if (neighboringTile != null) {
-        for (MFEMovementType movementType : this.getMovable().getCapabilities()) {
-          // TODO!! check for clearance
-          if (neighboringTile.isWalkable(movementType)) {
-            this.searchPath(neighboringLocation);
-            ++this.startedSearchesCount;
+        if (neighboringTile != null) {
+          for (MFEMovementType movementType : this.getMovable().getCapabilities()) {
+            // TODO!! check for clearance
+            if (neighboringTile.isWalkable(movementType)) {
+              this.searchPath(neighboringLocation);
+              ++this.startedSearchesCount;
+            }
           }
         }
       }

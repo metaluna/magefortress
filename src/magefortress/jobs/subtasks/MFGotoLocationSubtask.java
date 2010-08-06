@@ -89,7 +89,16 @@ public class MFGotoLocationSubtask extends MFMovingSubtask implements MFIPathFin
       // calculate new path if the subtask is updated for the first time
       // or if the current path is no longer valid
       } else if (this.path == null || !this.path.isPathValid()) {
-        searchPath();
+
+        // already there
+        if (this.getMovable().getLocation().equals(this.heading) ||
+            this.getMovable().getLocation().equals(this.getMovable().getCurrentHeading())) {
+          this.goalReached = true;
+          return true;
+        } else {
+          searchPath();
+        }
+        
       // check if it's time to move and the search for a subpath has finished
       } else if (this.path.hasNext()) {
         if (this.updateCount >= this.getMovable().getSpeed()) {

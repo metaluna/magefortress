@@ -144,6 +144,9 @@ public class MFJobQueue
       }
       // found a job?
       if (result != null) {
+        this.currentJob = result;
+        logger.finer(this.getClass().getSimpleName() + ": Switching to next " +
+                                            "job for " + this.owner.getName());
         break;
       }
     }
@@ -180,6 +183,7 @@ public class MFJobQueue
   {
     assert _job != null;
 
+    logger.finest(this.getClass().getSimpleName() + ": Updating job...");
     boolean done = _job.update();
 
     if (done) {

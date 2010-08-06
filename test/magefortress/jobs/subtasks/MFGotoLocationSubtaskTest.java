@@ -28,7 +28,7 @@ import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
-import magefortress.creatures.MFCreature;
+import magefortress.creatures.behavior.MFIMovable;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
 import org.junit.Before;
@@ -39,15 +39,19 @@ import static org.mockito.Mockito.*;
 public class MFGotoLocationSubtaskTest
 {
   private MFGotoLocationSubtask gotoTask;
-  private MFCreature mockOwner;
+  private MFIMovable mockOwner;
   private MFPathFinder mockPathFinder;
 
   @Before
   public void setUp()
   {
-    this.mockOwner = mock(MFCreature.class);
+    this.mockOwner = mock(MFIMovable.class);
     this.mockPathFinder = mock(MFPathFinder.class);
     this.gotoTask = new MFGotoLocationSubtask(this.mockOwner, this.mockPathFinder);
+    MFLocation start = new MFLocation(4,4,4);
+    MFLocation goal = new MFLocation(2,2,2);
+    when(this.mockOwner.getLocation()).thenReturn(start);
+    when(this.mockOwner.getCurrentHeading()).thenReturn(goal);
   }
 
   @Test
@@ -223,6 +227,20 @@ public class MFGotoLocationSubtaskTest
     gotoTask.update();
 
     verify(mockOwner).setCurrentHeading(goal);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void shouldNotSearchPathIfAlreadyThere() throws MFSubtaskCanceledException
+  {
+    MFLocation goal = new MFLocation(1,2,3);
+    when(this.mockOwner.getCurrentHeading()).thenReturn(goal);
+    when(this.mockOwner.getLocation()).thenReturn(goal);
+    this.gotoTask = new MFGotoLocationSubtask(this.mockOwner, this.mockPathFinder);
+    
+    this.gotoTask.update();
+    verify(this.mockPathFinder, never()).enqueuePathSearch(any(MFLocation.class),
+            any(MFLocation.class), anyInt(), any(EnumSet.class), eq(gotoTask));
   }
 
 }

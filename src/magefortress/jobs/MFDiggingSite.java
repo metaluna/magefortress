@@ -65,6 +65,7 @@ public class MFDiggingSite extends MFConstructionSite
 
     // send job offer
     if (!this.unreachable) {
+      this.getChannel().subscribeSender(this);
       this.getChannel().enqueueMessage(this.getJobOfferMessage());
     }
   }
