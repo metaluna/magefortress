@@ -76,17 +76,15 @@ public class MFGame
     this.map = _map;
     this.daoFactory = _daoFactory;
 
+    this.jobFactory = new MFJobFactory(this);
+    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map);
+
     this.channels = new LinkedList<MFCommunicationChannel>();
     initCommunicationChannels();
     this.creatures = new LinkedList<MFCreature>();
     this.constructionSites = new LinkedList<MFConstructionSite>();
     this.garbageConstructionSites = new LinkedList<MFConstructionSite>();
     
-
-    this.jobFactory = new MFJobFactory(this);
-
-    this.gameObjectFactory = new MFGameObjectFactory(_imgLib, this.jobFactory, _map);
-
     this.pathFinder = this.gameObjectFactory.createPathFinder();
     this.naviMap = new MFNavigationMap(this.map);
     initPathFinder();
