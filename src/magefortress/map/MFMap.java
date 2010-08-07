@@ -27,13 +27,12 @@ package magefortress.map;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.EnumSet;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.map.MFTile.Corner;
 import magefortress.storage.DataAccessException;
 import magefortress.storage.MFDaoFactory;
@@ -503,14 +502,14 @@ public class MFMap implements MFISaveable
    * @param _start the start tile
    * @param _goal the end tile
    * @param _clearance the size of the moving creature
-   * @param _capabilities the movement types the creature can use
+   * @param _capability the movement types the creature can use
    * @return <code>true</code> if a creature can walk from start to goal
    * @throws IllegalArgumentException if the start tile is <code>null</code> or
    *        if the tiles are not adjacent or if the clearance is smaller one or
    *        if there are no capabilities given.
    */
   boolean canMoveTo(MFTile _start, MFTile _goal,
-          int _clearance, EnumSet<MFEMovementType> _capabilities)
+          int _clearance, MFCapability _capability)
   {
     if (_start == null) {
       String msg = "Map: Cannot test reachability of target tile without start tile.";
@@ -536,7 +535,7 @@ public class MFMap implements MFISaveable
       throw new IllegalArgumentException(msg);
     }
 
-    if (_capabilities == null || _capabilities.size() == 0) {
+    if (_capability == null) {
       String msg = "Map: Cannot test reachability without knowing the capabilities " +
               _start.getLocation() + " towards " + _goal.getLocation();
       logger.severe(msg);
@@ -549,7 +548,7 @@ public class MFMap implements MFISaveable
 
     // only need to check walkability if there are no walls
     if (!blockedByWalls) {
-      blockedByTerrain = blockedByTerrain(_capabilities, _goal, _clearance);
+      blockedByTerrain = blockedByTerrain(_capability, _goal, _clearance);
     }
 
     if (blockedByWalls || blockedByTerrain) {
@@ -573,7 +572,7 @@ public class MFMap implements MFISaveable
    */
   boolean canWalkTo(MFTile _start, MFTile _goal, MFEDirection _direction)
   {
-    return this.canMoveTo(_start, _goal, 1, EnumSet.of(MFEMovementType.WALK));
+    return this.canMoveTo(_start, _goal, 1, MFCapability.WALK);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -657,22 +656,20 @@ public class MFMap implements MFISaveable
   /**
    * Checks to see if a tile is accessible for a given set of movement types and
    * clearance.
-   * @param _capabilities
+   * @param _capability
    * @param _goal
    * @param _clearance
    * @return
    */
-  private boolean blockedByTerrain(final EnumSet<MFEMovementType> _capabilities,
+  private boolean blockedByTerrain(final MFCapability _capability,
                                       final MFTile _goal, final int _clearance)
   {
     boolean accessible = false;
-
-    for (MFEMovementType movement : _capabilities) {
-      if (_goal.getClearance(movement) >= _clearance && _goal.isWalkable(movement)) {
-        accessible = true;
-        break;
-      }
+    
+    if (_goal.getClearance(_capability) >= _clearance && _goal.isWalkable(_capability)) {
+      accessible = true;
     }
+    
     return !accessible;
   }
 

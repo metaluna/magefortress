@@ -35,7 +35,9 @@ import magefortress.graphics.MFStillPaintable;
 import magefortress.jobs.digging.MFDiggingSite;
 import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
+import magefortress.map.MFClearanceCalculator;
 import magefortress.map.MFMap;
+import magefortress.map.MFNavigationMap;
 import magefortress.map.MFPathFinder;
 
 /**
@@ -68,6 +70,11 @@ public class MFGameObjectFactory
   public MFPathFinder createPathFinder()
   {
     return this.pathFinder;
+  }
+
+  public MFNavigationMap createNavigationMap()
+  {
+    return new MFNavigationMap(this.map, new MFClearanceCalculator(this.map));
   }
 
   public MFDiggingSite createDiggingSite(MFLocation _location)

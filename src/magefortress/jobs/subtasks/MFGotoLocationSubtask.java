@@ -24,11 +24,10 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFPath;
@@ -163,10 +162,10 @@ public class MFGotoLocationSubtask extends MFMovingSubtask implements MFIPathFin
     }
 
     final int clearance = this.getMovable().getClearance();
-    final EnumSet<MFEMovementType> capabilities = this.getMovable().getCapabilities();
+    final MFCapability capability = this.getMovable().getCapability();
     
     this.pathFinder.enqueuePathSearch(this.getMovable().getLocation(),
-            this.getMovable().getCurrentHeading(),clearance, capabilities, this);
+            this.getMovable().getCurrentHeading(),clearance, capability, this);
 
     this.noPathFound = false;
     this.searchingForPath = true;

@@ -35,7 +35,7 @@ import magefortress.channel.MFChannelFactory;
 import magefortress.channel.MFCommunicationChannel;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.instrumentable.MFEJob;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
 import magefortress.jobs.MFConstructionSite;
@@ -87,7 +87,7 @@ public class MFGame implements MFIConstructionSiteListener
     this.garbageConstructionSites = new LinkedList<MFConstructionSite>();
     
     this.pathFinder = this.gameObjectFactory.createPathFinder();
-    this.naviMap = new MFNavigationMap(this.map);
+    this.naviMap = this.gameObjectFactory.createNavigationMap();
     initPathFinder();
   }
 
@@ -210,8 +210,8 @@ public class MFGame implements MFIConstructionSiteListener
   public void constructionSiteFinished(MFConstructionSite _constructionSite)
   {
     this.removeConstructionSite(_constructionSite.getLocation());
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -249,8 +249,8 @@ public class MFGame implements MFIConstructionSiteListener
 
   private final void initPathFinder()
   {
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
   }
 
   private void processCommunicationChannels()

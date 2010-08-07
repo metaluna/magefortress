@@ -24,10 +24,10 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFUnexpectedStateException;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
@@ -55,16 +55,14 @@ public class MFGotoLocationSubtaskTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldStartPathSearchFirstThing() throws MFSubtaskCanceledException
   {
     gotoTask.update();
     verify(mockPathFinder).enqueuePathSearch(any(MFLocation.class),
-            any(MFLocation.class), anyInt(), any(EnumSet.class), eq(gotoTask));
+            any(MFLocation.class), anyInt(), any(MFCapability.class), eq(gotoTask));
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldStartPathSearchIfPathIsInvalid() throws MFSubtaskCanceledException
   {
     // path that's first valid and then invalid
@@ -75,10 +73,10 @@ public class MFGotoLocationSubtaskTest
     gotoTask.pathSearchFinished(path);
     gotoTask.update();
     verify(mockPathFinder).enqueuePathSearch(any(MFLocation.class),
-            any(MFLocation.class), anyInt(), any(EnumSet.class), eq(gotoTask));
+            any(MFLocation.class), anyInt(), any(MFCapability.class), eq(gotoTask));
     gotoTask.update();
     verify(mockPathFinder, times(2)).enqueuePathSearch(any(MFLocation.class),
-            any(MFLocation.class), anyInt(), any(EnumSet.class), eq(gotoTask));
+            any(MFLocation.class), anyInt(), any(MFCapability.class), eq(gotoTask));
 
   }
 
@@ -230,7 +228,6 @@ public class MFGotoLocationSubtaskTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldNotSearchPathIfAlreadyThere() throws MFSubtaskCanceledException
   {
     MFLocation goal = new MFLocation(1,2,3);
@@ -240,7 +237,7 @@ public class MFGotoLocationSubtaskTest
     
     this.gotoTask.update();
     verify(this.mockPathFinder, never()).enqueuePathSearch(any(MFLocation.class),
-            any(MFLocation.class), anyInt(), any(EnumSet.class), eq(gotoTask));
+            any(MFLocation.class), anyInt(), any(MFCapability.class), eq(gotoTask));
   }
 
 }

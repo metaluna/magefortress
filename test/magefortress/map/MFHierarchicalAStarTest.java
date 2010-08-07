@@ -24,10 +24,9 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -62,7 +61,7 @@ public class MFHierarchicalAStarTest
   {
     new MFHierarchicalAStar(mock(MFMap.class), mock(MFTile.class),
                             mock(MFTile.class), 1,
-                            EnumSet.of(MFEMovementType.WALK), null);
+                            MFCapability.WALK, null);
   }
 
   //-------------------- NODE INSERTION AND REMOVAL TESTS ----------------------
@@ -87,8 +86,8 @@ public class MFHierarchicalAStarTest
       this.map.getTile(2, y, 0).setDugOut(false);
       this.map.getTile(3, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
 
     // check entrances
     final int expSectionCount = 2;
@@ -98,7 +97,7 @@ public class MFHierarchicalAStarTest
     final MFSectionEntrance gateway = this.naviMap.getEntrances().get(0);
 
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile, 1,
-                            EnumSet.of(MFEMovementType.WALK), this.pathFinder);
+                            MFCapability.WALK, this.pathFinder);
 
     MFPath path = search.findPath();
     assertNotNull(path);
@@ -144,8 +143,8 @@ public class MFHierarchicalAStarTest
     MFTile entrance2 = this.map.getTile(4, 2, 0);
     entrance2.setWalls(true, false, true, false);
 
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
 
     // check entrances
     final int expSectionCount = 3;
@@ -159,7 +158,7 @@ public class MFHierarchicalAStarTest
     goalTile  = this.naviMap.getEntrances().get(1).getTile();
 
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile, 1,
-                            EnumSet.of(MFEMovementType.WALK), this.pathFinder);
+                            MFCapability.WALK, this.pathFinder);
 
     MFPath path = search.findPath();
     assertNotNull(path);
@@ -189,11 +188,11 @@ public class MFHierarchicalAStarTest
       this.map.getTile(1, y, 0).setWallEast(true);
       this.map.getTile(2, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
     
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile, 1, 
-                            EnumSet.of(MFEMovementType.WALK), this.pathFinder);
+                            MFCapability.WALK, this.pathFinder);
 
     MFPath path = search.findPath();
     assertNull(path);
@@ -203,7 +202,6 @@ public class MFHierarchicalAStarTest
   //                        WITH VALID PATHS
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldFindPathInSameSection()
   {
     final MFTile startTile = this.map.getTile(0, 2, 0);
@@ -217,16 +215,16 @@ public class MFHierarchicalAStarTest
      * |       |
      * |_______|
      */
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
 
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile, 1,
-                            EnumSet.of(MFEMovementType.WALK), this.pathFinder);
+                            MFCapability.WALK, this.pathFinder);
 
     final MFPath path = search.findPath();
     assertNotNull(path);
     verify(this.pathFinder, never()).enqueuePathSearch(any(MFLocation.class),
-                            any(MFLocation.class), anyInt(), any(EnumSet.class),
+                            any(MFLocation.class), anyInt(), any(MFCapability.class),
                             any(MFIPathFinderListener.class));
 
     int gotPathLength = 0;
@@ -257,8 +255,8 @@ public class MFHierarchicalAStarTest
       this.map.getTile(2, y, 0).setDugOut(false);
       this.map.getTile(3, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
 
     // check entrances
     final int expSectionCount = 2;
@@ -268,18 +266,18 @@ public class MFHierarchicalAStarTest
     final MFSectionEntrance gateway = this.naviMap.getEntrances().get(0);
 
     final int clearance = 1;
-    final EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    final MFCapability capability = MFCapability.WALK;
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile,
-                                      clearance, capabilities, this.pathFinder);
+                                      clearance, capability, this.pathFinder);
 
     final MFPath path = this.search.findPath();
     assertNotNull(path);
     assertTrue(path instanceof MFHierarchicalPath);
 
     verify(this.pathFinder).enqueuePathSearch(startTile.getLocation(), 
-            gateway.getLocation(), clearance, capabilities, (MFHierarchicalPath) path);
+            gateway.getLocation(), clearance, capability, (MFHierarchicalPath) path);
     verify(this.pathFinder).enqueuePathSearch(gateway.getLocation(), 
-            goalTile.getLocation(), clearance, capabilities, (MFHierarchicalPath) path);
+            goalTile.getLocation(), clearance, capability, (MFHierarchicalPath) path);
     verifyNoMoreInteractions(this.pathFinder);
   }
 
@@ -319,8 +317,8 @@ public class MFHierarchicalAStarTest
     MFTile entrance2 = this.map.getTile(4, 2, 0);
     entrance2.setWalls(true, false, true, false);
 
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
 
     // check entrances
     final int expSectionCount = 3;
@@ -341,18 +339,18 @@ public class MFHierarchicalAStarTest
 
     // search!
     final int clearance = 1;
-    final EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    final MFCapability capability = MFCapability.WALK;
     this.search = new MFHierarchicalAStar(this.map, startTile, goalTile,
-                                      clearance, capabilities, this.pathFinder);
+                                      clearance, capability, this.pathFinder);
     final MFPath path = this.search.findPath();
     assertNotNull(path);
     assertTrue(path instanceof MFHierarchicalPath);
 
     final MFHierarchicalPath hierarchicalPath = (MFHierarchicalPath) path;
     verify(this.pathFinder).enqueuePathSearch(startTile.getLocation(), 
-            gateway1.getLocation(), clearance, capabilities, hierarchicalPath);
+            gateway1.getLocation(), clearance, capability, hierarchicalPath);
     verify(this.pathFinder).enqueuePathSearch(gateway1.getLocation(), 
-            gateway2.getLocation(), clearance, capabilities, hierarchicalPath);
+            gateway2.getLocation(), clearance, capability, hierarchicalPath);
     verifyNoMoreInteractions(this.pathFinder);
 
     // return some 1-tile-long long
@@ -362,7 +360,7 @@ public class MFHierarchicalAStarTest
     hierarchicalPath.next();
 
     verify(this.pathFinder).enqueuePathSearch(gateway2.getLocation(), 
-            goalTile.getLocation(), clearance, capabilities, hierarchicalPath);
+            goalTile.getLocation(), clearance, capability, hierarchicalPath);
     verifyNoMoreInteractions(this.pathFinder);
 
 
@@ -386,9 +384,10 @@ public class MFHierarchicalAStarTest
         }
       }
     }
-    MFNavigationMap result = new MFNavigationMap(this.map);
-    result.updateClearanceValues(MFEMovementType.WALK);
-    return new MFNavigationMap(map);
+    MFClearanceCalculator clearanceCalc = new MFClearanceCalculator(this.map);
+    MFNavigationMap result = new MFNavigationMap(this.map, clearanceCalc);
+    result.updateClearanceValues(MFCapability.WALK);
+    return result;
   }
 
   private MFPath createMockPath(final int _length, final MFTile _start, final MFTile _goal)

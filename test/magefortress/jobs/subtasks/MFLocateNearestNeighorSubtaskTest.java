@@ -24,11 +24,10 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFMap;
 import magefortress.map.MFPath;
@@ -47,14 +46,14 @@ public class MFLocateNearestNeighorSubtaskTest
   private MFLocation goal;
   private MFMap mockMap;
   private MFPathFinder mockPathFinder;
-  private static final EnumSet<MFEMovementType> CAPABILITIES = EnumSet.of(MFEMovementType.WALK);
+  private static final MFCapability CAPABILITIES = MFCapability.WALK;
   private static final int CLEARANCE = 1;
 
   @Before
   public void setUp()
   {
     this.mockCreature = mock(MFCreature.class);
-    when(mockCreature.getCapabilities()).thenReturn(CAPABILITIES);
+    when(mockCreature.getCapability()).thenReturn(CAPABILITIES);
     when(mockCreature.getClearance()).thenReturn(CLEARANCE);
     this.start = new MFLocation(1, 1, 0);
     when(mockCreature.getLocation()).thenReturn(start);
@@ -230,7 +229,6 @@ public class MFLocateNearestNeighorSubtaskTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldNotSearchPathIfAlreadyNeighbor() throws MFNoPathFoundException
   {
     MFLocation currentLocation = goal.locationOf(MFEDirection.N);
@@ -241,7 +239,7 @@ public class MFLocateNearestNeighorSubtaskTest
     boolean done = task.update();
     verify(mockPathFinder, never()).enqueuePathSearch(any(MFLocation.class), 
                           any(MFLocation.class), anyInt(),
-                          any(EnumSet.class), any(MFIPathFinderListener.class));
+                          any(MFCapability.class), any(MFIPathFinderListener.class));
     verify(mockCreature).setCurrentHeading(currentLocation);
     assertTrue(done);
   }

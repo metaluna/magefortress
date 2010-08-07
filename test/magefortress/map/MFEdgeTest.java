@@ -24,8 +24,7 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -43,34 +42,34 @@ public class MFEdgeTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutStartingEntrance()
   {
-    new MFEdge(null, mock(MFSectionEntrance.class), 1, 1, EnumSet.of(MFEMovementType.WALK));
+    new MFEdge(null, mock(MFSectionEntrance.class), 1, 1, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutTargetEntrance()
   {
-    new MFEdge(mock(MFSectionEntrance.class), null, 1, 1, EnumSet.of(MFEMovementType.WALK));
+    new MFEdge(mock(MFSectionEntrance.class), null, 1, 1, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutSameStartAndGoal()
   {
     MFSectionEntrance mockEntrance = mock(MFSectionEntrance.class);
-    new MFEdge(mockEntrance, mockEntrance, 1, 1, EnumSet.of(MFEMovementType.WALK));
+    new MFEdge(mockEntrance, mockEntrance, 1, 1, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutValidCost()
   {
     new MFEdge(mock(MFSectionEntrance.class), mock(MFSectionEntrance.class), 0,
-            1, EnumSet.of(MFEMovementType.WALK));
+            1, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutValidClearance()
   {
     new MFEdge(mock(MFSectionEntrance.class), mock(MFSectionEntrance.class), 1,
-            0, EnumSet.of(MFEMovementType.WALK));
+            0, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -84,7 +83,7 @@ public class MFEdgeTest
   public void shouldNotCreateWithoutValidCapabilities()
   {
     new MFEdge(mock(MFSectionEntrance.class), mock(MFSectionEntrance.class), 1,
-            1, EnumSet.noneOf(MFEMovementType.class));
+            1, MFCapability.NONE);
   }
 
 }

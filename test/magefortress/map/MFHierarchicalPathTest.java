@@ -26,10 +26,9 @@ package magefortress.map;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -52,7 +51,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithoutStart()
   {
     new MFHierarchicalPath(null, mock(MFTile.class), mock(Deque.class), 1,
-                          EnumSet.of(MFEMovementType.WALK),
+                          MFCapability.WALK,
                           this.mockPathFinder);
   }
 
@@ -61,7 +60,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithoutGoal()
   {
     new MFHierarchicalPath(mock(MFTile.class), null, mock(Deque.class), 1,
-                          EnumSet.of(MFEMovementType.WALK),
+                          MFCapability.WALK,
                           this.mockPathFinder);
   }
 
@@ -70,7 +69,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithoutTiles()
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class), null, 1,
-                          EnumSet.of(MFEMovementType.WALK),
+                          MFCapability.WALK,
                           this.mockPathFinder);
   }
 
@@ -80,7 +79,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> emptyDeque = new ArrayDeque<MFTile>();
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class), emptyDeque,
-                        1, EnumSet.of(MFEMovementType.WALK),
+                        1, MFCapability.WALK,
                           this.mockPathFinder);
   }
 
@@ -89,7 +88,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithoutClearance()
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
-                         mock(Deque.class), 0, EnumSet.of(MFEMovementType.WALK),
+                         mock(Deque.class), 0, MFCapability.WALK,
                          this.mockPathFinder);
   }
 
@@ -107,7 +106,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithZeroCapabilities()
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
-                    mock(Deque.class), 1, EnumSet.noneOf(MFEMovementType.class),
+                    mock(Deque.class), 1, MFCapability.NONE,
                     this.mockPathFinder);
   }
 
@@ -116,7 +115,7 @@ public class MFHierarchicalPathTest
   public void shouldNotCreateHierarchicalPathWithoutPathFinder()
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
-                        mock(Deque.class), 1, EnumSet.of(MFEMovementType.WALK),
+                        mock(Deque.class), 1, MFCapability.WALK,
                         null);
   }
 
@@ -129,7 +128,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
-                           EnumSet.of(MFEMovementType.WALK),
+                           MFCapability.WALK,
                            this.mockPathFinder);
     this.path.setPathInvalid();
     this.path.next();
@@ -141,7 +140,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
-                           EnumSet.of(MFEMovementType.WALK),
+                           MFCapability.WALK,
                            this.mockPathFinder);
     this.path.pathSearchFinished(null);
     this.path.next();
@@ -153,7 +152,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
-                           EnumSet.of(MFEMovementType.WALK),
+                           MFCapability.WALK,
                            this.mockPathFinder);
     this.path.setPathInvalid();
     this.path.hasNext();
@@ -165,7 +164,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
-                           EnumSet.of(MFEMovementType.WALK),
+                           MFCapability.WALK,
                            this.mockPathFinder);
     this.path.pathSearchFinished(null);
     this.path.hasNext();
@@ -177,7 +176,7 @@ public class MFHierarchicalPathTest
   {
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
-                           EnumSet.of(MFEMovementType.WALK),
+                           MFCapability.WALK,
                            this.mockPathFinder);
     this.path.remove();
   }
@@ -186,7 +185,6 @@ public class MFHierarchicalPathTest
   //                       ON VALID PATH
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldEnqueueTwoSubpathSearchesOnCreationIfAtLeastThreeTilesLong()
   {
     MFTile mockStart  = mock(MFTile.class);
@@ -202,12 +200,12 @@ public class MFHierarchicalPathTest
     stack.push(mockStart);
 
     int clearance = 1;
-    EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    MFCapability capability = MFCapability.WALK;
 
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capabilities, this.mockPathFinder);
+                                    capability, this.mockPathFinder);
     verify(this.mockPathFinder, times(2)).enqueuePathSearch(any(MFLocation.class), any(MFLocation.class),
-            anyInt(), any(EnumSet.class), any(MFIPathFinderListener.class));
+            anyInt(), any(MFCapability.class), any(MFIPathFinderListener.class));
 
     //verify(this.mockPathFinder).enqueuePathSearch(mockStart.getLocation(), mockMiddleTile.getLocation(), clearance, capabilities, this.path);
     //verify(this.mockPathFinder).enqueuePathSearch(mockMiddleTile.getLocation(), mockGoal.getLocation(),  clearance, capabilities, this.path);
@@ -215,7 +213,6 @@ public class MFHierarchicalPathTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldEnqueueOnlyOneSubpathSearchOnCreationIfTwoTilesLong()
   {
     // search configuration
@@ -233,13 +230,13 @@ public class MFHierarchicalPathTest
     stack.push(mockStart);
 
     int clearance = 1;
-    EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    MFCapability capability = MFCapability.WALK;
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capabilities, this.mockPathFinder);
+                                    capability, this.mockPathFinder);
     verify(this.mockPathFinder).enqueuePathSearch(any(MFLocation.class), any(MFLocation.class), 
-            anyInt(), any(EnumSet.class), any(MFIPathFinderListener.class));
+            anyInt(), any(MFCapability.class), any(MFIPathFinderListener.class));
     //verify(this.mockPathFinder).enqueuePathSearch(mockStart.getLocation(), mockGoal.getLocation(), clearance, capabilities, this.path);
     //verifyNoMoreInteractions(this.mockPathFinder);
   }
@@ -260,7 +257,7 @@ public class MFHierarchicalPathTest
     stack.push(mockStart);
 
     int clearance = 1;
-    EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    MFCapability capability = MFCapability.WALK;
 
     // path 1
     MFPath mockPath1 = mock(MFPath.class);
@@ -283,10 +280,10 @@ public class MFHierarchicalPathTest
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capabilities, this.mockPathFinder);
+                                    capability, this.mockPathFinder);
     verify(this.mockPathFinder, times(2)).enqueuePathSearch(
                                 any(MFLocation.class), any(MFLocation.class),
-                                eq(clearance), eq(capabilities), eq(this.path));
+                                eq(clearance), eq(capability), eq(this.path));
 
     this.path.pathSearchFinished(mockPath1);
     this.path.pathSearchFinished(mockPath2);
@@ -298,7 +295,7 @@ public class MFHierarchicalPathTest
     
     verify(this.mockPathFinder, times(3)).enqueuePathSearch(
                                 any(MFLocation.class), any(MFLocation.class),
-                                eq(clearance), eq(capabilities), eq(this.path));
+                                eq(clearance), eq(capability), eq(this.path));
     
     this.path.pathSearchFinished(mockPath3);
 
@@ -333,7 +330,7 @@ public class MFHierarchicalPathTest
     stack.push(mockStart);
 
     int clearance = 1;
-    EnumSet<MFEMovementType> capabilities = EnumSet.of(MFEMovementType.WALK);
+    MFCapability capability = MFCapability.WALK;
 
     // path 1
     MFPath mockPath1 = mock(MFPath.class);
@@ -356,7 +353,7 @@ public class MFHierarchicalPathTest
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capabilities, this.mockPathFinder);
+                                    capability, this.mockPathFinder);
     assertTrue(this.path.isPathValid());
     assertFalse(this.path.hasNext());
 

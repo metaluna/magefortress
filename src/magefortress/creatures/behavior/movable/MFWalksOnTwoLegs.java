@@ -24,7 +24,6 @@
  */
 package magefortress.creatures.behavior.movable;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 
@@ -40,7 +39,7 @@ public class MFWalksOnTwoLegs implements MFIMovable
     this.clearance = 1;
     this.location = MFLocation.NOWHERE;
     this.heading = MFLocation.NOWHERE;
-    this.capabilities = EnumSet.of(MFEMovementType.WALK);
+    this.capability = MFCapability.WALK;
   }
 
   public boolean canMove()
@@ -73,9 +72,9 @@ public class MFWalksOnTwoLegs implements MFIMovable
     return this.heading;
   }
 
-  public EnumSet<MFEMovementType> getCapabilities()
+  public MFCapability getCapability()
   {
-    return this.capabilities;
+    return this.capability;
   }
 
   public int getClearance()
@@ -99,9 +98,9 @@ public class MFWalksOnTwoLegs implements MFIMovable
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private EnumSet<MFEMovementType> capabilities;
-  private int                      clearance;
-  private MFLocation               heading;
-  private MFLocation               location;
-  private int                      speed;
+  private MFCapability capability;
+  private int          clearance;
+  private MFLocation   heading;
+  private MFLocation   location;
+  private int          speed;
 }

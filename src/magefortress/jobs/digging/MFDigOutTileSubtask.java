@@ -93,7 +93,7 @@ public class MFDigOutTileSubtask extends MFSubtask
   private int calculateDiggingTime()
   {
     //hardness should be between 200 and 800 (1st draft)
-    final int hardness = 500;
+    final int hardness = 150;
     final int jobSkill = this.getOwner().getJobSkill(JOB_SKILL_USED);
 
     int result = MIN_DIGGING_TIME;

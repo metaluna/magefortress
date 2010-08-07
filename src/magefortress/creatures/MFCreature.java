@@ -25,7 +25,6 @@
 package magefortress.creatures;
 
 import java.awt.Graphics2D;
-import java.util.EnumSet;
 import java.util.logging.Logger;
 import magefortress.channel.MFChannelMessage;
 import magefortress.channel.MFIChannelSubscriber;
@@ -34,7 +33,6 @@ import magefortress.core.MFItem;
 import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.instrumentable.MFTool;
 import magefortress.creatures.behavior.instrumentable.MFEJob;
-import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.creatures.behavior.instrumentable.MFEToolLevel;
 import magefortress.creatures.behavior.holdable.MFIHoldable;
 import magefortress.creatures.behavior.instrumentable.MFIInstrumentable;
@@ -42,6 +40,7 @@ import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.creatures.behavior.movable.MFNullMovable;
 import magefortress.creatures.behavior.holdable.MFNullHoldable;
 import magefortress.creatures.behavior.instrumentable.MFNullInstrumentable;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.graphics.MFIPaintable;
 import magefortress.graphics.MFNullPaintable;
 import magefortress.jobs.MFJobQueue;
@@ -246,9 +245,9 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
   }
 
   @Override
-  public EnumSet<MFEMovementType> getCapabilities()
+  public MFCapability getCapability()
   {
-    return EnumSet.copyOf(this.moveBehavior.getCapabilities());
+    return this.moveBehavior.getCapability();
   }
 
   @Override

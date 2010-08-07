@@ -24,7 +24,6 @@
  */
 package magefortress.creatures.behavior.movable;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 
@@ -39,7 +38,7 @@ public interface MFIMovable
   public int getSpeed();
   public void setCurrentHeading(MFLocation _heading);
   public MFLocation getCurrentHeading();
-  public EnumSet<MFEMovementType> getCapabilities();
+  public MFCapability getCapability();
   public int getClearance();
   public void setClearance(int _clearance);
   public MFLocation getLocation();

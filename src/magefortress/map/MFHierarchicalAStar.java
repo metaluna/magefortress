@@ -27,9 +27,8 @@ package magefortress.map;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.List;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * The main search algorithm. Hides all complexity of path finding from the
@@ -42,10 +41,10 @@ import magefortress.creatures.behavior.movable.MFEMovementType;
 public class MFHierarchicalAStar extends MFTemplateAStar
 {
   public MFHierarchicalAStar(MFMap _map, MFTile _start, MFTile _goal,
-                    int _clearance, EnumSet<MFEMovementType> _capabilities,
+                    int _clearance, MFCapability _capability,
                     MFPathFinder _pathFinder)
   {
-    super(_map, _start, _goal, _clearance, _capabilities);
+    super(_map, _start, _goal, _clearance, _capability);
     if (_pathFinder == null) {
       String msg = "HierarchicalAStar " + _start.getLocation() + "->" + 
                     _goal.getLocation() + ": Cannot create search without a " +
@@ -68,7 +67,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     if (this.getStart().getParentSection() == this.getGoal().getParentSection()) {
       final MFAnnotatedAStar search = 
               new MFAnnotatedAStar(this.getMap(), this.getStart(),
-                  this.getGoal(), this.getClearance(), this.getCapabilities());
+                  this.getGoal(), this.getClearance(), this.getCapability());
       foundPath = search.findPath();
     } else {
 
@@ -103,7 +102,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
           }
 
           // skip if capabilities are not sufficient
-          if (!this.getCapabilities().containsAll(edge.getCapabilities())) {
+          if (!this.getCapability().containsAll(edge.getCapability())) {
             continue;
           }
 
@@ -171,7 +170,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
 
     final MFPath result = 
             new MFHierarchicalPath(this.getStart(), this.getGoal(), path,
-                    this.getClearance(), this.getCapabilities(),
+                    this.getClearance(), this.getCapability(),
                     this.pathFinder);
     return result;
   }
@@ -237,7 +236,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     for (MFSectionEntrance neighbor : _tile.getParentSection().getEntrances()) {
       // create a path finder
       MFAnnotatedAStar pathToNeighbor = new MFAnnotatedAStar(this.getMap(), _tile,
-                        neighbor.getTile(), this.getClearance(), this.getCapabilities());
+                        neighbor.getTile(), this.getClearance(), this.getCapability());
       // search!
       MFAnnotatedPath path = (MFAnnotatedPath) pathToNeighbor.findPath();
       boolean success = (path != null);
@@ -245,12 +244,12 @@ public class MFHierarchicalAStar extends MFTemplateAStar
       if (success) {
         // add edge to inserted tile
         MFEdge edgeFrom = new MFEdge(insertedEntrance, neighbor,
-             path.getCost(), this.getClearance(), this.getCapabilities());
+             path.getCost(), this.getClearance(), this.getCapability());
         insertedEntrance.addEdge(edgeFrom);
 
         // add reverse edge to neighboring entrance
         MFEdge edgeTo = new MFEdge(neighbor, insertedEntrance,
-             path.getCost(), this.getClearance(), this.getCapabilities());
+             path.getCost(), this.getClearance(), this.getCapability());
         neighbor.addEdge(edgeTo);
       }
     }

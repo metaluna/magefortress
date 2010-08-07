@@ -24,8 +24,7 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Empty implementation of an A-Star search algorithm.
@@ -33,9 +32,9 @@ import magefortress.creatures.behavior.movable.MFEMovementType;
 public class MFMockAStar extends MFTemplateAStar
 {
   public MFMockAStar(MFMap _map, MFTile _start, MFTile _goal,
-                        int _clearance, EnumSet<MFEMovementType> _capabilities)
+                        int _clearance, MFCapability _capability)
   {
-    super(_map, _start, _goal, _clearance, _capabilities);
+    super(_map, _start, _goal, _clearance, _capability);
   }
 
   @Override

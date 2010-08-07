@@ -24,12 +24,11 @@
  */
 package magefortress.jobs.subtasks;
 
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.map.MFIPathFinderListener;
 import magefortress.map.MFMap;
@@ -118,14 +117,11 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
       if (this.map.isInsideMap(neighboringLocation)) {
         MFTile neighboringTile = this.map.getTile(neighboringLocation);
 
-        if (neighboringTile != null) {
-          for (MFEMovementType movementType : this.getMovable().getCapabilities()) {
-            // TODO!! check for clearance
-            if (neighboringTile.isWalkable(movementType)) {
-              this.searchPath(neighboringLocation);
-              ++this.startedSearchesCount;
-            }
-          }
+        if (neighboringTile != null && 
+            neighboringTile.isWalkable(this.getMovable().getCapability()) ) {
+            // && neighboringTile.getClearance(this.getMovable().getCapability()) >= this.getMovable().getClearance()) {
+            this.searchPath(neighboringLocation);
+            ++this.startedSearchesCount;
         }
       }
 
@@ -139,10 +135,10 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
   private void searchPath(MFLocation _goal)
   {
     final int clearance = this.getMovable().getClearance();
-    final EnumSet<MFEMovementType> capabilities = this.getMovable().getCapabilities();
+    final MFCapability capability = this.getMovable().getCapability();
 
     this.pathFinder.enqueuePathSearch(this.getMovable().getLocation(), _goal,
-                                                 clearance, capabilities, this);
+                                                 clearance, capability, this);
   }
 
   private MFPath selectShortestPath()

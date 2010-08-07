@@ -24,14 +24,13 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.core.Singleton;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Singleton that manages finding paths. Classes that wish to find a path
@@ -62,12 +61,12 @@ public class MFPathFinder implements Singleton
    * @param _start the starting location
    * @param _goal the target location
    * @param _clearance the size of the creature
-   * @param _capabilities the movement modes of the creature
+   * @param _capability the movement modes of the creature
    * @param _listener the listener to notify when the search was executed
    */
   public void enqueuePathSearch(final MFLocation _start,
                                 final MFLocation _goal, final int _clearance,
-                                final EnumSet<MFEMovementType> _capabilities,
+                                final MFCapability _capability,
                                 final MFIPathFinderListener _listener)
   {
     if (this.map == null) {
@@ -80,7 +79,7 @@ public class MFPathFinder implements Singleton
     final MFTile goalTile  = this.map.getTile(_goal);
 
     final MFHierarchicalAStar search = new MFHierarchicalAStar(this.map, startTile,
-                                        goalTile, _clearance, _capabilities, this);
+                                        goalTile, _clearance, _capability, this);
     this.enqueuePathSearch(search, _listener);
   }
 

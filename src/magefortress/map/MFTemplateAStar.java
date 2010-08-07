@@ -24,14 +24,13 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Base class for path finding algorithms.
@@ -44,18 +43,18 @@ public abstract class MFTemplateAStar
    * @param _start the starting tile
    * @param _goal the target tile
    * @param _clearance the size of the moving creature
-   * @param _capabilities the movement types the moving creature can employ
+   * @param _capability the movement types the moving creature can employ
    */
   public MFTemplateAStar(MFMap _map, MFTile _start, MFTile _goal,
-                int _clearance, EnumSet<MFEMovementType> _capabilities)
+                int _clearance, MFCapability _capability)
   {
-    validateConstructorParams(_map, _start, _goal, _clearance, _capabilities);
+    validateConstructorParams(_map, _start, _goal, _clearance, _capability);
 
     this.map = _map;
     this.start = _start;
     this.goal = _goal;
     this.clearance = _clearance;
-    this.capabilities = EnumSet.copyOf(_capabilities);
+    this.capability = _capability;
   }
 
   public final int getOrthogonalCost()
@@ -88,9 +87,9 @@ public abstract class MFTemplateAStar
     return clearance;
   }
 
-  public final EnumSet<MFEMovementType> getCapabilities()
+  public final MFCapability getCapability()
   {
-    return capabilities;
+    return capability;
   }
 
   /**
@@ -200,7 +199,7 @@ public abstract class MFTemplateAStar
   /** The size of the creature that wants to use the path */
   private final int clearance;
   /** The movement types of the creature that wants to use the path */
-  private final EnumSet<MFEMovementType> capabilities;
+  private final MFCapability capability;
 
   /** Stores the processed nodes */
   private Map<MFLocation, MFNode> closedList;
@@ -279,13 +278,11 @@ public abstract class MFTemplateAStar
   private void validateStartConditions()
   {
     boolean canEnterStart = false;
-    for (MFEMovementType capability : this.capabilities) {
-      if (this.start.getClearance(capability) >= this.clearance &&
-          this.start.isWalkable(capability)) {
-        canEnterStart = true;
-        break;
-      }
+    if (this.start.getClearance(this.capability) >= this.clearance &&
+        this.start.isWalkable(this.capability)) {
+      canEnterStart = true;
     }
+    
     if (!canEnterStart) {
       String msg = "AStar: Cannot search path from " + this.start.getLocation() +
                    " to " + this.goal.getLocation() + ". Given clearance and " +
@@ -293,13 +290,11 @@ public abstract class MFTemplateAStar
       MFTemplateAStar.logger.severe(msg);
       throw new IllegalStateException(msg);
     }
+
     boolean canEnterTarget = false;
-    for (MFEMovementType capability : this.capabilities) {
-      if (this.goal.getClearance(capability) >= this.clearance &&
-          this.goal.isWalkable(capability)) {
-        canEnterTarget = true;
-        break;
-      }
+    if (this.goal.getClearance(this.capability) >= this.clearance &&
+        this.goal.isWalkable(this.capability)) {
+      canEnterTarget = true;
     }
     if (!canEnterTarget) {
       String msg = "AStar: Cannot search path from " + this.start.getLocation() +
@@ -316,13 +311,13 @@ public abstract class MFTemplateAStar
    * @param _start the starting tile
    * @param _goal the target tile
    * @param _clearance the size of the moving creature
-   * @param _capabilities the movement types the moving creature can employ
+   * @param _capability the movement types the moving creature can employ
    * @throws IllegalArgumentException if any of the parameters fails to meet
    *                                  the conditions.
    */
   private void validateConstructorParams(final MFMap _map, final MFTile _start,
                                    final MFTile _goal, final int _clearance,
-                                   final EnumSet<MFEMovementType> _capabilities)
+                                   final MFCapability _capability)
   {
     if (_map == null) {
       String msg = "AStar: Cannot create A-Star without map.";
@@ -347,7 +342,7 @@ public abstract class MFTemplateAStar
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_capabilities == null || _capabilities.isEmpty()) {
+    if (_capability == null || _capability == MFCapability.NONE) {
       String msg = "AStar: Cannot create A-Star from " + _start.getLocation() +
                     " to " + _goal.getLocation() + " without knowing the " +
                     "agent's capabilities.";

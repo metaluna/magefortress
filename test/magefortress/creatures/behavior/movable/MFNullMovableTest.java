@@ -24,7 +24,6 @@
  */
 package magefortress.creatures.behavior.movable;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import org.junit.Before;
@@ -91,8 +90,8 @@ public class MFNullMovableTest
   @Test
   public void shouldHaveNoCapabilities()
   {
-    EnumSet<MFEMovementType> capabilities = movable.getCapabilities();
-    assertEquals(0, capabilities.size());
+    MFCapability capability = movable.getCapability();
+    assertEquals(MFCapability.NONE, capability);
   }
 
   @Test

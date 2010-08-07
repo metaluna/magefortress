@@ -34,6 +34,7 @@ import magefortress.core.MFEDirection;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.graphics.MFIPaintable;
 import magefortress.storage.MFISaveable;
@@ -101,7 +102,7 @@ public class MFTile implements MFIPaintable, MFISaveable
     this.placedObject = null;
 
     // init clearance values
-    this.naviInfo = new MFNavigationTile(_posX, _posY, _posZ);
+    this.naviInfo = new MFNavigationTile();
 
   }
 
@@ -199,6 +200,16 @@ public class MFTile implements MFIPaintable, MFISaveable
     }
   }
 
+  public boolean isWalkable(MFCapability _capability)
+  {
+    for (MFEMovementType movementType : _capability) {
+      if (!this.isWalkable(movementType)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /**
    * Sets the room this tile currently belongs to. Set to <code>null</code> to detach
    * the tile from the room.
@@ -280,7 +291,7 @@ public class MFTile implements MFIPaintable, MFISaveable
     }
 
     if (PRINT_CLEARANCE) {
-      int clearance = this.naviInfo.getClearance(MFEMovementType.WALK);
+      int clearance = this.naviInfo.getClearance(MFCapability.WALK);
       _g.drawString("" + clearance, x+TILESIZE/2, y+TILESIZE/2);
     }
 
@@ -397,14 +408,14 @@ public class MFTile implements MFIPaintable, MFISaveable
     return this.getCorner(MFEDirection.SW);
   }
 
-  void setClearance(MFEMovementType _movementType, int _clearance)
+  void setClearance(MFCapability _capability, int _clearance)
   {
-    this.naviInfo.setClearance(_movementType, _clearance);
+    this.naviInfo.setClearance(_capability, _clearance);
   }
 
-  int getClearance(MFEMovementType _movementType)
+  int getClearance(MFCapability _capability)
   {
-    return this.naviInfo.getClearance(_movementType);
+    return this.naviInfo.getClearance(_capability);
   }
 
   void setParentSection(MFSection _section)

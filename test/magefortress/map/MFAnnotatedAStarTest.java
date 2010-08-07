@@ -24,8 +24,7 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -64,7 +63,7 @@ public class MFAnnotatedAStarTest
      * |_______|
      */
 
-    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, MFCapability.WALK);
 
     MFPath path = testPath.findPath();
     assertNotNull(path);
@@ -98,9 +97,9 @@ public class MFAnnotatedAStarTest
       this.map.getTile(2, y, 0).setDugOut(false);
       this.map.getTile(3, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
 
-    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, MFCapability.WALK);
 
     MFPath path = testPath.findPath();
     assertNotNull(path);
@@ -138,9 +137,9 @@ public class MFAnnotatedAStarTest
       this.map.getTile(3, y, 0).setWallEast(true);
       this.map.getTile(4, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
 
-    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, MFCapability.WALK);
 
     MFPath path = testPath.findPath();
     assertNotNull(path);
@@ -174,9 +173,9 @@ public class MFAnnotatedAStarTest
       this.map.getTile(2, y, 0).setDugOut(false);
       this.map.getTile(3, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
 
-    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, MFCapability.WALK);
 
     MFPath path = testPath.findPath();
     assertNull(path);
@@ -200,9 +199,9 @@ public class MFAnnotatedAStarTest
       this.map.getTile(1, y, 0).setWallEast(true);
       this.map.getTile(2, y, 0).setWallWest(true);
     }
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
 
-    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, EnumSet.of(MFEMovementType.WALK));
+    MFAnnotatedAStar testPath = new MFAnnotatedAStar(this.map, startTile, goalTile, 1, MFCapability.WALK);
 
     MFPath path = testPath.findPath();
     assertNull(path);
@@ -226,9 +225,10 @@ public class MFAnnotatedAStarTest
         }
       }
     }
-    MFNavigationMap result = new MFNavigationMap(this.map);
-    result.updateClearanceValues(MFEMovementType.WALK);
-    return new MFNavigationMap(map);
+    MFClearanceCalculator clearanceCalc = new MFClearanceCalculator(this.map);
+    MFNavigationMap result = new MFNavigationMap(this.map, clearanceCalc);
+    result.updateClearanceValues(MFCapability.WALK);
+    return result;
   }
 
 }

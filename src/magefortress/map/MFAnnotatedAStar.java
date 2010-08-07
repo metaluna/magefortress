@@ -26,10 +26,9 @@ package magefortress.map;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * The actual path finding algorithm. It utilizes an implementation of
@@ -44,12 +43,12 @@ public class MFAnnotatedAStar extends MFTemplateAStar
    * @param _start the starting tile
    * @param _goal the target tile
    * @param _clearance the size of the creature
-   * @param _capabilities the movement modes of the creature
+   * @param _capability the movement modes of the creature
    */
   public MFAnnotatedAStar(MFMap _map, MFTile _start, MFTile _goal,
-                int _clearance, EnumSet<MFEMovementType> _capabilities)
+                int _clearance, MFCapability _capability)
   {
-    super(_map, _start, _goal, _clearance, _capabilities);
+    super(_map, _start, _goal, _clearance, _capability);
   }
 
   //---vvv---  PACKAGE-PRIVATE METHODS  ---vvv---
@@ -93,7 +92,7 @@ public class MFAnnotatedAStar extends MFTemplateAStar
 
         // skip if unreachable from current tile
         if (!this.getMap().canMoveTo(currentNode.tile, neighbor,
-                                 this.getClearance(), this.getCapabilities())) {
+                                 this.getClearance(), this.getCapability())) {
           continue;
         }
 

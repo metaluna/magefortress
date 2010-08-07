@@ -25,11 +25,10 @@
 package magefortress.map;
 
 import java.util.Deque;
-import java.util.EnumSet;
 import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Encapsulates an hierarchical path.
@@ -39,7 +38,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
 {
   MFHierarchicalPath(final MFTile _start, final MFTile _goal, 
                  final Deque<MFTile> _path, final int _clearance,
-                 final EnumSet<MFEMovementType> _capabilities,
+                 final MFCapability _capability,
                  final MFPathFinder _pathFinder)
   {
     super(_start, _goal);
@@ -58,7 +57,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_capabilities == null || _capabilities.isEmpty()) {
+    if (_capability == null || _capability == MFCapability.NONE) {
       String msg = "Hierarchical Path " + _start.getLocation() + "->" +
                     _goal.getLocation() + ": Cannot create hierarchical path " +
                     "without any capabilities needed to traverse it.";
@@ -75,7 +74,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
 
     this.path = _path;
     this.clearance = _clearance;
-    this.capabilities = EnumSet.copyOf(_capabilities);
+    this.capability = _capability;
     this.pathFinder = _pathFinder;
     
     this.searchNextSubpath();
@@ -189,7 +188,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   /** Maximum clearance allowed to traverse this path */
   private final int clearance;
   /** Capabilities needed to traverse this path */
-  private final EnumSet<MFEMovementType> capabilities;
+  private final MFCapability capability;
   /** Caches the path finder used to find subpaths */
   private final MFPathFinder pathFinder;
   
@@ -226,7 +225,7 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
     final MFTile goal  = this.path.peek();
 
     this.pathFinder.enqueuePathSearch(start.getLocation(), goal.getLocation(),
-                                      this.clearance, this.capabilities, this);
+                                      this.clearance, this.capability, this);
   }
 
 }

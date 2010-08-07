@@ -24,10 +24,9 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
 import java.util.logging.Logger;
 import magefortress.core.Immutable;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Stores the costs to traverse the distance between two {@link MFSectionEntrance nodes} for a
@@ -41,9 +40,10 @@ class MFEdge implements Immutable
    * @param _to the end node
    * @param _cost the distance
    * @param _clearance the biggest creature that can traverse this edge
-   * @param _capabilities the capabilites which are needed to traverse this edge
+   * @param _capability the capabilites which are needed to traverse this edge
    */
-  public MFEdge(MFSectionEntrance _from, MFSectionEntrance _to, int _cost, int _clearance, EnumSet<MFEMovementType> _capabilities)
+  public MFEdge(MFSectionEntrance _from, MFSectionEntrance _to, int _cost, 
+                                      int _clearance, MFCapability _capability)
   {
     if (_from == null) {
       String msg = "Edge: Cannot create edge without starting node.";
@@ -74,7 +74,7 @@ class MFEdge implements Immutable
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_capabilities == null || _capabilities.size() == 0) {
+    if (_capability == null || _capability == MFCapability.NONE) {
       String msg = "Edge (" + _from.getLocation() + "->" + _to.getLocation() + 
                    ": Cannot create edge without at least one capability.";
       logger.severe(msg);
@@ -85,7 +85,7 @@ class MFEdge implements Immutable
     this.to = _to;
     this.cost = _cost;
     this.clearance = _clearance;
-    this.capabilities = _capabilities;
+    this.capability = _capability;
   }
 
   /**
@@ -128,9 +128,9 @@ class MFEdge implements Immutable
    * Gets the needed capabilities to traverse this edge.
    * @return the needed capabilities to traverse this edge.
    */
-  public EnumSet<MFEMovementType> getCapabilities()
+  public MFCapability getCapability()
   {
-    return EnumSet.copyOf(this.capabilities);
+    return this.capability;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -139,6 +139,6 @@ class MFEdge implements Immutable
   private final MFSectionEntrance to;
   private final int cost;
   private final int clearance;
-  private final EnumSet<MFEMovementType> capabilities;
+  private final MFCapability capability;
 
 }

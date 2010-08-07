@@ -24,12 +24,11 @@
  */
 package magefortress.map;
 
-import magefortress.map.MFTile;
 import java.util.HashSet;
-import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.core.MFIPlaceable;
 import magefortress.core.MFRoom;
 import magefortress.core.MFRoomMock;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -51,17 +50,17 @@ public class MFTileTest
   {
     int walkValue = 1;
     int flyValue = 2;
-    tile.setClearance(MFEMovementType.WALK, walkValue);
-    tile.setClearance(MFEMovementType.FLY, flyValue);
+    tile.setClearance(MFCapability.WALK, walkValue);
+    tile.setClearance(MFCapability.FLY, flyValue);
 
-    assertEquals(walkValue, tile.getClearance(MFEMovementType.WALK));
-    assertEquals(flyValue, tile.getClearance(MFEMovementType.FLY));
+    assertEquals(walkValue, tile.getClearance(MFCapability.WALK));
+    assertEquals(flyValue, tile.getClearance(MFCapability.FLY));
   }
 
   @Test
   public void shouldHaveZeroClearanceValueIfNothingWasSet()
   {
-    assertEquals(0, tile.getClearance(MFEMovementType.WALK));
+    assertEquals(0, tile.getClearance(MFCapability.WALK));
   }
 
   @Test

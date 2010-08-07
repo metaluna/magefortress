@@ -24,10 +24,9 @@
  */
 package magefortress.map;
 
-import java.util.EnumMap;
-import java.util.logging.Level;
+import java.util.HashMap;
 import java.util.logging.Logger;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
  * Represents data used for navigation specific to a tile.
@@ -35,32 +34,29 @@ import magefortress.creatures.behavior.movable.MFEMovementType;
 public class MFNavigationTile
 {
 
-  public MFNavigationTile(int _posX, int _posY, int _posZ)
+  public MFNavigationTile()
   {
-    this.posX = _posX;
-    this.posY = _posY;
-    this.posZ = _posZ;
-    this.clearanceValues = new EnumMap<MFEMovementType,Integer>(MFEMovementType.class);
+    this.clearanceValues = new HashMap<MFCapability,Integer>();
   }
   
   /**
    * Sets the size of the biggest creature which can pass the tile.
-   * @param _movementType The type of movement
+   * @param _capability The type of movement
    * @param _clearance The size of the creature
    */
-  void setClearance(MFEMovementType _movementType, int _clearance)
+  void setClearance(MFCapability _capability, int _clearance)
   {
-    this.clearanceValues.put(_movementType, _clearance);
+    this.clearanceValues.put(_capability, _clearance);
   }
 
   /**
    * Gets the size of the biggest creature which can pass the tile.
-   * @param _movementType The movement type
+   * @param _capability The movement type
    * @return The size of the creature or 0 if inaccessible
    */
-  int getClearance(MFEMovementType _movementType)
+  int getClearance(MFCapability _capability)
   {
-    Integer result = this.clearanceValues.get(_movementType);
+    Integer result = this.clearanceValues.get(_capability);
     if (result == null) {
       result = 0;
     }
@@ -115,12 +111,9 @@ public class MFNavigationTile
   /** Log */
   private static final Logger logger = Logger.getLogger(MFNavigationTile.class.getName());
 
-  /** Position of the tile */
-  private final int posX, posY, posZ;
-
   /** Saves how big a creature can stand on this and the surrounding tiles.
    * @Transient */
-  private EnumMap<MFEMovementType, Integer> clearanceValues;
+  private final HashMap<MFCapability, Integer> clearanceValues;
   /** The parent navigational section
    * @Transient */
   private MFSection parentSection;

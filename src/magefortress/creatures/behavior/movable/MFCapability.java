@@ -24,80 +24,44 @@
  */
 package magefortress.creatures.behavior.movable;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Iterator;
 import magefortress.core.Immutable;
-import magefortress.core.MFEDirection;
-import magefortress.core.MFLocation;
 
 /**
- * Null implementation of MFIMovable being unable to move. Its clearance and 
- * speed is 0 and it has no movement types.
+ * The capability of creature consists of one or more {@link MFEMovementType}s.
+ * It is immutable.
  */
-public class MFNullMovable implements MFIMovable, Immutable
+public class MFCapability implements Immutable, Iterable<MFEMovementType>
 {
+  public static final MFCapability WALK = new MFCapability(MFEMovementType.WALK);
+  public static final MFCapability FLY = new MFCapability(MFEMovementType.FLY);
+  public static final MFCapability WALK_FLY = new MFCapability(MFEMovementType.WALK, MFEMovementType.FLY);
+  public static final MFCapability NONE = new MFCapability();
 
-  @Override
-  public boolean canMove()
+
+  public MFCapability(MFEMovementType... _capabilities)
   {
-    return false;
+    if (_capabilities.length > 0) {
+      this.capabilities = EnumSet.copyOf(Arrays.asList(_capabilities));
+    } else {
+      this.capabilities = EnumSet.noneOf(MFEMovementType.class);
+    }
+  }
+
+  public boolean containsAll(MFCapability _other)
+  {
+    return this.capabilities.containsAll(_other.capabilities);
   }
 
   @Override
-  public void move(MFEDirection _direction)
+  public Iterator<MFEMovementType> iterator()
   {
-    throw new MFIllegalMoveException("Creature is unable to move.");
-  }
-
-  @Override
-  public void setSpeed(int _speed)
-  {
-  }
-
-  @Override
-  public int getSpeed()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setCurrentHeading(MFLocation _heading)
-  {
-  }
-
-  @Override
-  public MFLocation getCurrentHeading()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public MFCapability getCapability()
-  {
-    return MFCapability.NONE;
-  }
-
-  @Override
-  public int getClearance()
-  {
-    return 0;
-  }
-
-  @Override
-  public void setClearance(int _clearance)
-  {
-    
-  }
-
-  @Override
-  public MFLocation getLocation()
-  {
-    return MFLocation.NOWHERE;
-  }
-
-  @Override
-  public void setLocation(MFLocation _location)
-  {
+    return this.capabilities.iterator();
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final EnumSet<MFEMovementType> capabilities;
 
 }

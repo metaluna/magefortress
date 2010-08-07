@@ -24,8 +24,7 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
-import magefortress.creatures.behavior.movable.MFEMovementType;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -46,28 +45,28 @@ public class MFTemplateAStarTest
   public void shouldNotCreateWithoutMap()
   {
     new MFMockAStar(null, mock(MFTile.class), mock(MFTile.class), 1,
-                      EnumSet.of(MFEMovementType.WALK));
+                      MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutStartTile()
   {
     new MFMockAStar(mock(MFMap.class), null, mock(MFTile.class), 1,
-                      EnumSet.of(MFEMovementType.WALK));
+                      MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutTargetTile()
   {
     new MFMockAStar(mock(MFMap.class), mock(MFTile.class), null, 1,
-                      EnumSet.of(MFEMovementType.WALK));
+                      MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutClearance()
   {
     new MFMockAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class),
-                      0, EnumSet.of(MFEMovementType.WALK));
+                      0, MFCapability.WALK);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -81,7 +80,7 @@ public class MFTemplateAStarTest
   public void shouldNotCreateWithZeroCapabilities()
   {
     new MFMockAStar(mock(MFMap.class), mock(MFTile.class), mock(MFTile.class),
-                      1, EnumSet.noneOf(MFEMovementType.class));
+                      1, MFCapability.NONE);
   }
 
   //-------------------- PATH START CONDITIONS TESTS ---------------------------
@@ -90,14 +89,14 @@ public class MFTemplateAStarTest
   public void shouldNotSearchPathStartingOnSolidTile()
   {
     MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(false);
+    when(mockStart.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockStart.isWalkable(MFCapability.WALK)).thenReturn(false);
     MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockGoal.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockGoal.isWalkable(MFCapability.WALK)).thenReturn(true);
 
     this.search = new MFMockAStar(mock(MFMap.class), mockStart, mockGoal, 1,
-                                  EnumSet.of(MFEMovementType.WALK));
+                                  MFCapability.WALK);
     search.findPath();
   }
 
@@ -105,14 +104,14 @@ public class MFTemplateAStarTest
   public void shouldNotSearchPathStartingOnNarrowPassage()
   {
     MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockStart.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockStart.isWalkable(MFCapability.WALK)).thenReturn(true);
     MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(2);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockGoal.getClearance(MFCapability.WALK)).thenReturn(2);
+    when(mockGoal.isWalkable(MFCapability.WALK)).thenReturn(true);
 
     this.search = new MFMockAStar(mock(MFMap.class), mockStart, mockGoal, 2,
-                                  EnumSet.of(MFEMovementType.WALK));
+                                  MFCapability.WALK);
     search.findPath();
   }
 
@@ -120,14 +119,14 @@ public class MFTemplateAStarTest
   public void shouldNotSearchPathEndingOnSolidTile()
   {
     MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockStart.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockStart.isWalkable(MFCapability.WALK)).thenReturn(true);
     MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(false);
+    when(mockGoal.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockGoal.isWalkable(MFCapability.WALK)).thenReturn(false);
 
     this.search = new MFMockAStar(mock(MFMap.class), mockStart, mockGoal, 1,
-                                  EnumSet.of(MFEMovementType.WALK));
+                                  MFCapability.WALK);
     search.findPath();
   }
 
@@ -135,14 +134,14 @@ public class MFTemplateAStarTest
   public void shouldNotSearchPathEndingOnNarrowPassage()
   {
     MFTile mockStart = mock(MFTile.class);
-    when(mockStart.getClearance(MFEMovementType.WALK)).thenReturn(2);
-    when(mockStart.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockStart.getClearance(MFCapability.WALK)).thenReturn(2);
+    when(mockStart.isWalkable(MFCapability.WALK)).thenReturn(true);
     MFTile mockGoal = mock(MFTile.class);
-    when(mockGoal.getClearance(MFEMovementType.WALK)).thenReturn(1);
-    when(mockGoal.isWalkable(MFEMovementType.WALK)).thenReturn(true);
+    when(mockGoal.getClearance(MFCapability.WALK)).thenReturn(1);
+    when(mockGoal.isWalkable(MFCapability.WALK)).thenReturn(true);
 
     this.search = new MFMockAStar(mock(MFMap.class), mockStart, mockGoal, 2,
-                                  EnumSet.of(MFEMovementType.WALK));
+                                  MFCapability.WALK);
     search.findPath();
   }
 

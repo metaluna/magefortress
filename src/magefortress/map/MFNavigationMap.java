@@ -25,7 +25,6 @@
 package magefortress.map;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +35,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
+import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFEMovementType;
 
 /**
@@ -48,14 +48,15 @@ public class MFNavigationMap
    * Constructor
    * @param _map the underlying real map
    */
-  public MFNavigationMap(MFMap _map)
+  public MFNavigationMap(MFMap _map, MFClearanceCalculator _clearanceCalculator)
   {
     this.map = _map;
+    this.clearanceCalculator = _clearanceCalculator;
     this.entrances = new HashMap<MFLocation, MFSectionEntrance>();
     this.sections = new LinkedList<MFSection>();
-    this.movementCombinations = new HashMap<Integer, Set<EnumSet<MFEMovementType>>>();
-    Set<EnumSet<MFEMovementType>> setForClearance = new HashSet<EnumSet<MFEMovementType>>();
-    setForClearance.add(DEFAULT_CAPABILITIES);
+    this.movementCombinations = new HashMap<Integer, Set<MFCapability>>();
+    Set<MFCapability> setForClearance = new HashSet<MFCapability>();
+    setForClearance.add(DEFAULT_CAPABILITY);
     this.movementCombinations.put(DEFAULT_CLEARANCE, setForClearance);
   }
 
@@ -68,12 +69,12 @@ public class MFNavigationMap
    * Clears the list of entrances and re-calculates them for all depth levels
    * of the map.
    */
-  public void updateAllEntrances()
+  public void calculateAllLevels()
   {
     this.entrances.clear();
     this.sections.clear();
     for (int depth = 0; depth < this.map.getDepth(); ++depth) {
-      updateEntrances(depth);
+      calculateLevel(depth);
     }
   }
 
@@ -81,7 +82,7 @@ public class MFNavigationMap
    * Removes all entrances of the depth level and re-calculates them.
    * @param _depth the depth level
    */
-  public void updateEntrances(int _depth)
+  public void calculateLevel(int _depth)
   {
     // remove all entrances of the specified level before adding new ones
     for(Iterator<MFLocation> it = this.entrances.keySet().iterator(); it.hasNext(); ) {
@@ -111,7 +112,7 @@ public class MFNavigationMap
    * Adds a combination of clearance and movement types to the list of paths,
    * that will be searched.
    */
-  public void addMovementCombination(final int _clearance, final EnumSet<MFEMovementType> _capabilities)
+  public void addMovementCombination(final int _clearance, final MFCapability _capability)
   {
     if (_clearance < 1) {
       String msg = "Navigation Map: Cannot add movement combination with " +
@@ -119,27 +120,27 @@ public class MFNavigationMap
       logger.warning(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_capabilities == null || _capabilities.size() == 0) {
+    if (_capability == null || _capability == MFCapability.NONE) {
       String msg = "Navigation Map: Cannot add movement combination without " +
                     "any capabilities";
       logger.warning(msg);
       throw new IllegalArgumentException(msg);
     }
 
-    Set<EnumSet<MFEMovementType>> setForClearance = this.movementCombinations.get(_clearance);
+    Set<MFCapability> setForClearance = this.movementCombinations.get(_clearance);
     // check if a list for the clearance is already stored
     if (setForClearance == null) {
       // create a new list for the specified clearance and store it
-      setForClearance = new HashSet<EnumSet<MFEMovementType>>();
+      setForClearance = new HashSet<MFCapability>();
       this.movementCombinations.put(_clearance, setForClearance);
     }
     
-    boolean isDuplicate = setForClearance.contains(_capabilities);
+    boolean isDuplicate = setForClearance.contains(_capability);
     
     // duplicate -> log warning
     if (isDuplicate) {
       StringBuilder capabilitiesText = new StringBuilder();
-      for (MFEMovementType type : _capabilities) {
+      for (MFEMovementType type : _capability) {
         capabilitiesText.append(type.toString());
         capabilitiesText.append(" ");
       }
@@ -149,7 +150,7 @@ public class MFNavigationMap
 
     // add the combination to the list
     } else {
-      setForClearance.add(_capabilities);
+      setForClearance.add(_capability);
     }
   }
 
@@ -178,78 +179,23 @@ public class MFNavigationMap
 
   /**
    * Calculates all clearance values and stores them inside the tiles.
-   * @param _movementType The type of movement
+   * @param _capability The type of movement
    */
-  public void updateClearanceValues(MFEMovementType _movementType)
+  public void updateClearanceValues(MFCapability _capability)
   {
-    for (int z = 0; z < this.map.getDepth(); ++z) {
-      for (MFTile[] rows : this.map.getLevelMap(z)) {
-        for (MFTile tile : rows) {
-          int clearance = calculateClearance(tile, _movementType, 1);
-          tile.setClearance(_movementType, clearance);
-        }
-      }
-    }
+    this.clearanceCalculator.calculateAllLevels(_capability);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final Logger logger = Logger.getLogger(MFNavigationMap.class.getName());
   private final static int DEFAULT_CLEARANCE = 1;
-  private final static EnumSet<MFEMovementType> DEFAULT_CAPABILITIES = EnumSet.of(MFEMovementType.WALK);
+  private final static MFCapability DEFAULT_CAPABILITY = MFCapability.WALK;
 
   private final MFMap map;
+  private final MFClearanceCalculator clearanceCalculator;
   private final Map<MFLocation, MFSectionEntrance> entrances;
   private final List<MFSection> sections;
-  private final Map<Integer, Set<EnumSet<MFEMovementType>>> movementCombinations;
-
-  /**
-   * Calculates the clearance for one tile recursively
-   * @param _tile the tile to update
-   * @param _movementType the capability of the creature
-   * @param _clearance the size of the creature
-   * @return the highest possible clearance for this tile
-   */
-  private int calculateClearance(final MFTile _tile, 
-                      final MFEMovementType _movementType, final int _clearance)
-  {
-    // abort if clearance is the size of the map
-    if (_clearance > this.map.getWidth() - _tile.getPosX() ||
-        _clearance > this.map.getHeight() - _tile.getPosY()) {
-      return _clearance-1;
-    }
-
-    if (_clearance == 1) {
-      if (_tile.isWalkable(_movementType))
-        return calculateClearance(_tile, _movementType, _clearance+1);
-      else
-        return 0;
-    }
-
-    // test new row of tiles below the current one
-    final int startx = _tile.getPosX();
-    final int endx   = startx + _clearance;
-    int y = _tile.getPosY() + _clearance - 1;
-    for (int x = startx; x < endx; ++x) {
-      MFTile neighbor = this.map.getTile(x, y, _tile.getPosZ());
-      if (!neighbor.isWalkable(_movementType) ||
-           neighbor.hasWallNorth()) {
-        return _clearance - 1;
-      }
-    }
-    // test new column of tiles
-    final int starty = _tile.getPosY();
-    final int endy   = starty + _clearance;
-    int x = _tile.getPosX() + _clearance - 1;
-    for (y = starty; y < endy; ++y) {
-      MFTile neighbor = this.map.getTile(x, y, _tile.getPosZ());
-      if (!neighbor.isWalkable(_movementType) ||
-           neighbor.hasWallWest()) {
-        return _clearance - 1;
-      }
-    }
-
-    return calculateClearance(_tile, _movementType, _clearance+1);
-  }
+  private final Map<Integer, Set<MFCapability>> movementCombinations;
 
   /**
    * Scans the map and detects all tiles which might define an entrance. For
@@ -530,8 +476,8 @@ public class MFNavigationMap
   private void findConnections(final List<MFSection> _sections)
   {
     for (int clearance : this.movementCombinations.keySet()) {
-      for (EnumSet<MFEMovementType> capabilities : this.movementCombinations.get(clearance)) {
-        this.connectEntrances(_sections, clearance, capabilities);
+      for (MFCapability capability : this.movementCombinations.get(clearance)) {
+        this.connectEntrances(_sections, clearance, capability);
       }
     }
   }
@@ -541,9 +487,10 @@ public class MFNavigationMap
    * clearance and a set of capabilities.
    * @param _sections the sections which will be used
    * @param _clearance the clearance being used to test if a tile is accessible
-   * @param _capabilities the movement types a creature can use to access a tile
+   * @param _capability the movement types a creature can use to access a tile
    */
-  private void connectEntrances(final List<MFSection> _sections, final int _clearance, final EnumSet<MFEMovementType> _capabilities)
+  private void connectEntrances(final List<MFSection> _sections, 
+          final int _clearance, MFCapability _capability)
   {
     for (MFSection section : _sections) {
       for (MFSectionEntrance startEntrance : section.getEntrances()) {
@@ -556,7 +503,7 @@ public class MFNavigationMap
 
           // initialize search algorithm
           final MFAnnotatedAStar search = new MFAnnotatedAStar(this.map, startEntrance.getTile(),
-                  goalEntrance.getTile(), _clearance, _capabilities);
+                  goalEntrance.getTile(), _clearance, _capability);
 
           // search!
           MFAnnotatedPath foundPath = (MFAnnotatedPath) search.findPath();
@@ -571,7 +518,7 @@ public class MFNavigationMap
 
           // create the edge
           MFEdge edge = new MFEdge(startEntrance, goalEntrance,
-                              foundPath.getCost(), _clearance, _capabilities);
+                              foundPath.getCost(), _clearance, _capability);
           startEntrance.addEdge(edge);
         }
       }

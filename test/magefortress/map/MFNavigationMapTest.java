@@ -24,11 +24,10 @@
  */
 package magefortress.map;
 
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
-import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.core.MFLocation;
+import magefortress.creatures.behavior.movable.MFCapability;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -48,53 +47,10 @@ public class MFNavigationMapTest
     this.naviMap = createMap(WIDTH, HEIGHT, DEPTH);
   }
 
-  //--------------------------- CLEARANCE TESTS --------------------------------
-  @Test
-  public void shouldCalculateClearanceValuesOnEmptyMap()
-  {
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-
-    for (int x = 0; x < WIDTH; ++x) {
-      for (int y = 0; y < HEIGHT; ++y) {
-        for (int z = 0; z < DEPTH; ++z) {
-        //System.out.println("Testing tile " + tile.getPosX() + "/" + tile.getPosY() + "/" + tile.getPosZ());
-        int expClearance = Math.min(WIDTH, HEIGHT) - Math.max(x, y);
-        assertEquals(expClearance, this.map.getTile(x, y, z).getClearance(MFEMovementType.WALK));
-        }
-      }
-    }
-  }
-
-  @Test
-  public void shouldCalculateClearanceWithObstacles()
-  {
-    //setup
-    this.map.getTile(2, 2, 0).setDugOut(false);
-
-    this.naviMap.updateClearanceValues(MFEMovementType.WALK);
-
-    int expClearance = 0;
-    int gotClearance = this.map.getTile(2, 2, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = 2;
-    gotClearance = this.map.getTile(0, 0, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = 1;
-    gotClearance = this.map.getTile(1, 1, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-
-    expClearance = Math.max(WIDTH, HEIGHT) - 3;
-    gotClearance = this.map.getTile(3, 3, 0).getClearance(MFEMovementType.WALK);
-    assertEquals(expClearance, gotClearance);
-  }
-
-  //-------------------- ENTRANCES & SECTIONS TEST -----------------------------
   @Test
   public void shouldNotFindEntrances()
   {
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
 
@@ -132,7 +88,7 @@ public class MFNavigationMapTest
     MFTile entrance = this.map.getTile(2, 2, 0);
     entrance.setWalls(true, false, true, false);
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(1, entrances.size());
     MFLocation expLocation = entrance.getLocation();
@@ -196,7 +152,7 @@ public class MFNavigationMapTest
     possibleEntrances.add(new MFLocation(5,2,0));
 
     //this.map.calculateClearanceValues(MFEMovementType.WALK);
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
 
     // check entrances
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
@@ -259,7 +215,7 @@ public class MFNavigationMapTest
      this.map.getTile(x, 3, 0).setDugOut(false);
     }
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
 
@@ -301,7 +257,7 @@ public class MFNavigationMapTest
      this.map.getTile(x, 3, 0).setDugOut(false);
     }
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(1, entrances.size());
 
@@ -340,7 +296,7 @@ public class MFNavigationMapTest
     this.map.getTile(3, 3, 0).setWallWest(true);
     this.map.getTile(3, 4, 0).setWallWest(true);
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(1, entrances.size());
 
@@ -386,7 +342,7 @@ public class MFNavigationMapTest
     this.map.getTile(1, 3, 0).setWallEast(true);
     this.map.getTile(1, 2, 0).setWallEast(true);
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
 
@@ -415,7 +371,7 @@ public class MFNavigationMapTest
     this.map.getTile(3, 0, 0).setWallWest(true);
     this.map.getTile(3, 1, 0).setWallWest(true);
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
 
@@ -448,7 +404,7 @@ public class MFNavigationMapTest
     }
     this.map.getTile(3, 2, 0).setDugOut(false);
 
-    this.naviMap.updateAllEntrances();
+    this.naviMap.calculateAllLevels();
     List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
     assertEquals(0, entrances.size());
 
@@ -463,7 +419,7 @@ public class MFNavigationMapTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddCombinationWithIllegalClearance()
   {
-    this.naviMap.addMovementCombination(0, EnumSet.allOf(MFEMovementType.class));
+    this.naviMap.addMovementCombination(0, MFCapability.WALK_FLY);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -475,20 +431,20 @@ public class MFNavigationMapTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddCombinationWithZeroCapabilities()
   {
-    this.naviMap.addMovementCombination(1, EnumSet.noneOf(MFEMovementType.class));
+    this.naviMap.addMovementCombination(1, MFCapability.NONE);
   }
 
   @Test
   public void shouldAddMovementCombination()
   {
-    this.naviMap.addMovementCombination(1, EnumSet.allOf(MFEMovementType.class));
+    this.naviMap.addMovementCombination(1, MFCapability.WALK_FLY);
   }
 
   @Test
   public void shouldAddDuplicateMovementCombinationWithoutError()
   {
-    this.naviMap.addMovementCombination(2, EnumSet.allOf(MFEMovementType.class));
-    this.naviMap.addMovementCombination(2, EnumSet.allOf(MFEMovementType.class));
+    this.naviMap.addMovementCombination(2, MFCapability.WALK_FLY);
+    this.naviMap.addMovementCombination(2, MFCapability.WALK_FLY);
   }
 
   //---vvv---     PRIVATE METHODS    ---vvv---
@@ -509,8 +465,9 @@ public class MFNavigationMapTest
         }
       }
     }
-    MFNavigationMap result = new MFNavigationMap(this.map);
-    result.updateClearanceValues(MFEMovementType.WALK);
-    return new MFNavigationMap(map);
+    MFClearanceCalculator clearanceCalc = new MFClearanceCalculator(this.map);
+    MFNavigationMap result = new MFNavigationMap(this.map, clearanceCalc);
+    result.updateClearanceValues(MFCapability.WALK);
+    return result;
   }
 }

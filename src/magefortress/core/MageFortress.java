@@ -162,22 +162,26 @@ public class MageFortress extends JFrame implements Runnable
 //    }
     MFImageLibrary imgLib = MFImageLibrary.getInstance();
     MFGame game = MFGame.loadGame(DEMOMAP_ID, imgLib, daoFactory);
+    summonSticky(imgLib, game, new MFLocation(0,0,0));
+//    summonSticky(imgLib, game, new MFLocation(0,1,0));
+//    summonSticky(imgLib, game, new MFLocation(1,0,0));
 
-    // Testing creatures
-    MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
-    MFCreature sticky1 = new MFGameObjectFactory(imgLib, new MFJobFactory(game), game.getMap(), game).createCreature(stickies);
-    sticky1.setLocation(new MFLocation(3, 3, 0));
-    EnumMap<MFEJob, Integer> toolSkills = new EnumMap<MFEJob, Integer>(MFEJob.class);
-    sticky1.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky1, toolSkills));
-    MFTool tool = new MFTool("Pick",MFEJob.DIGGING, 
-                  MFChannelFactory.getInstance().getChannel(MFEJob.DIGGING),
-                  MFEToolLevel.APPRENTICE, 50, 100);
-    sticky1.addTool(tool);
-    game.addCreature(sticky1);
-    
     MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
     game.setScreen(gameScreen);
     screenStack.push(gameScreen);
+  }
+
+  private void summonSticky(MFImageLibrary _imgLib, MFGame _game, MFLocation _location)
+  {
+    // Testing creatures
+    MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
+    MFCreature sticky1 = new MFGameObjectFactory(_imgLib, new MFJobFactory(_game), _game.getMap(), _game).createCreature(stickies);
+    sticky1.setLocation(_location);
+    EnumMap<MFEJob, Integer> toolSkills = new EnumMap<MFEJob, Integer>(MFEJob.class);
+    sticky1.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky1, toolSkills));
+    MFTool tool = new MFTool("Pick", MFEJob.DIGGING, MFChannelFactory.getInstance().getChannel(MFEJob.DIGGING), MFEToolLevel.APPRENTICE, 50, 100);
+    sticky1.addTool(tool);
+    _game.addCreature(sticky1);
   }
 
   /**
@@ -206,7 +210,7 @@ public class MageFortress extends JFrame implements Runnable
   public static void main(String[] args)
   {
     MageFortress game = new MageFortress();
-    Logger.getLogger("").setLevel(Level.ALL);
+    Logger.getLogger("").setLevel(Level.FINEST);
     logger.config("Setting log level to " + Logger.getLogger("").getLevel());
     Thread loop = new Thread(game);
     loop.start();

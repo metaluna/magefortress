@@ -24,7 +24,6 @@
  */
 package magefortress.creatures.behavior.movable;
 
-import java.util.EnumSet;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 
@@ -61,9 +60,9 @@ public class MFMockMovable implements MFIMovable
     return new MFLocation(1,1,1);
   }
 
-  public EnumSet<MFEMovementType> getCapabilities()
+  public MFCapability getCapability()
   {
-    return EnumSet.of(MFEMovementType.WALK);
+    return MFCapability.WALK;
   }
 
   public int getClearance()
