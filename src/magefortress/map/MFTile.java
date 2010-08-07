@@ -272,47 +272,17 @@ public class MFTile implements MFIPaintable, MFISaveable
   {
     final int x = posX * TILESIZE + _x_translation;
     final int y = posY * TILESIZE + _y_translation;
-    // paint floor
-    if (this.isUnderground()) {
-      if (!this.hasFloor()) {
-        _g.setColor(Color.BLUE); 
-      } else if (this.isDugOut()) {
-        _g.setColor(Color.LIGHT_GRAY);
-      } else {
-        _g.setColor(Color.BLACK);
-      }
-    } else {
-      _g.setColor(Color.GREEN);
-    }
 
-    _g.fillRect(x, y, TILESIZE, TILESIZE);
+    paintFloor(_g, x, y);
 
     if (this.isDugOut()) {
-      // paint walls
-      _g.setColor(Color.DARK_GRAY);
-      final int wallLength = TILESIZE-WALL_WIDTH*2;
-
-      if (this.hasWallNorth()) {
-        _g.fillRect(x + WALL_WIDTH, y, wallLength, WALL_WIDTH);
-      }
-      if (this.hasWallEast()) {
-        _g.fillRect(x + wallLength + WALL_WIDTH, y + WALL_WIDTH, WALL_WIDTH, wallLength);
-      }
-      if (this.hasWallSouth()) {
-        _g.fillRect(x + WALL_WIDTH, y + wallLength + WALL_WIDTH, wallLength, WALL_WIDTH);
-      }
-      if (this.hasWallWest()) {
-        _g.fillRect(x, y + WALL_WIDTH, WALL_WIDTH, wallLength);
-      }
-
-      // paint corners
-      this.paintCorner(_g, MFEDirection.NE, x + wallLength + WALL_WIDTH, y);
-      this.paintCorner(_g, MFEDirection.SE, x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH);
-      this.paintCorner(_g, MFEDirection.SW, x, y + wallLength + WALL_WIDTH);
-      this.paintCorner(_g, MFEDirection.NW, x, y);
-
+      paintWalls(_g, x, y);
     }
 
+    if (PRINT_CLEARANCE) {
+      int clearance = this.naviInfo.getClearance(MFEMovementType.WALK);
+      _g.drawString("" + clearance, x+TILESIZE/2, y+TILESIZE/2);
+    }
 
     //TODO paint objects placed on the tile
   }
@@ -463,6 +433,7 @@ public class MFTile implements MFIPaintable, MFISaveable
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private final static boolean PRINT_CLEARANCE = false;
   private static final int WALL_WIDTH = 12;
   private static final Logger logger = Logger.getLogger(MFTile.class.getName());
 
@@ -482,6 +453,72 @@ public class MFTile implements MFIPaintable, MFISaveable
   private LinkedList<MFITileConstructionsListener> constructionsListeners;
   /** Items placed on the tile like furniture, food or dropped clothes */
   private MFIPlaceable placedObject;
+
+  /**
+   * Paints the floor
+   * @param _g The canvas
+   * @param x The x-coordinate of the top-left position of the tile
+   * @param y The y-coordinate of the top-left position of the tile
+   */
+  private void paintFloor(Graphics2D _g, final int x, final int y)
+  {
+    // paint floor
+    if (this.isUnderground()) {
+      if (!this.hasFloor()) {
+        _g.setColor(Color.BLUE);
+      } else if (this.isDugOut()) {
+        _g.setColor(Color.LIGHT_GRAY);
+      } else {
+        _g.setColor(Color.BLACK);
+      }
+    } else {
+      _g.setColor(Color.GREEN);
+    }
+    _g.fillRect(x, y, TILESIZE, TILESIZE);
+  }
+
+  /**
+   * Paints the walls
+   * @param _g The canvas
+   * @param x The x-coordinate of the top-left position of the tile
+   * @param y The y-coordinate of the top-left position of the tile
+   */
+  private void paintWalls(Graphics2D _g, final int x, final int y)
+  {
+    _g.setColor(Color.DARK_GRAY);
+
+    final int wallLength = TILESIZE - WALL_WIDTH * 2;
+
+    if (this.hasWallNorth()) {
+      _g.fillRect(x + WALL_WIDTH, y, wallLength, WALL_WIDTH);
+    }
+    if (this.hasWallEast()) {
+      _g.fillRect(x + wallLength + WALL_WIDTH, y + WALL_WIDTH, WALL_WIDTH, wallLength);
+    }
+    if (this.hasWallSouth()) {
+      _g.fillRect(x + WALL_WIDTH, y + wallLength + WALL_WIDTH, wallLength, WALL_WIDTH);
+    }
+    if (this.hasWallWest()) {
+      _g.fillRect(x, y + WALL_WIDTH, WALL_WIDTH, wallLength);
+    }
+
+    paintCorners(_g, x, y, wallLength);
+  }
+
+  /**
+   * Paints the corners
+   * @param _g The canvas
+   * @param x The x-coordinate of the top-left position of the tile
+   * @param y The y-coordinate of the top-left position of the tile
+   * @param wallLength The length of the wall (vs. the space occupied by the corners)
+   */
+  private void paintCorners(Graphics2D _g, final int x, final int y, final int wallLength)
+  {
+    this.paintCorner(_g, MFEDirection.NE, x + wallLength + WALL_WIDTH, y);
+    this.paintCorner(_g, MFEDirection.SE, x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH);
+    this.paintCorner(_g, MFEDirection.SW, x, y + wallLength + WALL_WIDTH);
+    this.paintCorner(_g, MFEDirection.NW, x, y);
+  }
 
   private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
   {
