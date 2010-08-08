@@ -25,6 +25,7 @@
 package magefortress.creatures;
 
 import magefortress.channel.MFChannelMessage;
+import magefortress.channel.MFIChannelSender;
 import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.holdable.MFMockHoldable;
 import magefortress.creatures.behavior.movable.MFMockMovable;
@@ -143,6 +144,9 @@ public class MFCreatureTest
     this.creature.setJobQueue(mockQueue);
 
     MFChannelMessage mockMessage = mock(MFChannelMessage.class);
+    MFIChannelSender mockSender = mock(MFIChannelSender.class);
+    when(mockMessage.getSender()).thenReturn(mockSender);
+    when(mockSender.getLocation()).thenReturn(MFLocation.NOWHERE);
     this.creature.update(mockMessage);
 
     verify(mockQueue).addMessage(mockMessage);

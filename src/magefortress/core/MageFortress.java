@@ -39,6 +39,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.util.Properties;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -58,13 +60,6 @@ import magefortress.storage.MFDaoFactory;
  */
 public class MageFortress extends JFrame implements Runnable
 {
-  private static final long serialVersionUID = 927348798723947L;
-  private static final String VERSION = "0.1";
-  private static final int FPS = 50;
-
-  private MFScreensManager screenStack;
-  private Canvas canvas;
-
   /**
    * Constructor
    */
@@ -78,6 +73,7 @@ public class MageFortress extends JFrame implements Runnable
   /**
    * The main game loop
    */
+  @Override
   public void run()
   {
     // visible screen
@@ -162,26 +158,27 @@ public class MageFortress extends JFrame implements Runnable
 //    }
     MFImageLibrary imgLib = MFImageLibrary.getInstance();
     MFGame game = MFGame.loadGame(DEMOMAP_ID, imgLib, daoFactory);
-    summonSticky(imgLib, game, new MFLocation(0,0,0));
-//    summonSticky(imgLib, game, new MFLocation(0,1,0));
-//    summonSticky(imgLib, game, new MFLocation(1,0,0));
+    summonSticky(imgLib, game, new MFLocation(0,0,0), "Sticky 000");
+//    summonSticky(imgLib, game, new MFLocation(0,1,0), "Sticky 010");
+//    summonSticky(imgLib, game, new MFLocation(1,0,0), "Sticky 100");
 
     MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
     game.setScreen(gameScreen);
     screenStack.push(gameScreen);
   }
 
-  private void summonSticky(MFImageLibrary _imgLib, MFGame _game, MFLocation _location)
+  private void summonSticky(MFImageLibrary _imgLib, MFGame _game, MFLocation _location, String _name)
   {
     // Testing creatures
     MFRace stickies = new MFRace(-1, "Sticky", MFWalksOnTwoLegs.class, MFNullHoldable.class);
-    MFCreature sticky1 = new MFGameObjectFactory(_imgLib, new MFJobFactory(_game), _game.getMap(), _game).createCreature(stickies);
-    sticky1.setLocation(_location);
+    MFCreature sticky = new MFGameObjectFactory(_imgLib, new MFJobFactory(_game), _game.getMap(), _game).createCreature(stickies);
+    sticky.setName(_name);
+    sticky.setLocation(_location);
     EnumMap<MFEJob, Integer> toolSkills = new EnumMap<MFEJob, Integer>(MFEJob.class);
-    sticky1.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky1, toolSkills));
+    sticky.setToolUsingBehavior(new MFUnlimitedToolbelt(sticky, toolSkills));
     MFTool tool = new MFTool("Pick", MFEJob.DIGGING, MFChannelFactory.getInstance().getChannel(MFEJob.DIGGING), MFEToolLevel.APPRENTICE, 50, 100);
-    sticky1.addTool(tool);
-    _game.addCreature(sticky1);
+    sticky.addTool(tool);
+    _game.addCreature(sticky);
   }
 
   /**
@@ -209,17 +206,28 @@ public class MageFortress extends JFrame implements Runnable
    */
   public static void main(String[] args)
   {
+    Handler handler = new ConsoleHandler();
+    handler.setLevel(Level.INFO);
+    Logger appLogger = Logger.getLogger("magefortress");
+    appLogger.addHandler(handler);
+    appLogger.setLevel(Level.INFO);
+    appLogger.setUseParentHandlers(false);
+    appLogger.config("Setting log level to " + Logger.getLogger("").getLevel());
+
     MageFortress game = new MageFortress();
-    Logger.getLogger("").setLevel(Level.FINEST);
-    logger.config("Setting log level to " + Logger.getLogger("").getLevel());
     Thread loop = new Thread(game);
     loop.start();
   }
 
   private static final Logger logger = Logger.getLogger(MageFortress.class.getName());
+  private static final long serialVersionUID = 927348798723947L;
+  private static final String VERSION = "0.1";
+  private static final int FPS = 50;
   private static final MFDaoFactory.Storage STORAGE = MFDaoFactory.Storage.SQL;
   private static final String DATABASE              = "magefortress.db";
   private static final int DEMOMAP_ID               = 1;
 
+  private MFScreensManager screenStack;
+  private Canvas canvas;
 
 }

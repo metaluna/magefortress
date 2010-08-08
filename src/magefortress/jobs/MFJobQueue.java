@@ -165,6 +165,8 @@ public class MFJobQueue
       if (jobAd.getSender().isJobAvailable()) {
         result = jobAd.getSender().getJob();
         result.setOwner(this.owner);
+        logger.fine("Job@" + result.getSender().getLocation() + " accepted by " +
+                this.owner.getName());
         break;
       }
     }

@@ -415,6 +415,77 @@ public class MFNavigationMapTest
     assertEquals(expTileCount, gotTileCount);
   }
 
+  @Test
+  public void shouldFindEntranceAtTunnelBeginning()
+  {
+    this.naviMap = createMap(5, 5, 1);
+    /*
+     *  _______
+     * |       |
+     * |       |
+     * |E _____|
+     * |_|/////|
+     */
+
+    this.map.getTile(0, 4, 0).setWallEast(true);
+    
+    for (int x = 1; x < 5; ++x) {
+      this.map.getTile(x, 4, 0).setDugOut(false);
+      this.map.getTile(x, 3, 0).setWallSouth(true);
+    }
+    
+    this.naviMap.calculateAllLevels();
+    List<MFSectionEntrance> entrances = this.naviMap.getEntrances();
+    assertEquals(1, entrances.size());
+
+    List<MFSection> sections = this.naviMap.getSections();
+    assertEquals(2, sections.size());
+  }
+
+  @Test
+  public void shouldFindEntranceAfterDigging()
+  {
+    // given a map with 1 section
+    this.naviMap = createMap(5, 5, 1);
+    /*
+     *  _______
+     * |       |
+     * |       |
+     * |E _____|
+     * |X|/////|
+     */
+
+    for (int x = 0; x < 5; ++x) {
+      this.map.getTile(x, 4, 0).setDugOut(false);
+      this.map.getTile(x, 3, 0).setWallSouth(true);
+    }
+
+    this.naviMap.calculateAllLevels();
+
+    int expSectionCount = 1;
+    int gotSectionCount = this.naviMap.getSections().size();
+    assertEquals(expSectionCount, gotSectionCount);
+
+    // when i dig out a tile
+    final MFLocation diggingLocation = new MFLocation(0,4,0);
+    this.map.digOut(diggingLocation);
+    this.naviMap.calculateAllLevels();
+
+    // then 2 sections should be found
+    expSectionCount = 2;
+    gotSectionCount = this.naviMap.getSections().size();
+    assertEquals(expSectionCount, gotSectionCount);
+
+    // and 1 entrance should be found
+    int expEntranceCount = 1;
+    int gotEntranceCount = this.naviMap.getEntrances().size();
+    assertEquals(expEntranceCount, gotEntranceCount);
+
+    MFLocation expLocation = new MFLocation(0,3,0);
+    MFLocation gotLocation = this.naviMap.getEntrances().get(0).getLocation();
+    assertEquals(expLocation, gotLocation);
+  }
+
   //--------------------- addMovementCombination() TESTS -----------------------
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotAddCombinationWithIllegalClearance()

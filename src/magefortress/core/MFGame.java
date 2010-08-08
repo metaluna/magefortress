@@ -94,7 +94,10 @@ public class MFGame implements MFIConstructionSiteListener
   public void update()
   {
     removeMarkedConstructionSites();
-
+    if (mapDataChanged) {
+      this.initPathFinder();
+      this.mapDataChanged = false;
+    }
     processCommunicationChannels();
     processCreatures();
     processConstructionSites();
@@ -210,8 +213,7 @@ public class MFGame implements MFIConstructionSiteListener
   public void constructionSiteFinished(MFConstructionSite _constructionSite)
   {
     this.removeConstructionSite(_constructionSite.getLocation());
-    this.naviMap.updateClearanceValues(MFCapability.WALK);
-    this.naviMap.calculateAllLevels();
+    this.mapDataChanged = true;
   }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
@@ -236,6 +238,9 @@ public class MFGame implements MFIConstructionSiteListener
   private final MFNavigationMap naviMap;
   /** Holds a queue of path searches */
   private final MFPathFinder pathFinder;
+
+  private boolean mapDataChanged;
+
   /** The logger */
   private static final Logger logger = Logger.getLogger(MFGame.class.getName());
 

@@ -366,6 +366,110 @@ public class MFHierarchicalAStarTest
 
   }
 
+  @Test
+  public void shouldFindPathStartingAtEntrance()
+  {
+    // given a map with 2 sections
+    this.naviMap = createMap(5, 5, 1);
+    /*
+     *  _______
+     * |       |
+     * |       |
+     * |A _B___|
+     * |_|/////|
+     */
+
+    this.map.getTile(0, 4, 0).setWallEast(true);
+
+    for (int x = 1; x < 5; ++x) {
+      this.map.getTile(x, 4, 0).setDugOut(false);
+      this.map.getTile(x, 3, 0).setWallSouth(true);
+    }
+
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
+
+    final int expSectionCount = 2;
+    final int gotSectionCount = this.naviMap.getSections().size();
+    assertEquals(expSectionCount, gotSectionCount);
+
+    // and i am standing on an entrance tile
+    final MFTile startTile = this.map.getTile(0, 3, 0);
+    assertNotNull(startTile.getEntrance());
+
+    // when i want to go to a normal tile
+    final MFTile goalTile  = this.map.getTile(2, 3, 0);
+    assertNull(goalTile.getEntrance());
+
+    final int clearance = 1;
+    final MFCapability capability = MFCapability.WALK;
+    this.search = new MFHierarchicalAStar(this.map, startTile, goalTile,
+                                      clearance, capability, this.pathFinder);
+    final MFPath path = this.search.findPath();
+
+    // then a direct path should be found
+    assertNotNull(path);
+    assertTrue(path instanceof MFAnnotatedPath);
+    assertEquals(2, path.getLength());
+  }
+
+  @Test
+  public void shouldFindPathFromEntranceFoundAfterDigging()
+  {
+    // given a map with 1 section
+    this.naviMap = createMap(5, 5, 1);
+    /*
+     *  _______
+     * |       |
+     * |       |
+     * |A _B___|
+     * |X|/////|
+     */
+
+    for (int x = 0; x < 5; ++x) {
+      this.map.getTile(x, 4, 0).setDugOut(false);
+      this.map.getTile(x, 3, 0).setWallSouth(true);
+    }
+
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
+
+    final int expSectionCount = 1;
+    final int gotSectionCount = this.naviMap.getSections().size();
+    assertEquals(expSectionCount, gotSectionCount);
+
+
+    // and i am standing on a non-entance tile
+    final MFTile startTile = this.map.getTile(0, 3, 0);
+    assertNull(startTile.getEntrance());
+    assertNotNull(startTile.getParentSection());
+
+    // when i dig out a tile
+    final MFLocation diggingLocation = new MFLocation(0,4,0);
+    this.map.digOut(diggingLocation);
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
+
+    // then i should be standing on an entrance tile
+    assertNotNull(startTile.getEntrance());
+    assertNotNull(startTile.getParentSection());
+
+    // when i want to go to a normal tile
+    final MFTile goalTile  = this.map.getTile(2, 3, 0);
+    assertNull(goalTile.getEntrance());
+
+    final int clearance = 1;
+    final MFCapability capability = MFCapability.WALK;
+    this.search = new MFHierarchicalAStar(this.map, startTile, goalTile,
+                                      clearance, capability, this.pathFinder);
+    final MFPath path = this.search.findPath();
+
+    // then a direct path should be found
+    assertNotNull(path);
+    assertTrue(path instanceof MFAnnotatedPath);
+    assertEquals(2, path.getLength());
+  }
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
   private MFNavigationMap createMap(int _width, int _height, int _depth)

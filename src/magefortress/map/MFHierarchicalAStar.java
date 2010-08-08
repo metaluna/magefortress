@@ -28,6 +28,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import magefortress.core.MFEDirection;
 import magefortress.creatures.behavior.movable.MFCapability;
 
 /**
@@ -64,7 +65,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     MFPath foundPath = null;
     
     // start and goal are lying in the same section
-    if (this.getStart().getParentSection() == this.getGoal().getParentSection()) {
+    if (areInSameSection(this.getStart(), this.getGoal())) {
       final MFAnnotatedAStar search = 
               new MFAnnotatedAStar(this.getMap(), this.getStart(),
                   this.getGoal(), this.getClearance(), this.getCapability());
@@ -119,6 +120,41 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     }
     
     return foundPath;
+  }
+
+  /**
+   * Tests if start and goal are in the same section, so that a simple annotated
+   * path search can be used.
+   * @return <code>true</code> if both tiles are in the same section or are entrances
+   *         connected to the same section
+   */
+  private boolean areInSameSection(final MFTile _start, final MFTile _goal)
+  {
+    // same section
+    boolean result =  _start.getParentSection() == _goal.getParentSection();
+
+    // start is entrance and connects to goal section
+    if (!result && _start.getEntrance() != null) {
+      result = isEntranceConnectedToSection(_start, _goal.getParentSection());
+    }
+    // goal is entrance and connects to start section
+    if (!result && _goal.getEntrance() != null) {
+      result = isEntranceConnectedToSection(_goal, _start.getParentSection());
+    }
+
+    return result;
+  }
+
+  private boolean isEntranceConnectedToSection(final MFTile _entranceTile, final MFSection _section)
+  {
+    boolean result = false;
+    for (MFEDirection dir : MFEDirection.values()) {
+      MFTile neighbor = this.getMap().getNeighbor(_entranceTile, dir);
+      if (neighbor != null && neighbor.getParentSection() == _section) {
+        result = true;
+      }
+    }
+    return result;
   }
 
   @Override

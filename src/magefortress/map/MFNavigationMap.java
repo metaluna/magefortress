@@ -209,25 +209,33 @@ public class MFNavigationMap
 
     for (final MFTile[] rows : _tiles) {
       for (final MFTile tile : rows) {
+        boolean isEntrance = true;
         // skip if tile is not underground or not dug out or without a floor
         if (!tile.isUnderground() || !tile.isDugOut() || !tile.hasFloor()) {
-          continue;
+          isEntrance = false;
         }
         // skip if clearance > 1
         //if (tile.getClearance(MFEMovementType.WALK) > 1){
         //  continue;
         //}
         // skip if a neighbor is an entrance
-        if (hasNeighboringEntrance(tile, potentialEntrances)) {
-          continue;
+        if (isEntrance && hasNeighboringEntrance(tile, potentialEntrances)) {
+          isEntrance = false;
         }
         // skip this tile if it doesn't divide two groups
-        if (!dividesGroups(tile)) {
-          continue;
+        if (isEntrance && !dividesGroups(tile)) {
+          isEntrance = false;
         }
+
         // all tests passed - entrance found!
-        MFSectionEntrance entrance = new MFSectionEntrance(tile);
-        potentialEntrances.put(tile.getLocation(), entrance);
+        if (isEntrance) {
+          MFSectionEntrance entrance = new MFSectionEntrance(tile);
+          potentialEntrances.put(tile.getLocation(), entrance);
+        // remove entrance from tile
+        } else {
+          tile.setEntrance(null);
+        }
+
       }
     }
     Map<MFLocation, MFSectionEntrance> result = this.collapseCloseEntrances(potentialEntrances);
@@ -243,7 +251,8 @@ public class MFNavigationMap
   private boolean hasNeighboringEntrance(final MFTile _tile,
                         final HashMap<MFLocation, MFSectionEntrance> _entrances)
   {
-    for (MFEDirection direction : MFEDirection.values()) {
+    MFEDirection[] previous = {MFEDirection.N, MFEDirection.NW, MFEDirection.W};
+    for (MFEDirection direction : previous) {
       MFTile neighbor = this.map.getNeighbor(_tile, direction);
       if (neighbor != null && _entrances.containsKey(neighbor.getLocation())) {
         return true;
@@ -383,46 +392,39 @@ public class MFNavigationMap
         // get top and left neighbors
         final MFTile neighborN = this.map.getNeighbor(tile, MFEDirection.N);
         final MFTile neighborW = this.map.getNeighbor(tile, MFEDirection.W);
-        boolean hasNeighborN = this.map.canWalkTo(tile, neighborN, MFEDirection.N);
-        boolean hasNeighborW = this.map.canWalkTo(tile, neighborW, MFEDirection.W);
+        boolean hasNonEntranceNeighborN = this.map.canWalkTo(tile, neighborN, MFEDirection.N);
+        boolean hasNonEntranceNeighborW = this.map.canWalkTo(tile, neighborW, MFEDirection.W);
         // get the reachable surrounding entrances
         MFSectionEntrance entranceN = null;
         MFSectionEntrance entranceW = null;
-        if (hasNeighborN) entranceN = neighborN.getEntrance();
-        if (hasNeighborW) entranceW = neighborW.getEntrance();
-        hasNeighborN &= (entranceN == null);
-        hasNeighborW &= (entranceW == null);
+        if (hasNonEntranceNeighborN) entranceN = neighborN.getEntrance();
+        if (hasNonEntranceNeighborW) entranceW = neighborW.getEntrance();
+        hasNonEntranceNeighborN &= (entranceN == null);
+        hasNonEntranceNeighborW &= (entranceW == null);
 
+        MFSection section;
         // tile has no neighbors -> start a new section
-        if (!hasNeighborN && !hasNeighborW) {
-          MFSection section = new MFSection(this.map, _depth);
-          section.addTile(tile);
+        if (!hasNonEntranceNeighborN && !hasNonEntranceNeighborW) {
+          section = new MFSection(this.map, _depth);
           result.add(section);
         // tile is connected to two neighbors -> check if they belong to different
         // sections
-        } else if (hasNeighborN && hasNeighborW) {
+        } else if (hasNonEntranceNeighborN && hasNonEntranceNeighborW) {
           MFSection sectionN = neighborN.getParentSection();
           MFSection sectionW = neighborW.getParentSection();
-          // same sections -> add tile to it
+          // same section -> add tile to one of it
           if (sectionN == sectionW) {
-            sectionN.addTile(tile);
+            section = sectionN;
           // different sections -> tile connects both sections -> unite them
           } else {
-            MFSection union = sectionN.uniteWith(sectionW);
-            union.addTile(tile);
-            // remove empty section
-            if (sectionN.getSize() == 0) {
-              result.remove(sectionN);
-            } else {
-              result.remove(sectionW);
-            }
+            section = uniteSections(sectionN, sectionW, result);
           }
         // tile is connected to one neighbor -> add tile to neighbor's section
         } else {
-          MFTile neighbor = (hasNeighborN ? neighborN : neighborW);
-          MFSection section = neighbor.getParentSection();
-          section.addTile(tile);
+          MFTile neighbor = (hasNonEntranceNeighborN ? neighborN : neighborW);
+          section = neighbor.getParentSection();
         }
+        section.addTile(tile);
 
         // add entrances to the section
         MFSectionEntrance entranceS = null;
@@ -465,6 +467,26 @@ public class MFNavigationMap
       }//-- column loop
     }//-- row loop
     
+    return result;
+  }
+
+  /**
+   * Unites two sections, adds and removes the empty one from the list of sections.
+   * @param _section1 The first section
+   * @param _section2 The second section
+   * @param _sections The list of sections
+   */
+  private MFSection uniteSections(final MFSection _section1, final MFSection _section2,
+                                  final List<MFSection> _sections)
+  {
+    MFSection result = _section1.uniteWith(_section2);
+    // remove empty section
+    if (_section1.getSize() == 0) {
+      _sections.remove(_section1);
+    } else {
+      _sections.remove(_section2);
+    }
+
     return result;
   }
 
