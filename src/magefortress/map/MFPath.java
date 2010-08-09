@@ -40,7 +40,7 @@ public abstract class MFPath implements Iterator<MFEDirection>
    * @param _start the starting tile
    * @param _goal the target tile
    */
-  public MFPath(final MFTile _start, final MFTile _goal)
+  public MFPath(final MFTile _start, final MFTile _goal, final int _cost)
   {
     if (_start == null) {
       String msg = "Path: Cannot create path without starting tile.";
@@ -52,8 +52,16 @@ public abstract class MFPath implements Iterator<MFEDirection>
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
+    if (_cost < 1) {
+      String msg = "Path " + _start.getLocation() + "->" +
+                    _goal.getLocation() + ": Cannot create path " +
+                    "with path cost of " + _cost + ". Has to be at least 1.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.start  = _start;
     this.goal   = _goal;
+    this.cost   = _cost;
     this.isPathValid = true;
   }
 
@@ -93,10 +101,14 @@ public abstract class MFPath implements Iterator<MFEDirection>
   }
 
   /**
-   * The length of the path. The length is always positive.
-   * @return the length of the path (> 0)
+   * Gets the cost of traversing the path in weighted units. Currently every
+   * tile moved equals one unit.
+   * @return the length of the path
    */
-  abstract public int getLength();
+  public int getCost()
+  {
+    return this.cost;
+  }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Logger */
@@ -106,6 +118,8 @@ public abstract class MFPath implements Iterator<MFEDirection>
   private final MFTile start;
   /** Target tile */
   private final MFTile goal;
+  /** Length of path at calculation */
+  private final int cost;
   
   /** <code>true</code> if we can reach the goal */
   private boolean isPathValid;

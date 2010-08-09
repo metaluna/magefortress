@@ -41,12 +41,12 @@ public class MFAnnotatedPath extends MFPath
    * @param _start the starting tile
    * @param _goal the target tile
    * @param _directions the list of directions to reach the target tile
-   * @param _pathCost the cost to traverse the path in weighted units
+   * @param _cost the cost to traverse the path in weighted units
    */
   MFAnnotatedPath(final MFTile _start, final MFTile _goal,
-                  final Deque<MFEDirection> _directions, final int _pathCost)
+                  final Deque<MFEDirection> _directions, final int _cost)
   {
-    super(_start, _goal);
+    super(_start, _goal, _cost);
     if (_directions == null || _directions.isEmpty()) {
       String msg = "Annotated Path " + this.getStart().getLocation() + "->" +
                     this.getGoal().getLocation() + ": Cannot create path " +
@@ -54,15 +54,7 @@ public class MFAnnotatedPath extends MFPath
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_pathCost < 1) {
-      String msg = "Annotated Path " + this.getStart().getLocation() + "->" +
-                    this.getGoal().getLocation() + ": Cannot create path " +
-                    "with path cost of " + _pathCost + ". Has to be at least 1.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
     this.path = _directions;
-    this.pathCost = _pathCost;
   }
 
   /**
@@ -121,31 +113,11 @@ public class MFAnnotatedPath extends MFPath
     throw new UnsupportedOperationException(msg);
   }
 
-  @Override
-  public int getLength()
-  {
-    return this.path.size();
-  }
-
-  //---vvv---      PACKAGE-PRIVATE METHODS      ---vvv---
-
-  /**
-   * Gets the cost of traversing the path in weighted units. Currently every
-   * tile moved equals one unit.
-   * @return the length of the path
-   */
-  int getCost()
-  {
-    return this.pathCost;
-  }
-
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Logger */
   private static Logger logger = Logger.getLogger(MFAnnotatedPath.class.getName());
 
   /** The steps of the path */
   private final Deque<MFEDirection> path;
-  /** Cost of traversing the path in weighted cost */
-  private final int pathCost;
 
 }

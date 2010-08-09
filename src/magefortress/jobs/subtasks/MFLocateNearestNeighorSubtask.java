@@ -50,7 +50,7 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
    * @param _pathFinder The path finding queue
    */
   public MFLocateNearestNeighorSubtask(MFIMovable _movable,
-                                MFLocation _location, MFMap _map, MFPathFinder _pathFinder)
+                     MFLocation _location, MFMap _map, MFPathFinder _pathFinder)
   {
     super(_movable);
     this.location = _location;
@@ -131,9 +131,12 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
 
   /**
    * Enqueues a path
+   * @param _goal The goal of the path
    */
   private void searchPath(MFLocation _goal)
   {
+    assert _goal != null : "Cannot search a path with no goal.";
+    
     final int clearance = this.getMovable().getClearance();
     final MFCapability capability = this.getMovable().getCapability();
 
@@ -141,6 +144,10 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
                                                  clearance, capability, this);
   }
 
+  /**
+   * Selects the path with the least cost.
+   * @return The shortest path
+   */
   private MFPath selectShortestPath()
   {
     assert paths.size() > 0 : "Cannot find shortest path without any found paths.";
@@ -148,9 +155,7 @@ public class MFLocateNearestNeighorSubtask extends MFMovingSubtask implements MF
     MFPath shortestPath = this.paths.get(0);
 
     for (MFPath path : this.paths) {
-      // getLength() operates on the abstracted graph -> number of entrances
-      // -> approximate length only
-      if (path.getLength() < shortestPath.getLength()) {
+      if (path.getCost() < shortestPath.getCost()) {
         shortestPath = path;
       }
     }

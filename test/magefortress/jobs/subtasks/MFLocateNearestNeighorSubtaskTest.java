@@ -219,7 +219,7 @@ public class MFLocateNearestNeighorSubtaskTest
       when(goalTile.getLocation()).thenReturn(goalLocation);
       MFPath mockPath = mock(MFPath.class);
       when(mockPath.getGoal()).thenReturn(goalTile);
-      when(mockPath.getLength()).thenReturn(i+1);
+      when(mockPath.getCost()).thenReturn(i+1);
 
       task.pathSearchFinished(mockPath);
     }

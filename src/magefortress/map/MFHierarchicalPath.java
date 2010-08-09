@@ -39,9 +39,9 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
   MFHierarchicalPath(final MFTile _start, final MFTile _goal, 
                  final Deque<MFTile> _path, final int _clearance,
                  final MFCapability _capability,
-                 final MFPathFinder _pathFinder)
+                 final MFPathFinder _pathFinder, final int _cost)
   {
-    super(_start, _goal);
+    super(_start, _goal, _cost);
 
     if (_path == null || _path.isEmpty()) {
       String msg = "Hierarchical Path " + _start.getLocation() + "->" +
@@ -150,12 +150,6 @@ public class MFHierarchicalPath extends MFPath implements MFIPathFinderListener
                     this.getGoal().getLocation() + ": Remove not implemented.";
     logger.warning(msg);
     throw new UnsupportedOperationException(msg);
-  }
-
-  @Override
-  public int getLength()
-  {
-    return this.path.size();
   }
 
   @Override

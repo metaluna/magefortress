@@ -410,7 +410,7 @@ public class MFHierarchicalAStarTest
     // then a direct path should be found
     assertNotNull(path);
     assertTrue(path instanceof MFAnnotatedPath);
-    assertEquals(2, path.getLength());
+    assertEquals(2, path.getCost());
   }
 
   @Test
@@ -467,7 +467,68 @@ public class MFHierarchicalAStarTest
     // then a direct path should be found
     assertNotNull(path);
     assertTrue(path instanceof MFAnnotatedPath);
-    assertEquals(2, path.getLength());
+    assertEquals(2, path.getCost());
+  }
+
+  @Test
+  public void shouldReturnHierarchicalPathWithEstimatedCostAtCalculation()
+  {
+    // given a map with 3 sections
+    this.naviMap = this.createMap(7, 5, 1);
+    final MFTile startTile = this.map.getTile(0, 2, 0);
+    final MFTile goalTile  = this.map.getTile(6, 2, 0);
+    /*  _________
+     * |  |///|  |
+     * |  |///|  |
+     * |A  ___  B|
+     * |  |///|  |
+     * |__|///|__|
+     */
+    // build central wall
+    this.map.getTile(1, 0, 0).setWallEast(true);
+    this.map.getTile(1, 1, 0).setWallEast(true);
+    this.map.getTile(1, 3, 0).setWallEast(true);
+    this.map.getTile(1, 4, 0).setWallEast(true);
+    for (int x=2; x < 5; ++x) {
+     this.map.getTile(x, 0, 0).setDugOut(false);
+     this.map.getTile(x, 1, 0).setDugOut(false);
+     this.map.getTile(x, 3, 0).setDugOut(false);
+     this.map.getTile(x, 4, 0).setDugOut(false);
+    }
+    this.map.getTile(5, 0, 0).setWallWest(true);
+    this.map.getTile(5, 1, 0).setWallWest(true);
+    this.map.getTile(5, 3, 0).setWallWest(true);
+    this.map.getTile(5, 4, 0).setWallWest(true);
+    // build corridor
+    MFTile entrance1 = this.map.getTile(2, 2, 0);
+    entrance1.setWalls(true, false, true, false);
+    MFTile tunnel = this.map.getTile(3, 2, 0);
+    tunnel.setWalls(true, false, true, false);
+    MFTile entrance2 = this.map.getTile(4, 2, 0);
+    entrance2.setWalls(true, false, true, false);
+
+    this.naviMap.updateClearanceValues(MFCapability.WALK);
+    this.naviMap.calculateAllLevels();
+
+    // check entrances
+    final int expSectionCount = 3;
+    final int gotSectionCount = this.naviMap.getSections().size();
+    assertEquals(expSectionCount, gotSectionCount);
+
+    // when i search for a path from a to b
+    final int clearance = 1;
+    final MFCapability capability = MFCapability.WALK;
+    this.search = new MFHierarchicalAStar(this.map, startTile, goalTile,
+                                      clearance, capability, this.pathFinder);
+
+    // then a hierarchical path should be returned with a length of 6
+    final MFPath path = this.search.findPath();
+    assertNotNull(path);
+    assertTrue(path instanceof MFHierarchicalPath);
+
+    final int expCost = 6;
+    final int gotCost = path.getCost();
+    assertEquals(expCost, gotCost);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

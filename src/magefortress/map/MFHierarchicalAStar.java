@@ -175,7 +175,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
   /**
    * Backtraces from the given node and saves the entrances passed on the way plus
    * the target tile.
-   * @param _start the goal node
+   * @param _node the goal node
    * @return the entrances passed on the way plus the target tile
    */
   private MFPath backtracePath(MFNode _node)
@@ -188,6 +188,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     }
 
     final Deque<MFTile> path = new ArrayDeque<MFTile>();
+    final int cost = _node.g;
 
     // backtrace the path
     while (_node.parent != null) {
@@ -207,7 +208,7 @@ public class MFHierarchicalAStar extends MFTemplateAStar
     final MFPath result = 
             new MFHierarchicalPath(this.getStart(), this.getGoal(), path,
                     this.getClearance(), this.getCapability(),
-                    this.pathFinder);
+                    this.pathFinder, cost);
     return result;
   }
 

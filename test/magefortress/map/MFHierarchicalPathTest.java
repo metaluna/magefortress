@@ -52,7 +52,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(null, mock(MFTile.class), mock(Deque.class), 1,
                           MFCapability.WALK,
-                          this.mockPathFinder);
+                          this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -61,7 +61,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), null, mock(Deque.class), 1,
                           MFCapability.WALK,
-                          this.mockPathFinder);
+                          this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -70,7 +70,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class), null, 1,
                           MFCapability.WALK,
-                          this.mockPathFinder);
+                          this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -80,7 +80,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> emptyDeque = new ArrayDeque<MFTile>();
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class), emptyDeque,
                         1, MFCapability.WALK,
-                          this.mockPathFinder);
+                          this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -89,7 +89,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
                          mock(Deque.class), 0, MFCapability.WALK,
-                         this.mockPathFinder);
+                         this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -98,7 +98,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
                             mock(Deque.class), 1, null,
-                            this.mockPathFinder);
+                            this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -107,7 +107,7 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
                     mock(Deque.class), 1, MFCapability.NONE,
-                    this.mockPathFinder);
+                    this.mockPathFinder, 1);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -116,7 +116,16 @@ public class MFHierarchicalPathTest
   {
     new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
                         mock(Deque.class), 1, MFCapability.WALK,
-                        null);
+                        null, 1);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  @SuppressWarnings("unchecked")
+  public void shouldNotCreateHierarchicalPathWithZeroCost()
+  {
+    new MFHierarchicalPath(mock(MFTile.class), mock(MFTile.class),
+                        mock(Deque.class), 1, MFCapability.WALK,
+                        this.mockPathFinder, 0);
   }
 
   //------------------------ ITERATOR BEHAVIOR TESTS ---------------------------
@@ -129,7 +138,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
                            MFCapability.WALK,
-                           this.mockPathFinder);
+                           this.mockPathFinder, 1);
     this.path.setPathInvalid();
     this.path.next();
   }
@@ -141,7 +150,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
                            MFCapability.WALK,
-                           this.mockPathFinder);
+                           this.mockPathFinder, 1);
     this.path.pathSearchFinished(null);
     this.path.next();
   }
@@ -153,7 +162,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
                            MFCapability.WALK,
-                           this.mockPathFinder);
+                           this.mockPathFinder, 1);
     this.path.setPathInvalid();
     this.path.hasNext();
   }
@@ -165,7 +174,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
                            MFCapability.WALK,
-                           this.mockPathFinder);
+                           this.mockPathFinder, 1);
     this.path.pathSearchFinished(null);
     this.path.hasNext();
   }
@@ -177,7 +186,7 @@ public class MFHierarchicalPathTest
     Deque<MFTile> stack = getMockStack(2);
     this.path = new MFHierarchicalPath(stack.getFirst(), stack.getLast(), stack, 1,
                            MFCapability.WALK,
-                           this.mockPathFinder);
+                           this.mockPathFinder, 1);
     this.path.remove();
   }
 
@@ -203,7 +212,7 @@ public class MFHierarchicalPathTest
     MFCapability capability = MFCapability.WALK;
 
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capability, this.mockPathFinder);
+                                    capability, this.mockPathFinder, 42);
     verify(this.mockPathFinder, times(2)).enqueuePathSearch(any(MFLocation.class), any(MFLocation.class),
             anyInt(), any(MFCapability.class), any(MFIPathFinderListener.class));
 
@@ -234,7 +243,7 @@ public class MFHierarchicalPathTest
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capability, this.mockPathFinder);
+                                    capability, this.mockPathFinder, 42);
     verify(this.mockPathFinder).enqueuePathSearch(any(MFLocation.class), any(MFLocation.class), 
             anyInt(), any(MFCapability.class), any(MFIPathFinderListener.class));
     //verify(this.mockPathFinder).enqueuePathSearch(mockStart.getLocation(), mockGoal.getLocation(), clearance, capabilities, this.path);
@@ -280,7 +289,7 @@ public class MFHierarchicalPathTest
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capability, this.mockPathFinder);
+                                    capability, this.mockPathFinder, 42);
     verify(this.mockPathFinder, times(2)).enqueuePathSearch(
                                 any(MFLocation.class), any(MFLocation.class),
                                 eq(clearance), eq(capability), eq(this.path));
@@ -353,7 +362,7 @@ public class MFHierarchicalPathTest
 
     // start tests
     this.path = new MFHierarchicalPath(mockStart, mockGoal, stack, clearance,
-                                    capability, this.mockPathFinder);
+                                    capability, this.mockPathFinder, 42);
     assertTrue(this.path.isPathValid());
     assertFalse(this.path.hasNext());
 
