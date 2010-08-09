@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,12 +22,46 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs;
+package magefortress.jobs.digging;
+
+import java.util.Set;
+import magefortress.core.MFRoom;
+import magefortress.map.MFTile;
 
 /**
- * Marker interface for items which can be produced at an workshop.
+ * Room for mining ore
  */
-public interface MFIProducible
+public class MFQuarry extends MFRoom
 {
-  public MFBlueprint getBlueprint();
+  public MFQuarry(String _name, Set<MFTile> _tiles)
+  {
+    super(_name, _tiles);
+  }
+
+  public int getMiningEfficiency()
+  {
+    return this.miningEfficiency;
+  }
+
+  //---vvv---       ROOM METHODS       ---vvv---
+  @Override
+  protected void tileAdded(MFTile _tile)
+  {
+    this.addProduct(_tile.getGround().getBlueprint());
+  }
+
+  @Override
+  protected void tileRemoved(MFTile _tile)
+  {
+    this.removeProduct(_tile.getGround().getBlueprint());
+  }
+
+  @Override
+  protected void tileUpdated()
+  {
+    //noop - unless ground transformation is possible
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private int miningEfficiency;
 }

@@ -28,9 +28,12 @@ import magefortress.map.MFTile;
 import magefortress.map.MFITileConstructionsListener;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.jobs.MFBlueprint;
 
 /**
  * Base class for all player-defined rooms. A room consists of a variable-shaped
@@ -51,6 +54,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
 
     this.name = _name;
     this.livingValue = 0;
+    this.products = new LinkedList<MFBlueprint>();
     this.roomTiles = new LinkedHashSet<MFTile>(_tiles.size());
     this.addTiles(_tiles);
   }
@@ -93,7 +97,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
   }
 
   /**
-   * Used to add a tile to the room. The list may contain tiles already in the
+   * Adds a number of tiles to the room. The list may contain tiles already in the
    * room. Sub-classes will only be notified of the addition of truly new
    * tiles.
    * @param _tiles The new tiles
@@ -120,7 +124,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
   }
 
   /**
-   * Used to remove a tile from the room. The list may contain tiles not in the
+   * Removes a number of tiles from the room. The list may contain tiles not in the
    * room. Sub-classes will only be notified of the removal of truly removed
    * tiles.
    * @param _tiles The removed tiles
@@ -147,6 +151,44 @@ public abstract class MFRoom implements MFITileConstructionsListener
   }
 
   /**
+   * Adds the blueprint of product to the list of producible items in this room.
+   * If the blueprint is already present, this will fail silently.
+   * @param _blueprint The blueprint of the product to add
+   */
+  public void addProduct(MFBlueprint _blueprint)
+  {
+    if (!this.products.contains(_blueprint)) {
+      this.products.add(_blueprint);
+    } else {
+      logger.fine(this.getClass().getSimpleName() + " '" + this.name +
+              "': Trying to add a product already stored in this room.");
+    }
+  }
+
+  /**
+   * Removes the blueprint of a product from the list of producible items
+   * in this room. If the blueprint is not present, this will fail silently.
+   * @param _blueprint The blueprint of the product to remove
+   */
+  public void removeProduct(MFBlueprint _blueprint)
+  {
+    if (this.products.contains(_blueprint)) {
+      this.products.remove(_blueprint);
+    } else {
+      logger.fine(this.getClass().getSimpleName() + " '" + this.name +
+              "': Trying to remove a product not stored in this room.");
+    }
+  }
+
+  /**
+   * Returns a list of products that can be produced in this room.
+   */
+  public List<MFBlueprint> getProducts()
+  {
+    return Collections.unmodifiableList(this.products);
+  }
+
+  /**
    * Callback used by a tile of the room when an object was placed or removed
    * or a wall was polished. It will trigger a re-calculation of all attribute
    * values of all tiles. Expensive but ok, because this won't happen often.
@@ -161,6 +203,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
     this.calculateLivingValue();
   }
 
+  @Override
   final public void tileConstructionsChanged(MFTile _tile)
   {
     // notify sub-classes
@@ -173,24 +216,25 @@ public abstract class MFRoom implements MFITileConstructionsListener
    * attribute values of the sub-classed room.
    * @param _tile The new tile
    */
-  abstract void tileAdded(MFTile _tile);
+  protected abstract void tileAdded(MFTile _tile);
   /**
    * Called when a tile was removed from the room. Can be used to re-calculate the
    * attribute values of the sub-classed room.
    * @param _tile The removed tile
    */
-  abstract void tileRemoved(MFTile _tile);
+  protected abstract void tileRemoved(MFTile _tile);
   /**
    * Called when the contents of a tile of the room changed or a wall/floor was
    * built or removed. Should be followed by a re-calculation of all values
    * of all tiles in the room.
    */
-  abstract void tileUpdated();
+  protected abstract void tileUpdated();
   
   //---vvv---      PRIVATE METHODS      ---vvv---
   private int livingValue;
   private Set<MFTile> roomTiles;
   private final String name;
+  private final List<MFBlueprint> products;
   private static final Logger logger = Logger.getLogger(MFRoom.class.getName());
 
   /**

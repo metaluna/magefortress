@@ -37,6 +37,7 @@ import magefortress.core.MFRoom;
 import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.graphics.MFIPaintable;
+import magefortress.jobs.MFIProducible;
 import magefortress.storage.MFISaveable;
 
 /**
@@ -137,6 +138,11 @@ public class MFTile implements MFIPaintable, MFISaveable
   public MFLocation getLocation()
   {
     return new MFLocation(this.posX, this.posY, this.posZ);
+  }
+
+  public MFIProducible getGround()
+  {
+    return this.ground;
   }
 
   public boolean isDugOut()
@@ -455,6 +461,7 @@ public class MFTile implements MFIPaintable, MFISaveable
   private boolean isDugOut;
   private boolean wallN, wallE, wallS, wallW;
   private boolean floor;
+  private MFIProducible ground;
   /**The types of corners. Automatically calculated
    * @Transient */
   private EnumMap<MFEDirection, Corner> corners;
