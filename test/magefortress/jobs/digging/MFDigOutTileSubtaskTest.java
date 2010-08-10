@@ -30,6 +30,7 @@ import magefortress.creatures.behavior.instrumentable.MFEJob;
 import magefortress.jobs.subtasks.MFSubtaskCanceledException;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -77,7 +78,10 @@ public class MFDigOutTileSubtaskTest
   {
     when(this.mockOwner.getJobSkill(MFEJob.DIGGING)).thenReturn(501);
     when(this.mockOwner.getLocation()).thenReturn(new MFLocation(2,2,3));
+    MFGround mockGround = mock(MFGround.class);
+    when(mockGround.getHardness()).thenReturn(150);
     MFTile mockTile = mock(MFTile.class);
+    when(mockTile.getGround()).thenReturn(mockGround);
     when(mockMap.getTile(goal)).thenReturn(mockTile);
 
     boolean done = true;
