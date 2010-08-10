@@ -24,7 +24,10 @@
  */
 package magefortress.jobs;
 
+import java.util.logging.Logger;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.creatures.MFCreature;
 
 /**
  *
@@ -32,10 +35,70 @@ import magefortress.core.MFLocation;
 public class MFJobSlot
 {
 
+  public MFJobSlot(MFLocation _location)
+  {
+    if (_location == null) {
+      String msg = "Cannot create without a location.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.location = _location;
+  }
+
   public MFLocation getLocation()
   {
     return this.location;
   }
+
+  public boolean isAvailable()
+  {
+    return creature == null;
+  }
+
+  public void occupy(MFCreature _creature)
+  {
+    if (_creature == null) {
+      String msg = "Cannot let null occupy the slot@" + this.location;
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (this.creature != null) {
+      String msg = "Cannot let the creature " + _creature.getName() +
+                   " occupy the slot@" + this.location + " currently used by " +
+                   this.creature.getName();
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    this.creature = _creature;
+  }
+
+  public void free(MFCreature _creature)
+  {
+    if (_creature == null) {
+      String msg = "Cannot let null leave the slot@" + this.location;
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (this.creature == null) {
+      String msg = "Cannot let creature " + _creature.getName() +
+                   " leave not occupied slot@" + this.location;
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    if (_creature != this.creature) {
+      String msg = "Cannot let other creature (" + _creature.getName() +
+                   ") than the current occupier (" + this.creature.getName() +
+                   ")leave the slot@" + this.location;
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    this.creature = null;
+  }
+  
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private MFLocation location;
+  private static final Logger logger = Logger.getLogger(MFJobSlot.class.getName());
+
+  private final MFLocation location;
+
+  private MFCreature creature;
 }
