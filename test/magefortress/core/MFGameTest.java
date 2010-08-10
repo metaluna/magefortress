@@ -148,4 +148,33 @@ public class MFGameTest
 
     verify(newSite).update();
   }
+
+  //---vvv---     CONSTRUCTION SITE LISTENER INTERFACE      ---vvv---
+  @Test
+  public void shouldRemoveSiteAndUpdateMapDataWhenConstructionFinished()
+  {
+    // given a game with a construction site
+    MFConstructionSite newSite = mock(MFConstructionSite.class);
+    MFLocation loc = new MFLocation(2,3,4);
+    when(newSite.getLocation()).thenReturn(loc);
+
+    game.addConstructionSite(newSite);
+
+    // when the construction is finished
+    game.constructionSiteFinished(newSite);
+    game.update();
+
+    // then the site should be removed
+    boolean found = false;
+    for (MFConstructionSite site : game.getConstructionSites()) {
+      if (site == newSite) {
+        found = true;
+        break;
+      }
+    }
+    assertFalse(found);
+
+    // and the navigation map should have been updated
+    // can't test - game object factory needs to be injected
+  }
 }

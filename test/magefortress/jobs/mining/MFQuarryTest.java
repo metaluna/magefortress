@@ -22,14 +22,12 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.digging;
+package magefortress.jobs.mining;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import magefortress.items.MFItem;
 import magefortress.jobs.MFBlueprint;
-import magefortress.jobs.MFIProducible;
 import magefortress.map.MFTile;
 import magefortress.map.ground.MFGround;
 import org.junit.Before;

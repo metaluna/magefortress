@@ -22,30 +22,31 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.subtasks;
+package magefortress.jobs.mining;
 
-import java.util.logging.Logger;
-import magefortress.creatures.behavior.movable.MFIMovable;
+import magefortress.creatures.MFCreature;
+import magefortress.jobs.subtasks.MFSubtask;
+import magefortress.jobs.subtasks.MFSubtaskCanceledException;
+import magefortress.map.MFMap;
 
 /**
- *
+ * Mines for ore/stones/gems at the present location of the owner.
  */
-public abstract class MFMovingSubtask implements MFISubtask
+public class MFMineSubtask extends MFSubtask
 {
-
-  public MFMovingSubtask(MFIMovable _owner)
+  public MFMineSubtask(MFCreature _owner, MFMap _map)
   {
-    this.movable = _owner;
+    super(_owner);
+    this.map = _map;
   }
 
-  final public MFIMovable getMovable()
+  //---vvv---     SUBTASK METHODS     ---vvv---
+  public boolean update() throws MFSubtaskCanceledException
   {
-    return this.movable;
+    throw new UnsupportedOperationException("Not supported yet.");
   }
-
-  //---vvv---     PROTECTED METHODS     ---vvv---
-  protected static final Logger logger = Logger.getLogger(MFMovingSubtask.class.getName());
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFIMovable movable;
+  private final MFMap map;
+
 }

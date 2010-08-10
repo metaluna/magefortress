@@ -22,46 +22,20 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.digging;
+package magefortress.jobs;
 
-import java.util.Set;
-import magefortress.core.MFRoom;
-import magefortress.map.MFTile;
+import magefortress.core.MFLocation;
 
 /**
- * Room for mining ore
+ *
  */
-public class MFQuarry extends MFRoom
+public class MFJobSlot
 {
-  public MFQuarry(String _name, Set<MFTile> _tiles)
-  {
-    super(_name, _tiles);
-  }
 
-  public int getMiningEfficiency()
+  public MFLocation getLocation()
   {
-    return this.miningEfficiency;
+    return this.location;
   }
-
-  //---vvv---       ROOM METHODS       ---vvv---
-  @Override
-  protected void tileAdded(MFTile _tile)
-  {
-    this.addProduct(_tile.getGround().getBlueprint());
-  }
-
-  @Override
-  protected void tileRemoved(MFTile _tile)
-  {
-    this.removeProduct(_tile.getGround().getBlueprint());
-  }
-
-  @Override
-  protected void tileUpdated()
-  {
-    //noop - unless ground transformation is possible
-  }
-
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private int miningEfficiency;
+  private MFLocation location;
 }

@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import magefortress.channel.MFIChannelSender;
 import magefortress.jobs.MFBlueprint;
+import magefortress.jobs.MFJobSlot;
 
 /**
  * Base class for all player-defined rooms. A room consists of a variable-shaped
@@ -42,7 +44,7 @@ import magefortress.jobs.MFBlueprint;
  * and the furniture placed in the room. Sub-classes may introduce new
  * attributes calculated in a similar manner.
  */
-public abstract class MFRoom implements MFITileConstructionsListener
+public abstract class MFRoom implements MFITileConstructionsListener, MFIChannelSender
 {
   public MFRoom(String _name, Set<MFTile> _tiles)
   {
@@ -56,6 +58,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
     this.livingValue = 0;
     this.products = new LinkedList<MFBlueprint>();
     this.roomTiles = new LinkedHashSet<MFTile>(_tiles.size());
+    this.jobSlots = new LinkedList<MFJobSlot>();
     this.addTiles(_tiles);
   }
 
@@ -182,10 +185,20 @@ public abstract class MFRoom implements MFITileConstructionsListener
 
   /**
    * Returns a list of products that can be produced in this room.
+   * @return An unmodifiable list of products
    */
   public List<MFBlueprint> getProducts()
   {
     return Collections.unmodifiableList(this.products);
+  }
+
+  /**
+   * Returns a list of slots where creatures can work.
+   * @return An unmodifiable list of job slots
+   */
+  public List<MFJobSlot> getJobSlots()
+  {
+    return Collections.unmodifiableList(this.jobSlots);
   }
 
   /**
@@ -209,6 +222,17 @@ public abstract class MFRoom implements MFITileConstructionsListener
     // notify sub-classes
     this.tileUpdated();
     this.calculateLivingValue();
+  }
+
+  //---vvv---        PROTECTED METHODS       ---vvv---
+  protected void addJobSlot(MFJobSlot _slot)
+  {
+    this.jobSlots.add(_slot);
+  }
+
+  protected void removeJobSlot(MFJobSlot _slot)
+  {
+    this.jobSlots.remove(_slot);
   }
 
   /**
@@ -235,6 +259,7 @@ public abstract class MFRoom implements MFITileConstructionsListener
   private Set<MFTile> roomTiles;
   private final String name;
   private final List<MFBlueprint> products;
+  private final List<MFJobSlot> jobSlots;
   private static final Logger logger = Logger.getLogger(MFRoom.class.getName());
 
   /**

@@ -74,6 +74,7 @@ public class MFDiggingSite extends MFConstructionSite
     }
   }
 
+  //---vvv---     PAINTABLE INTERFACE METHODS       ---vvv---
   @Override
   public void update()
   {
@@ -99,6 +100,7 @@ public class MFDiggingSite extends MFConstructionSite
     }
   }
 
+  //---vvv---     CHANNEL SENDER INTERFACE METHODS       ---vvv---
   @Override
   public boolean isJobAvailable()
   {
