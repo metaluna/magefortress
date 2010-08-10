@@ -33,6 +33,7 @@ import magefortress.map.MFMap;
 import magefortress.map.MFPath;
 import magefortress.map.MFPathFinder;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -69,7 +70,8 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test
   public void shouldEnqueueSearchesForAllNeighbors() throws MFNoPathFoundException
   {
-    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, true, true);
+    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
     
     task.update();
@@ -82,14 +84,15 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test
   public void shouldEnqueueSearchesForOneNeighbor() throws MFNoPathFoundException
   {
-    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, true, true);
+    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     for (MFEDirection dir : MFEDirection.values()) {
       MFLocation loc = this.goal.locationOf(dir);
       MFTile tile;
       if (loc.equals(openTile.getLocation())) {
         tile = openTile;
       } else {
-        tile = new MFTile(0, loc.x, loc.y, loc.z);
+        tile = new MFTile(0, loc.x, loc.y, loc.z, mock(MFGround.class));
       }
       when(mockMap.getTile(loc)).thenReturn(tile);
     }
@@ -102,7 +105,7 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test
   public void shouldNotEnqueueSearches() throws MFNoPathFoundException
   {
-    MFTile tile = new MFTile(0, 0, 0, 0);
+    MFTile tile = new MFTile(0, 0, 0, 0, mock(MFGround.class));
     when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
 
     task.update();
@@ -112,14 +115,15 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test(expected=MFNoPathFoundException.class)
   public void shouldFindNoPathOfOne() throws MFNoPathFoundException
   {
-    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, true, true);
+    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     for (MFEDirection dir : MFEDirection.values()) {
       MFLocation loc = this.goal.locationOf(dir);
       MFTile tile;
       if (loc.equals(openTile.getLocation())) {
         tile = openTile;
       } else {
-        tile = new MFTile(0, loc.x, loc.y, loc.z);
+        tile = new MFTile(0, loc.x, loc.y, loc.z, mock(MFGround.class));
       }
       when(mockMap.getTile(loc)).thenReturn(tile);
     }
@@ -143,7 +147,8 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test(expected=MFNoPathFoundException.class)
   public void shouldFindNoPathOfEight() throws MFNoPathFoundException
   {
-    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, true, true);
+    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
 
     boolean done = true;
@@ -175,14 +180,15 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test
   public void shouldFindPath() throws MFSubtaskCanceledException
   {
-    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, true, true);
+    MFTile openTile = new MFTile(0, 4, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     for (MFEDirection dir : MFEDirection.values()) {
       MFLocation loc = this.goal.locationOf(dir);
       MFTile tile;
       if (loc.equals(openTile.getLocation())) {
         tile = openTile;
       } else {
-        tile = new MFTile(0, loc.x, loc.y, loc.z);
+        tile = new MFTile(0, loc.x, loc.y, loc.z, mock(MFGround.class));
       }
       when(mockMap.getTile(loc)).thenReturn(tile);
     }
@@ -205,7 +211,8 @@ public class MFLocateNearestNeighorSubtaskTest
   @Test
   public void shouldSelectShortestPath() throws MFNoPathFoundException
   {
-    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, true, true);
+    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
 
     boolean done = true;
@@ -233,7 +240,8 @@ public class MFLocateNearestNeighorSubtaskTest
   {
     MFLocation currentLocation = goal.locationOf(MFEDirection.N);
     when(mockCreature.getLocation()).thenReturn(currentLocation);
-    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, true, true);
+    MFTile tile = new MFTile(0, 0, 0, 0, true, false, false, false, false, 
+                                              true, true, mock(MFGround.class));
     when(mockMap.getTile(any(MFLocation.class))).thenReturn(tile);
 
     boolean done = task.update();

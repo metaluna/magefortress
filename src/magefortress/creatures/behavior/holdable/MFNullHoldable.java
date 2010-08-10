@@ -25,7 +25,7 @@
 package magefortress.creatures.behavior.holdable;
 
 import magefortress.core.Immutable;
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.map.MFTile;
 
 /**

@@ -24,9 +24,11 @@
  */
 package magefortress.map;
 
+import magefortress.map.ground.MFGround;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,8 +46,14 @@ import magefortress.storage.MFISaveable;
 public class MFMap implements MFISaveable
 {
 
-  public MFMap(int _id, int _width, int _height, int _depth)
+  public MFMap(int _id, int _width, int _height, int _depth, MFGround _defaultGround)
   {
+    if (_defaultGround == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+                                                      "a default ground type.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.width = _width;
     this.height = _height;
     this.depth = _depth;
@@ -54,11 +62,11 @@ public class MFMap implements MFISaveable
 
     // TODO get UNSAVED_MARKER from DaoFactory as soon as it's a singleton
     final int UNSAVED_MARKER = -1;
-    
+
     for (int z = 0; z < _depth; ++z) {
       for (int x = 0; x < _width; ++x) {
         for (int y = 0; y < _height; ++y) {
-          this.map[z][x][y] = new MFTile(UNSAVED_MARKER, x,y,z);
+          this.map[z][x][y] = new MFTile(UNSAVED_MARKER, x,y,z, _defaultGround);
         }
       }
     }
@@ -85,11 +93,12 @@ public class MFMap implements MFISaveable
     return new Point(screenX, screenY);
   }
 
-  public static MFMap createRandomMap(int _width, int _height, int _depth)
+  public static MFMap createRandomMap(int _width, int _height, int _depth,
+                                            MFGround _defaultGround)
   {
     Random r = new Random();
     final int id = -1;
-    MFMap result = new MFMap(id, _width, _height, _depth);
+    MFMap result = new MFMap(id, _width, _height, _depth, _defaultGround);
 
     for (MFTile[][] level : result.map) {
       for (MFTile[] cols : level) {
@@ -98,7 +107,7 @@ public class MFMap implements MFISaveable
         }
       }
     }
-    
+
     for (MFTile[][] level : result.map) {
       for (MFTile[] cols : level) {
         for (MFTile tile : cols) {
@@ -146,7 +155,7 @@ public class MFMap implements MFISaveable
         }
       }
     }
-    
+
     for (MFTile[][] level : result.map) {
       for (MFTile[] cols : level) {
         for (MFTile tile : cols) {
@@ -160,10 +169,10 @@ public class MFMap implements MFISaveable
     return result;
   }
 
-  public static MFMap loadMap(int _mapId, MFDaoFactory _daoFactory)
+  public static MFMap loadMap(int _mapId, MFDaoFactory _daoFactory, Map<Integer, MFGround> _groundTypes)
   {
     try {
-      return _daoFactory.getMapDao().load(_mapId);
+      return _daoFactory.getMapDao(_groundTypes).load(_mapId);
     } catch (DataAccessException e) {
       String msg = "Unable to load map #" + _mapId;
       logger.log(Level.SEVERE, msg, e);

@@ -27,8 +27,10 @@ package magefortress.core;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFChannelFactory;
@@ -38,6 +40,8 @@ import magefortress.creatures.behavior.instrumentable.MFEJob;
 import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
+import magefortress.items.MFItem;
+import magefortress.jobs.MFBlueprint;
 import magefortress.jobs.MFConstructionSite;
 import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
@@ -45,6 +49,8 @@ import magefortress.map.MFMap;
 import magefortress.map.MFNavigationMap;
 import magefortress.map.MFPathFinder;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFBasicUnderground;
+import magefortress.map.ground.MFGround;
 import magefortress.storage.MFDaoFactory;
 
 /**
@@ -55,7 +61,18 @@ public class MFGame implements MFIConstructionSiteListener
 
   public static MFGame loadGame(int _mapId, MFImageLibrary _imgLib, MFDaoFactory _daoFactory)
   {
-    final MFMap map = MFMap.loadMap(_mapId, _daoFactory);
+    // JUST FOR TESTING
+    final Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>(1);
+    final MFBlueprint blueprint = new MFBlueprint(new MFItem("Null Item"));
+    final int hardness = 150;
+    final MFGround ground = new MFGround(blueprint, hardness,
+                                   MFBasicUnderground.getBasicSolidTile(),
+                                   MFBasicUnderground.getBasicUndergroundFloor(),
+                                   MFBasicUnderground.getBasicUndergroundWalls(),
+                                   MFBasicUnderground.getBasicUndergroundCorners());
+    groundTypes.put(1, ground);
+
+    final MFMap map = MFMap.loadMap(_mapId, _daoFactory, groundTypes);
     final MFGame result = new MFGame(map, _imgLib, _daoFactory);
     return result;
   }

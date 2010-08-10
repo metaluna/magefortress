@@ -24,8 +24,12 @@
  */
 package magefortress.storage;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,16 +47,18 @@ public class MFTileSqlDaoTest
   private static MFSqlConnector realDb;
 
   @BeforeClass
+  @SuppressWarnings("unchecked")
   public static void setUpClass()
   {
     realDb = MFSqlConnector.getInstance();
     realDb.connect("magefortress.test.db");
     realDb.loadFromFile("magefortress.sql");
     realDb.loadFromFile("test_fixtures.sql");
-    new MFTileSqlDao(realDb).prepareStatements();
+    new MFTileSqlDao(realDb, Collections.EMPTY_MAP).prepareStatements();
   }
 
   @Before
+  @SuppressWarnings("unchecked")
   public void setUp() throws ClassNotFoundException
   {
     // reset real test db
@@ -63,7 +69,7 @@ public class MFTileSqlDaoTest
     mockDb = mock(MFSqlConnector.class);
 
     unsavedMockTile = mock(MFTile.class);
-    when(unsavedMockTile.getId()).thenReturn(new MFTileSqlDao(mockDb).getUnsavedMarker());
+    when(unsavedMockTile.getId()).thenReturn(new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).getUnsavedMarker());
     unsavedTileSqlDao = new MFTileSqlDao(mockDb, unsavedMockTile, 1);
 
     savedMockTile = mock(MFTile.class);
@@ -100,9 +106,10 @@ public class MFTileSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
+  @SuppressWarnings("unchecked")
   public void shouldNotSaveWithoutTile() throws DataAccessException
   {
-    new MFTileSqlDao(mockDb).save();
+    new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).save();
   }
 
   @Test
@@ -158,11 +165,16 @@ public class MFTileSqlDaoTest
   @Test
   public void shouldLoad() throws DataAccessException
   {
-    unsavedTileSqlDao = new MFTileSqlDao(realDb);
+    MFGround mockGround = mock(MFGround.class);
+    Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>();
+    groundTypes.put(1, mockGround);
+
+    unsavedTileSqlDao = new MFTileSqlDao(realDb, groundTypes);
 
     MFTile gotTile = unsavedTileSqlDao.load(7);
 
     assertEquals("Wrong ID was loaded;", 7, gotTile.getId());
+    assertEquals("Wrong ground was loaded;", mockGround, gotTile.getGround());
     assertEquals("Wrong room id was loaded;", null, gotTile.getRoom());
     assertEquals("Wrong object id loaded;", null, gotTile.getObject());
     assertEquals("Wrong x was loaded;", 1, gotTile.getPosX());
@@ -189,7 +201,11 @@ public class MFTileSqlDaoTest
   {
     //resetDb();
     int mapId = 2;
-    unsavedTileSqlDao = new MFTileSqlDao(realDb);
+    MFGround mockGround = mock(MFGround.class);
+    Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>();
+    groundTypes.put(1, mockGround);
+
+    unsavedTileSqlDao = new MFTileSqlDao(realDb, groundTypes);
     List<MFTile> gotTiles = unsavedTileSqlDao.loadAllOfMap(mapId);
     assertEquals("Wrong tile count;", 16, gotTiles.size());
   }
@@ -206,9 +222,10 @@ public class MFTileSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
+  @SuppressWarnings("unchecked")
   public void shouldNotDeleteWithouTile() throws DataAccessException
   {
-    new MFTileSqlDao(mockDb).delete();
+    new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).delete();
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -232,16 +249,21 @@ public class MFTileSqlDaoTest
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void shouldNotGetTileWithoutTile()
   {
-    unsavedTileSqlDao = new MFTileSqlDao(mockDb);
+    unsavedTileSqlDao = new MFTileSqlDao(mockDb, Collections.EMPTY_MAP);
     assertNull(unsavedTileSqlDao.getPayload());
   }
 
   @Test
   public void shouldNotGetTileAfterLoading() throws DataAccessException
   {
-    unsavedTileSqlDao = new MFTileSqlDao(realDb);
+    MFGround mockGround = mock(MFGround.class);
+    Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>();
+    groundTypes.put(1, mockGround);
+
+    unsavedTileSqlDao = new MFTileSqlDao(realDb, groundTypes);
     MFTile gotTile = unsavedTileSqlDao.load(1);
     assertNotNull(gotTile);
     assertNull(unsavedTileSqlDao.getPayload());

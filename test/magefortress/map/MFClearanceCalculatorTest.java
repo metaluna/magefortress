@@ -27,6 +27,7 @@ package magefortress.map;
 import java.util.HashSet;
 import java.util.Set;
 import magefortress.creatures.behavior.movable.MFCapability;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -112,7 +113,7 @@ public class MFClearanceCalculatorTest
   //---vvv---      PRIVATE METHODS      ---vvv---
   private MFMap createMap(int _width, int _height, int _depth)
   {
-    MFMap resultMap = new MFMap(-1, _width, _height, _depth);
+    MFMap resultMap = new MFMap(-1, _width, _height, _depth, mock(MFGround.class));
     for (int x = 0; x < _width; ++x) {
       for (int y = 0; y < _height; ++y) {
         for (int z = 0; z < _depth; ++z) {

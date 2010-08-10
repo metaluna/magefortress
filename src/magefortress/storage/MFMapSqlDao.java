@@ -25,10 +25,12 @@
 package magefortress.storage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import magefortress.core.Immutable;
+import magefortress.map.ground.MFGround;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 
@@ -45,25 +47,35 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   private static final String DESTROY   = "DELETE FROM maps WHERE id=?";
 
   /**
-   * Most basic constructor
+   * Constructor used for loading maps
    * @param _db
    * @param _daoFactory
+   * @param _groundTypes
    */
-  public MFMapSqlDao(MFSqlConnector _db, MFDaoFactory _daoFactory)
+  public MFMapSqlDao(MFSqlConnector _db, MFDaoFactory _daoFactory, 
+                                            Map<Integer, MFGround> _groundTypes)
   {
-    this(_db, null, _daoFactory);
+    this(_db, null, _daoFactory, _groundTypes);
   }
 
   /**
-   * Constructor
+   * Constructor used for saving and deleting maps
    * @param _db The database connection
    * @param _map The map that has to be saved/deleted
    * @param _daoFactory The factory used to save and load the map's tiles
    */
+  @SuppressWarnings("unchecked")
   public MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory)
+  {
+    this(_db, _map, _daoFactory, Collections.EMPTY_MAP);
+  }
+
+  private MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory,
+          Map<Integer, MFGround> _groundTypes)
   {
     super(_db, _map);
     this.daoFactory = _daoFactory;
+    this.groundTypes = _groundTypes;
   }
 
   @Override
@@ -142,7 +154,8 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
     int height = (Integer) _data.get("height");
     int depth = (Integer) _data.get("depth");
 
-    MFMap gotMap = new MFMap(id, width, height, depth);
+    MFGround defaultGround = this.groundTypes.values().toArray(new MFGround[0])[0];
+    MFMap gotMap = new MFMap(id, width, height, depth, defaultGround);
 
     return gotMap;
   }
@@ -161,6 +174,8 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Used for loading of tiles */
   private final MFDaoFactory daoFactory;
+  /** Used during the construction of maps */
+  private final Map<Integer, MFGround> groundTypes;
 
   private void saveTiles() throws DataAccessException
   {
@@ -183,7 +198,7 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   {
     assert _tile != null : "MFMapSqlDao: No tile to save.";
     
-    MFITileDao tileDao = this.daoFactory.getTileDao(_tile, _mapId);
+    MFITileDao tileDao = this.daoFactory.getTileSavingDao(_tile, _mapId);
     tileDao.save();
   }
 
@@ -191,7 +206,7 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   {
     assert _map != null : "MFMapSqlDao: Can't load tiles of null map.";
 
-    MFITileDao tileDao = this.daoFactory.getTileDao();
+    MFITileDao tileDao = this.daoFactory.getTileLoadingDao(this.groundTypes);
 
     List<MFTile> tiles = tileDao.loadAllOfMap(_map.getId());
 
@@ -213,7 +228,7 @@ class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
       for (int y=0; y<map.getHeight(); ++y) {
         for (int z=0; z<map.getDepth(); ++z) {
           MFTile tile = map.getTile(x, y, z);
-          MFITileDao tileDao = this.daoFactory.getTileDao(tile, map.getId());
+          MFITileDao tileDao = this.daoFactory.getTileSavingDao(tile, map.getId());
           tileDao.delete();
         }
       }

@@ -24,6 +24,7 @@
  */
 package magefortress.map;
 
+import magefortress.map.ground.MFGround;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.EnumMap;
@@ -50,6 +51,7 @@ public class MFTile implements MFIPaintable, MFISaveable
   public enum Corner {NONE,VERTICAL,HORIZONTAL,BOTH,INWARD};
   /** Size of one tile. */
   public final static int TILESIZE = 48;
+  public static final int WALL_WIDTH = 12;
 
   /**
    * Convenience constructor creating an underground tile with no walls.
@@ -58,9 +60,9 @@ public class MFTile implements MFIPaintable, MFISaveable
    * @param _posY Position on the map
    * @param _posZ Position on the map
    */
-  public MFTile(int _id, int _posX, int _posY, int _posZ)
+  public MFTile(int _id, int _posX, int _posY, int _posZ, MFGround _ground)
   {
-    this(_id, _posX, _posY, _posZ, false,false,false,false,false,true,true);
+    this(_id, _posX, _posY, _posZ, false,false,false,false,false,true,true, _ground);
   }
   /**
    * Full constructor
@@ -78,14 +80,22 @@ public class MFTile implements MFIPaintable, MFISaveable
    */
   public MFTile(int _id, int _posX, int _posY, int _posZ, boolean _isDugOut,
           boolean _wallN, boolean _wallE, boolean _wallS, boolean _wallW,
-          boolean _floor, boolean _isUnderground)
+          boolean _floor, boolean _isUnderground, MFGround _ground)
   {
+    if (_ground == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+                                                     "ground type.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+
     this.id = _id;
     this.posX = _posX;
     this.posY = _posY;
     this.posZ = _posZ;
     this.isDugOut = _isDugOut;
     this.isUnderground = _isUnderground;
+    this.ground = _ground;
 
     // init listener lists
     this.constructionsListeners = new LinkedList<MFITileConstructionsListener>();
@@ -140,7 +150,7 @@ public class MFTile implements MFIPaintable, MFISaveable
     return new MFLocation(this.posX, this.posY, this.posZ);
   }
 
-  public MFIProducible getGround()
+  public MFGround getGround()
   {
     return this.ground;
   }
@@ -281,7 +291,7 @@ public class MFTile implements MFIPaintable, MFISaveable
   @Override
   public void update()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    this.ground.update();
   }
 
   @Override
@@ -294,6 +304,7 @@ public class MFTile implements MFIPaintable, MFISaveable
 
     if (this.isDugOut()) {
       paintWalls(_g, x, y);
+      paintCorners(_g, x, y);
     }
 
     if (PRINT_CLEARANCE) {
@@ -451,7 +462,6 @@ public class MFTile implements MFIPaintable, MFISaveable
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final static boolean PRINT_CLEARANCE = false;
-  private static final int WALL_WIDTH = 12;
   private static final Logger logger = Logger.getLogger(MFTile.class.getName());
 
   private final MFNavigationTile naviInfo;
@@ -461,7 +471,7 @@ public class MFTile implements MFIPaintable, MFISaveable
   private boolean isDugOut;
   private boolean wallN, wallE, wallS, wallW;
   private boolean floor;
-  private MFIProducible ground;
+  private final MFGround ground;
   /**The types of corners. Automatically calculated
    * @Transient */
   private EnumMap<MFEDirection, Corner> corners;
@@ -478,49 +488,31 @@ public class MFTile implements MFIPaintable, MFISaveable
    * @param x The x-coordinate of the top-left position of the tile
    * @param y The y-coordinate of the top-left position of the tile
    */
-  private void paintFloor(Graphics2D _g, final int x, final int y)
+  private void paintFloor(final Graphics2D _g, final int x, final int y)
   {
-    // paint floor
-    if (this.isUnderground()) {
-      if (!this.hasFloor()) {
-        _g.setColor(Color.BLUE);
-      } else if (this.isDugOut()) {
-        _g.setColor(Color.LIGHT_GRAY);
-      } else {
-        _g.setColor(Color.BLACK);
-      }
+    if (!this.hasFloor()) {
+      _g.setColor(Color.BLUE);
+      _g.fillRect(x, y, TILESIZE, TILESIZE);
+    } else if (this.isDugOut()) {
+      this.ground.getBasicFloor().paint(_g, x, y);
     } else {
-      _g.setColor(Color.GREEN);
+      this.ground.getSolidTile().paint(_g, x, y);
     }
-    _g.fillRect(x, y, TILESIZE, TILESIZE);
   }
 
   /**
    * Paints the walls
    * @param _g The canvas
-   * @param x The x-coordinate of the top-left position of the tile
-   * @param y The y-coordinate of the top-left position of the tile
+   * @param _x The x-coordinate of the top-left position of the tile
+   * @param _y The y-coordinate of the top-left position of the tile
    */
-  private void paintWalls(Graphics2D _g, final int x, final int y)
+  private void paintWalls(final Graphics2D _g, final int _x, final int _y)
   {
-    _g.setColor(Color.DARK_GRAY);
-
-    final int wallLength = TILESIZE - WALL_WIDTH * 2;
-
-    if (this.hasWallNorth()) {
-      _g.fillRect(x + WALL_WIDTH, y, wallLength, WALL_WIDTH);
+    for (MFEDirection dir : MFEDirection.straight()) {
+      if (this.hasWall(dir)) {
+        this.ground.getBasicWall(dir).paint(_g, _x, _y);
+      }
     }
-    if (this.hasWallEast()) {
-      _g.fillRect(x + wallLength + WALL_WIDTH, y + WALL_WIDTH, WALL_WIDTH, wallLength);
-    }
-    if (this.hasWallSouth()) {
-      _g.fillRect(x + WALL_WIDTH, y + wallLength + WALL_WIDTH, wallLength, WALL_WIDTH);
-    }
-    if (this.hasWallWest()) {
-      _g.fillRect(x, y + WALL_WIDTH, WALL_WIDTH, wallLength);
-    }
-
-    paintCorners(_g, x, y, wallLength);
   }
 
   /**
@@ -528,44 +520,11 @@ public class MFTile implements MFIPaintable, MFISaveable
    * @param _g The canvas
    * @param x The x-coordinate of the top-left position of the tile
    * @param y The y-coordinate of the top-left position of the tile
-   * @param wallLength The length of the wall (vs. the space occupied by the corners)
    */
-  private void paintCorners(Graphics2D _g, final int x, final int y, final int wallLength)
+  private void paintCorners(final Graphics2D _g, final int _x, final int _y)
   {
-    this.paintCorner(_g, MFEDirection.NE, x + wallLength + WALL_WIDTH, y);
-    this.paintCorner(_g, MFEDirection.SE, x + wallLength + WALL_WIDTH, y + wallLength + WALL_WIDTH);
-    this.paintCorner(_g, MFEDirection.SW, x, y + wallLength + WALL_WIDTH);
-    this.paintCorner(_g, MFEDirection.NW, x, y);
-  }
-
-  private void paintCorner(Graphics2D _g, MFEDirection _direction, int _x, int _y)
-  {
-    final Corner corner = this.getCorner(_direction);
-    if (corner == Corner.HORIZONTAL) {
-      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-    } else if (corner == Corner.VERTICAL) {
-      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-    } else if (corner == Corner.INWARD) {
-      _g.fillRect(_x, _y, WALL_WIDTH, WALL_WIDTH);
-    } else if (corner == Corner.BOTH) {
-      int startAngle = 0;
-      if (_direction == MFEDirection.NE || _direction == MFEDirection.SE) {
-        startAngle = 180;
-      }
-
-      int arc = 90;
-      if (_direction == MFEDirection.NW || _direction == MFEDirection.SE) {
-        arc *= -1;
-      }
-
-      if (_direction == MFEDirection.NW || _direction == MFEDirection.SW) {
-        _x -=WALL_WIDTH;
-      }
-      if (_direction == MFEDirection.NW || _direction == MFEDirection.NE) {
-        _y -=WALL_WIDTH;
-      }
-
-      _g.fillArc(_x, _y, WALL_WIDTH*2, WALL_WIDTH*2, startAngle, arc);
+    for (MFEDirection dir : MFEDirection.diagonals()) {
+      this.ground.getBasicCorner(dir, this.getCorner(dir)).paint(_g, _x, _y);
     }
   }
 

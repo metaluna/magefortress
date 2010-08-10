@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 
 /**
  * The class holds information about materials needed to produce an item.

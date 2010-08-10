@@ -27,10 +27,11 @@ package magefortress.jobs.digging;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.jobs.MFBlueprint;
 import magefortress.jobs.MFIProducible;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -48,7 +49,7 @@ public class MFQuarryTest
     this.graniteBlueprint = mock(MFBlueprint.class);
     this.bauxiteBlueprint = mock(MFBlueprint.class);
 
-    MFIProducible stone = mock(MFIProducible.class);
+    MFGround stone = mock(MFGround.class);
     when(stone.getBlueprint()).thenReturn(graniteBlueprint);
 
     MFTile granite = mock(MFTile.class);
@@ -81,7 +82,7 @@ public class MFQuarryTest
     // given a quarry room on granite
 
     // when i add bauxite tiles
-    final MFIProducible bauxite = mock(MFIProducible.class);
+    final MFGround bauxite = mock(MFGround.class);
     when(bauxite.getBlueprint()).thenReturn(this.bauxiteBlueprint);
 
     final MFTile bauxiteTile = mock(MFTile.class);
@@ -104,7 +105,7 @@ public class MFQuarryTest
   public void shouldNotGetMinableStoneOfRemoveTerrain()
   {
     // given a quarry room on granite and bauxite
-    final MFIProducible bauxite = mock(MFIProducible.class);
+    final MFGround bauxite = mock(MFGround.class);
     when(bauxite.getBlueprint()).thenReturn(this.bauxiteBlueprint);
 
     final MFTile bauxiteTile = mock(MFTile.class);

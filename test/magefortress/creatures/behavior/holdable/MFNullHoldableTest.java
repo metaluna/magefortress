@@ -24,7 +24,7 @@
  */
 package magefortress.creatures.behavior.holdable;
 
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.map.MFTile;
 import org.junit.Before;
 import org.junit.Test;

@@ -25,10 +25,12 @@
 package magefortress.storage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import magefortress.core.Immutable;
+import magefortress.map.ground.MFGround;
 import magefortress.map.MFTile;
 
 /**
@@ -37,29 +39,29 @@ import magefortress.map.MFTile;
 class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
 {
   // QUERIES
-  private static final String CREATE    = "INSERT INTO tiles (map_id, room_id, " +
+  private static final String CREATE    = "INSERT INTO tiles (map_id, ground_id, room_id, " +
           "object_id, x, y, z, underground, dug_out, wall_n, wall_e, wall_s, wall_w, floor) " +
-          "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
-  private static final String READ      = "SELECT id, map_id, room_id, object_id, " +
+          "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+  private static final String READ      = "SELECT id, map_id, ground_id, room_id, object_id, " +
           "x, y, z, underground, dug_out, wall_n, wall_e, wall_s, wall_w, floor " +
           "FROM tiles WHERE id=?;";
-  private static final String READ_ALL  = "SELECT id, map_id, room_id, object_id, " +
+  private static final String READ_ALL  = "SELECT id, map_id, ground_id, room_id, object_id, " +
           "x, y, z, underground, dug_out, wall_n, wall_e, wall_s, wall_w, floor FROM tiles;";
-  private static final String UPDATE    = "UPDATE tiles SET map_id=?, room_id=?, " +
+  private static final String UPDATE    = "UPDATE tiles SET map_id=?, ground_id=?, room_id=?, " +
           "object_id=?, x=?, y=?, z=?, underground=?, dug_out=?, wall_n=?, wall_e=?, " +
           "wall_s=?, wall_w=?, floor=? WHERE id=?;";
   private static final String DESTROY   = "DELETE FROM tiles WHERE id=?";
-  private static final String READ_MAP_TILES = "SELECT id, map_id, room_id, object_id, " +
+  private static final String READ_MAP_TILES = "SELECT id, map_id, ground_id, room_id, object_id, " +
           "x, y, z, underground, dug_out, wall_n, wall_e, wall_s, wall_w, floor FROM tiles " +
           "WHERE map_id=?;";
 
   /**
-   * Most basic constructor
+   * Constructor used for loading tiles. No data about a tile is held.
    * @param _db
    */
-  public MFTileSqlDao(MFSqlConnector _db)
+  public MFTileSqlDao(MFSqlConnector _db, Map<Integer, MFGround> _groundTypes)
   {
-    this(_db, null, MFSqlDao.UNSAVED_MARKER);
+    this(_db, null, MFSqlDao.UNSAVED_MARKER, _groundTypes);
   }
 
   /**
@@ -68,10 +70,18 @@ class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
    * @param _tile
    * @param _mapId
    */
+  @SuppressWarnings("unchecked")
   public MFTileSqlDao(MFSqlConnector _db, MFTile _tile, int _mapId)
+  {
+    this(_db, _tile, _mapId, Collections.EMPTY_MAP);
+  }
+
+  private MFTileSqlDao(MFSqlConnector _db, MFTile _tile, int _mapId,
+                                            Map<Integer, MFGround> _groundTypes)
   {
     super(_db, _tile);
     this.mapId = _mapId;
+    this.groundTypes = _groundTypes;
   }
 
   @Override
@@ -119,6 +129,7 @@ class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
 
     int id = (Integer) _data.get("id");
     int unusedMapId = (Integer) _data.get("map_id");
+    int groundTypeId = (Integer) _data.get("ground_id");
     int roomId = (Integer) _data.get("room_id");
     int objectId = (Integer) _data.get("object_id");
     int posX = (Integer) _data.get("x");
@@ -132,8 +143,9 @@ class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
     boolean wallW = this.toBoolean(_data.get("wall_w"));
     boolean floor = this.toBoolean(_data.get("floor"));
 
+    MFGround ground = groundTypes.get(groundTypeId);
     MFTile gotTile = new MFTile(id, posX, posY, posZ, isDugOut,
-                              wallN, wallE, wallS, wallW, floor, isUnderground);
+                      wallN, wallE, wallS, wallW, floor, isUnderground, ground);
 
     if (roomId != this.getUnsavedMarker()) {
       //TODO add tile to room
@@ -151,8 +163,10 @@ class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
     final List<Object> vectorizedData = new ArrayList<Object>(14);
     vectorizedData.add(this.mapId);
     // TODO make room and object saveable
+    //vectorizedData.add(tile.getGround().getId());
     //vectorizedData.add(tile.getRoom().getId());
     //vectorizedData.add(tile.getObject().getId());
+    vectorizedData.add(this.getUnsavedMarker());
     vectorizedData.add(this.getUnsavedMarker());
     vectorizedData.add(this.getUnsavedMarker());
     vectorizedData.add(this.getPayload().getPosX());
@@ -172,6 +186,8 @@ class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Id of the map. Saved here because tiles don't have that information */
   private final int mapId;
+  /** List of ground types */
+  private final Map<Integer, MFGround> groundTypes;
 
   /**
    * Converts an integer saved in the database to a boolean

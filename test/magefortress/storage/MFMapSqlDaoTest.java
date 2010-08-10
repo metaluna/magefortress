@@ -24,11 +24,15 @@
  */
 package magefortress.storage;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import magefortress.core.MFEDirection;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -71,7 +75,7 @@ public class MFMapSqlDaoTest
     
     mockDaoFactory = mock(MFDaoFactory.class);
 
-    unsavedMap = new MFMap(MFSqlDao.UNSAVED_MARKER, 4, 5, 1);
+    unsavedMap = new MFMap(MFSqlDao.UNSAVED_MARKER, 4, 5, 1, mock(MFGround.class));
 
     unsavedMapSqlDao = new MFMapSqlDao(mockDb, unsavedMap, realDaoFactory);
 
@@ -108,9 +112,10 @@ public class MFMapSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
+  @SuppressWarnings("unchecked")
   public void shouldNotSaveWithoutMap() throws DataAccessException
   {
-    new MFMapSqlDao(mockDb, mockDaoFactory).save();
+    new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP).save();
   }
 
   @Test
@@ -251,9 +256,10 @@ public class MFMapSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
+  @SuppressWarnings("unchecked")
   public void shouldNotDeleteWithouMap() throws DataAccessException
   {
-    new MFMapSqlDao(mockDb, mockDaoFactory).delete();
+    new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP).delete();
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -277,30 +283,32 @@ public class MFMapSqlDaoTest
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void shouldNotGetMapWithoutMap()
   {
-    unsavedMapSqlDao = new MFMapSqlDao(mockDb, mockDaoFactory);
+    unsavedMapSqlDao = new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP);
     assertNull(unsavedMapSqlDao.getPayload());
   }
 
   @Test
   public void shouldNotGetMapAfterLoading() throws DataAccessException
   {
-    unsavedMapSqlDao = new MFMapSqlDao(
-            realDb, unsavedMap, realDaoFactory);
+    unsavedMapSqlDao = getRealDao();
 
     MFMap loadedMap = unsavedMapSqlDao.load(1);
     MFMap gotMap    = unsavedMapSqlDao.getPayload();
 
     assertNotNull(loadedMap);
-    assertNotSame(unsavedMap, loadedMap);
-    assertEquals(unsavedMap, gotMap);
+    assertNotSame(gotMap, loadedMap);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  @SuppressWarnings("unchecked")
   private MFMapSqlDao getRealDao()
   {
-    return new MFMapSqlDao(realDb, realDaoFactory);
+    Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>();
+    groundTypes.put(1, mock(MFGround.class));
+    return new MFMapSqlDao(realDb, realDaoFactory, groundTypes);
   }
 
 

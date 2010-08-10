@@ -27,6 +27,7 @@ package magefortress.map;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.movable.MFCapability;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -535,7 +536,7 @@ public class MFHierarchicalAStarTest
 
   private MFNavigationMap createMap(int _width, int _height, int _depth)
   {
-    this.map = new MFMap(-1, _width, _height, _depth);
+    this.map = new MFMap(-1, _width, _height, _depth, mock(MFGround.class));
     for (int x = 0; x < _width; ++x) {
       for (int y = 0; y < _height; ++y) {
         for (int z = 0; z < _depth; ++z) {

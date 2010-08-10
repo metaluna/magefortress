@@ -25,7 +25,7 @@
 package magefortress.jobs;
 
 import magefortress.jobs.subtasks.*;
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.core.MFWorkshop;
 import magefortress.map.MFPathFinder;
 

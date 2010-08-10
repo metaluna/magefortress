@@ -22,20 +22,61 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior.holdable;
+package magefortress.items;
 
-import magefortress.items.MFItem;
-import magefortress.map.MFTile;
+import magefortress.core.MFIPlaceable;
+import magefortress.jobs.MFBlueprint;
+import magefortress.jobs.MFIProducible;
 
 /**
- * Defines wether and how a creature can hold things.
+ * Base class for all items
  */
-public interface MFIHoldable
+public class MFItem implements MFIPlaceable, MFIProducible
 {
-  public boolean canHold();
-  public boolean pickup();
-  public boolean putDown();
-  public void addItem(MFItem _item);
-  public boolean putItem(MFTile _tile);
+  private String name;
+
+  public MFItem(String _name)
+  {
+    this.name = _name;
+  }
+  
+  public String getName()
+  {
+    return this.name;
+  }
+
+  //---vvv---     PLACEABLE INTERFACE METHODS     ---vvv---
+  @Override
+  public boolean isPlaceable()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public boolean setPlaced(boolean _placed)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public boolean isPlaced()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public int getLivingValue()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  //---vvv---     PRODUCIBLE INTERFACE METHODS     ---vvv---
+  @Override
+  public MFBlueprint getBlueprint()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
 
 }

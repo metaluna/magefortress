@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,45 +22,40 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.map.ground;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import magefortress.graphics.MFIPaintable;
+import magefortress.map.MFTile;
 
 /**
- * Base class for all items
+ *
  */
-public class MFItem implements MFIPlaceable
+public class MFBasicUndergroundFloor implements MFIPaintable
 {
-  private String name;
-
-  public MFItem(String _name)
+  public MFBasicUndergroundFloor(boolean _isSolid)
   {
-    this.name = _name;
-  }
-  
-  public String getName()
-  {
-    return this.name;
+    this.isSolid = _isSolid;
   }
 
-  public boolean isPlaceable()
+  @Override
+  public void update()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    //noop
   }
 
-  public boolean setPlaced(boolean _placed)
+  @Override
+  public void paint(Graphics2D _g, int _x, int _y)
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    if (this.isSolid) {
+      _g.setColor(Color.BLACK);
+    } else {
+      _g.setColor(Color.LIGHT_GRAY);
+    }
+    _g.fillRect(_x, _y, MFTile.TILESIZE, MFTile.TILESIZE);
   }
 
-  public boolean isPlaced()
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-  public int getLivingValue()
-  {
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
-    //---vvv---      PRIVATE METHODS      ---vvv---
-
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private final boolean isSolid;
 }

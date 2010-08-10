@@ -27,9 +27,11 @@ package magefortress.map;
 import java.awt.Point;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class MFMapTest
 {
@@ -84,7 +86,7 @@ public class MFMapTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotSetTileOutsideOfMap()
   {
-    this.map.setTile(new MFTile(-1,-1,0,0));
+    this.map.setTile(new MFTile(-1,-1,0,0, mock(MFGround.class)));
   }
 
   @Test
@@ -93,7 +95,7 @@ public class MFMapTest
     int x = WIDTH-1;
     int y = HEIGHT-1;
     int z = DEPTH-1;
-    MFTile expTile = new MFTile(-1, x, y, z);
+    MFTile expTile = new MFTile(-1, x, y, z, mock(MFGround.class));
     
     this.map.setTile(expTile);
 
@@ -512,7 +514,7 @@ public class MFMapTest
   
   private static MFMap createMap(int _width, int _height, int _depth)
   {
-    MFMap result = new MFMap(-1, _width, _height, _depth);
+    MFMap result = new MFMap(-1, _width, _height, _depth, mock(MFGround.class));
     for (int x = 0; x < _width; ++x) {
       for (int y = 0; y < _height; ++y) {
         for (int z = 0; z < _depth; ++z) {

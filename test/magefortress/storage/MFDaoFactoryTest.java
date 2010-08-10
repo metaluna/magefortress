@@ -24,6 +24,7 @@
  */
 package magefortress.storage;
 
+import java.util.Collections;
 import java.util.Properties;
 import magefortress.creatures.MFRace;
 import magefortress.map.MFMap;
@@ -92,7 +93,8 @@ public class MFDaoFactoryTest
   @Test
   public void shouldGetMapSqlDao()
   {
-    MFIMapDao mapDao = factory.getMapDao();
+    @SuppressWarnings("unchecked")
+    MFIMapDao mapDao = factory.getMapDao(Collections.EMPTY_MAP);
     assertEquals(MFMapSqlDao.class, mapDao.getClass());
   }
 
@@ -100,15 +102,16 @@ public class MFDaoFactoryTest
   public void shouldGetTileDaoWithTileAndMap()
   {
     MFTile mockTile = mock(MFTile.class);
-    MFITileDao tileDao = factory.getTileDao(mockTile, 1);
+    MFITileDao tileDao = factory.getTileSavingDao(mockTile, 1);
     assertEquals(mockTile, tileDao.getPayload());
     assertEquals(1, tileDao.getMapId());
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void shouldGetTileSqlDao()
   {
-    MFITileDao tileDao = factory.getTileDao();
+    MFITileDao tileDao = factory.getTileLoadingDao(Collections.EMPTY_MAP);
     assertEquals(MFTileSqlDao.class, tileDao.getClass());
   }
 

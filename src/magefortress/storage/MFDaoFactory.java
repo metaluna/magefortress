@@ -24,9 +24,12 @@
  */
 package magefortress.storage;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import magefortress.creatures.MFRace;
+import magefortress.map.ground.MFGround;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 
@@ -43,8 +46,9 @@ public class MFDaoFactory
   public enum Storage {SQL}
 
   /**
-   * Constructor accepting the desired storage mechanism.
-   * @param _storage
+   * Constructor accepting the desired storage mechanism configured by
+   * a properties object.
+   * @param _props
    */
   public MFDaoFactory(Properties _props)
   {
@@ -73,9 +77,15 @@ public class MFDaoFactory
     return raceDao;
   }
 
-  public MFIMapDao getMapDao()
+  public MFIMapDao getMapDao(Map<Integer, MFGround> _groundTypes)
   {
-    return this.getMapDao(null);
+    MFIMapDao mapDao;
+    switch (this.storage) {
+      case SQL: mapDao = new MFMapSqlDao(this.db, this, _groundTypes); break;
+      default: throw new AssertionError("Unexpected statement: storage mechanism " +
+              storage + " unknown.");
+    }
+    return mapDao;
   }
 
   public MFIMapDao getMapDao(MFMap _payload)
@@ -89,11 +99,16 @@ public class MFDaoFactory
     return mapDao;
   }
 
-  public MFITileDao getTileDao()
+  /**
+   * Factory method for constructing tile loading DAOs
+   * @param _groundTypes
+   * @return
+   */
+  public MFITileDao getTileLoadingDao(Map<Integer, MFGround> _groundTypes)
   {
     MFITileDao tileDao;
     switch (this.storage) {
-      case SQL: tileDao = new MFTileSqlDao(this.db);
+      case SQL: tileDao = new MFTileSqlDao(this.db, _groundTypes);
                 break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
@@ -101,12 +116,13 @@ public class MFDaoFactory
     return tileDao;
   }
 
-  public MFITileDao getTileDao(int _mapId)
-  {
-    return this.getTileDao(null, _mapId);
-  }
-
-  public MFITileDao getTileDao(MFTile _payload, int _mapId)
+  /**
+   * Factory method for constructing save/delete DAOs
+   * @param _payload
+   * @param _mapId
+   * @return
+   */
+  public MFITileDao getTileSavingDao(MFTile _payload, int _mapId)
   {
     MFITileDao tileDao;
     switch (this.storage) {
@@ -144,11 +160,12 @@ public class MFDaoFactory
     this.prepareStatements();
   }
 
+  @SuppressWarnings("unchecked")
   private void prepareStatements()
   {
     new MFRaceSqlDao(this.db).prepareStatements();
-    new MFMapSqlDao(this.db, this).prepareStatements();
-    new MFTileSqlDao(this.db).prepareStatements();
+    new MFMapSqlDao(this.db, this, Collections.EMPTY_MAP).prepareStatements();
+    new MFTileSqlDao(this.db, Collections.EMPTY_MAP).prepareStatements();
   }
 
 }

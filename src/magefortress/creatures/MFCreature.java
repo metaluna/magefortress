@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 import magefortress.channel.MFChannelMessage;
 import magefortress.channel.MFIChannelSubscriber;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.core.MFLocation;
 import magefortress.creatures.behavior.instrumentable.MFTool;
 import magefortress.creatures.behavior.instrumentable.MFEJob;

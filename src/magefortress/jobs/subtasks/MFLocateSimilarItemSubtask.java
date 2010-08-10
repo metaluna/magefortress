@@ -24,7 +24,7 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.core.MFItem;
+import magefortress.items.MFItem;
 import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
 

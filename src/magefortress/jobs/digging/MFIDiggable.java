@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,20 +22,22 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior.holdable;
+package magefortress.jobs.digging;
 
-import magefortress.items.MFItem;
-import magefortress.map.MFTile;
+import magefortress.core.MFEDirection;
+import magefortress.graphics.MFIPaintable;
+import magefortress.map.MFTile.Corner;
 
 /**
- * Defines wether and how a creature can hold things.
+ * Interface for items that represent stone and soil. It is used for retrieving
+ * the graphics of dug out tiles and storing data like hardness.
  */
-public interface MFIHoldable
+public interface MFIDiggable
 {
-  public boolean canHold();
-  public boolean pickup();
-  public boolean putDown();
-  public void addItem(MFItem _item);
-  public boolean putItem(MFTile _tile);
-
+  public boolean isDiggable();
+  public int getHardness();
+  public MFIPaintable getSolidTile();
+  public MFIPaintable getBasicFloor();
+  public abstract MFIPaintable getBasicWall(MFEDirection _direction);
+  public MFIPaintable getBasicCorner(MFEDirection _direction, Corner _corner);
 }

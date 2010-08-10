@@ -32,6 +32,7 @@ import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -57,7 +58,8 @@ public class MFDiggingSiteTest
 
     this.mockChannel = mock(MFCommunicationChannel.class);
     this.location = new MFLocation(0, 0, 0);
-    MFMap realMap = new MFMap(-1, 5, 5, 1);
+    @SuppressWarnings("unchecked")
+    MFMap realMap = new MFMap(-1, 5, 5, 1, mock(MFGround.class));
     realMap.digOut(location);
     realMap.digOut(new MFLocation(1,0,0));
     realMap.digOut(new MFLocation(0,1,0));
@@ -79,7 +81,7 @@ public class MFDiggingSiteTest
     when(unreachableMockMap.getWidth()).thenReturn(2);
     when(unreachableMockMap.getHeight()).thenReturn(2);
     when(unreachableMockMap.getDepth()).thenReturn(2);
-    MFTile undergroundTile = new MFTile(-1,0,0,0);
+    MFTile undergroundTile = new MFTile(-1,0,0,0, mock(MFGround.class));
     when(unreachableMockMap.getTile(any(MFLocation.class))).thenReturn(undergroundTile);
 
     unreachableDiggingSite = new MFDiggingSite(location, unreachableMockMap, 

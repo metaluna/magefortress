@@ -22,41 +22,55 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior.holdable;
+package magefortress.map.ground;
 
-import magefortress.items.MFItem;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import magefortress.core.MFEDirection;
+import magefortress.graphics.MFIPaintable;
 import magefortress.map.MFTile;
 
 /**
  *
  */
-public class MFMockHoldable implements MFIHoldable
+public class MFBasicUndergroundWall implements MFIPaintable
 {
-
-  public boolean canHold()
+  public MFBasicUndergroundWall(MFEDirection _direction)
   {
-    return true;
+    this.direction = _direction;
   }
 
-  public boolean pickup()
+  @Override
+  public void update()
   {
-    return true;
+    //noop
   }
 
-  public boolean putDown()
+  @Override
+  public void paint(final Graphics2D _g, final int _x, final int _y)
   {
-    return true;
-  }
+    _g.setColor(WALL_COLOR);
 
-  public void addItem(MFItem _item)
-  {
-  }
+    final int TILESIZE = MFTile.TILESIZE;
+    final int WALL_WIDTH = MFTile.WALL_WIDTH;
+    final int wallLength = TILESIZE - WALL_WIDTH * 2;
 
-  public boolean putItem(MFTile _tile)
-  {
-    return true;
+    if (this.direction == MFEDirection.N) {
+      _g.fillRect(_x + WALL_WIDTH, _y, wallLength, WALL_WIDTH);
+    }
+    if (this.direction == MFEDirection.E) {
+      _g.fillRect(_x + wallLength + WALL_WIDTH, _y + WALL_WIDTH, WALL_WIDTH, wallLength);
+    }
+    if (this.direction == MFEDirection.S) {
+      _g.fillRect(_x + WALL_WIDTH, _y + wallLength + WALL_WIDTH, wallLength, WALL_WIDTH);
+    }
+    if (this.direction == MFEDirection.W) {
+      _g.fillRect(_x, _y + WALL_WIDTH, WALL_WIDTH, wallLength);
+    }
+
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-
+  private static final Color WALL_COLOR = Color.DARK_GRAY;
+  private final MFEDirection direction;
 }

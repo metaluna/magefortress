@@ -29,6 +29,9 @@ import magefortress.core.MFIPlaceable;
 import magefortress.core.MFRoom;
 import magefortress.core.MFRoomMock;
 import magefortress.creatures.behavior.movable.MFCapability;
+import magefortress.jobs.MFBlueprint;
+import magefortress.map.ground.MFBasicUnderground;
+import magefortress.map.ground.MFGround;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +45,14 @@ public class MFTileTest
   @Before
   public void setUp()
   {
-    this.tile = new MFTile(-1, 0, 0, 0);
+    MFBlueprint blueprint = mock(MFBlueprint.class);
+    int hardness = 250;
+    MFGround ground = new MFGround(blueprint, hardness,
+                                   MFBasicUnderground.getBasicSolidTile(),
+                                   MFBasicUnderground.getBasicUndergroundFloor(),
+                                   MFBasicUnderground.getBasicUndergroundWalls(),
+                                   MFBasicUnderground.getBasicUndergroundCorners());
+    this.tile = new MFTile(-1, 0, 0, 0, ground);
   }
 
   @Test
