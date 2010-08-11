@@ -25,7 +25,6 @@
 package magefortress.jobs.mining;
 
 import magefortress.core.MFGameObjectFactory;
-import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.instrumentable.MFEJob;
 import magefortress.items.MFItem;
@@ -42,36 +41,7 @@ public class MFMineSubtask extends MFSubtask
   public MFMineSubtask(MFCreature _owner, MFMap _map, MFGameObjectFactory _gameObjectFactory)
   {
     super(_owner);
-    if (_map == null) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                                              "without a map.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (!_owner.canHold()) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                      "with a creature unable to carry items.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (!_owner.canUseTools()) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                      "with a creature unable to use tools.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_owner.getJobSkill(JOB_SKILL_USED) < 1) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                              "with a creature unable to mine.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    if (_gameObjectFactory == null) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                              "without a game object factory.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
+    validateConstructorParams(_map, _owner, _gameObjectFactory);
     this.map = _map;
     this.ground = this.map.getTile(this.getOwner().getLocation()).getGround();
     this.gameObjectFactory = _gameObjectFactory;
@@ -86,7 +56,8 @@ public class MFMineSubtask extends MFSubtask
     if (this.ticksLeft == 0) {
       this.ticksLeft = this.calculateMiningTime();
     } else if (this.ticksLeft == 1) {
-      doneMining();
+      getStone();
+      gainExperience();
       result = true;
     } else {
       --ticksLeft;
@@ -121,14 +92,61 @@ public class MFMineSubtask extends MFSubtask
     return result;
   }
 
-  private void doneMining()
+  /**
+   * Creates an item according to the blueprint received from the ground, puts
+   * it on the floor, and lets the creature pick it up. Afterwards the creature
+   * receives experience.
+   */
+  private void getStone()
   {
     MFItem stone = this.gameObjectFactory.createItem(this.ground.getBlueprint());
     this.map.getTile(this.getOwner().getLocation()).setObject(stone);
     this.getOwner().pickup();
-    // receive experience
+  }
+
+  /**
+   * Awards the mining creature with experience. The harder the stone,
+   * the higher the reward.
+   */
+  private void gainExperience()
+  {
     final int xp = (int) Math.ceil(this.ground.getHardness() / 100);
     this.getOwner().gainJobExperience(JOB_SKILL_USED, xp);
+  }
+
+  private void validateConstructorParams(MFMap _map, MFCreature _owner,
+                                         MFGameObjectFactory _gameObjectFactory)
+  {
+    if (_map == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                               "without a map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (!_owner.canHold()) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                       "with a creature unable to carry items.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (!_owner.canUseTools()) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                         "with a creature unable to use tools.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_owner.getJobSkill(JOB_SKILL_USED) < 1) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                              "with a creature unable to mine.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_gameObjectFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                               "without a game object factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
   }
 
 }

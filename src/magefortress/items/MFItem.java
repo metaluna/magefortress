@@ -24,7 +24,7 @@
  */
 package magefortress.items;
 
-import magefortress.core.MFIPlaceable;
+import magefortress.items.placeable.MFIPlaceable;
 import magefortress.jobs.MFBlueprint;
 import magefortress.jobs.MFIProducible;
 

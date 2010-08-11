@@ -24,6 +24,7 @@
  */
 package magefortress.core;
 
+import magefortress.items.placeable.MFIPlaceable;
 import magefortress.map.MFTile;
 import magefortress.map.MFITileConstructionsListener;
 import java.util.Collections;

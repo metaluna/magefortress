@@ -25,7 +25,8 @@
 package magefortress.map;
 
 import java.util.HashSet;
-import magefortress.core.MFIPlaceable;
+import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.items.placeable.MFIPlaceable;
 import magefortress.core.MFRoom;
 import magefortress.core.MFRoomMock;
 import magefortress.creatures.behavior.movable.MFCapability;
@@ -210,17 +211,92 @@ public class MFTileTest
   }
 
   @Test
-  public void shouldNotifyRoomOfChangedObject()
+  public void shouldNotifyRoomOfChangedObjectIfObjectIsPlaceable()
   {
-    MFIPlaceable item = mock(MFIPlaceable.class);
-    when(item.getLivingValue()).thenReturn(0);
+    // given a tile which is part of a room
     MFRoom spiedRoom = createSpiedRoom();
     tile.setRoom(spiedRoom);
 
+    // when a placeable item is put on the tile
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.isPlaceable()).thenReturn(true);
+
     tile.setObject(item);
+
+    // then the room should have been notified
     verify(spiedRoom).tileObjectsChanged();
   }
 
+  @Test
+  public void shouldNotNotifyRoomIfSetObjectIsNotPlaceable()
+  {
+    // given a tile which is part of a room
+    MFRoom spiedRoom = createSpiedRoom();
+    tile.setRoom(spiedRoom);
+    
+    // when a non-placeable item is put on the tile
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.isPlaceable()).thenReturn(false);
+
+    tile.setObject(item);
+
+    // then the room should not have been notified
+    verify(spiedRoom, never()).tileObjectsChanged();
+  }
+
+  @Test
+  public void shouldNotifyRoomIfPlaceableObjectIsRemoved()
+  {
+    // given a tile which is part of a room
+    MFRoom spiedRoom = createSpiedRoom();
+    tile.setRoom(spiedRoom);
+
+    // when a placeable item is put on the tile
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.isPlaceable()).thenReturn(true);
+
+    tile.setObject(item);
+    tile.setObject(null);
+
+    // then the room should have been notified
+    verify(spiedRoom, times(2)).tileObjectsChanged();
+  }
+
+  @Test
+  public void shouldNotNotifyRoomIfNonPlaceableObjectIsRemoved()
+  {
+    // given a tile which is part of a room
+    MFRoom spiedRoom = createSpiedRoom();
+    tile.setRoom(spiedRoom);
+
+    // when a non-placeable item is put on the tile
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.isPlaceable()).thenReturn(false);
+
+    tile.setObject(item);
+    tile.setObject(null);
+
+    // then the room should not have been notified
+    verify(spiedRoom, never()).tileObjectsChanged();
+  }
+
+  @Test(expected=MFPrerequisitesNotMetException.class)
+  public void shouldThrowExceptionWhenTryingToPutAnotherObject()
+  {
+    // given a tile which is part of a room
+    MFRoom spiedRoom = createSpiedRoom();
+    tile.setRoom(spiedRoom);
+
+    // when a placeable item is put on the tile
+    MFIPlaceable item = mock(MFIPlaceable.class);
+    when(item.isPlaceable()).thenReturn(true);
+
+    tile.setObject(item);
+    tile.setObject(item);
+
+    // then an exception should be thrown
+  }
+  
   @Ignore
   @Test
   public void shouldNotifyRoomOfPolishedWalls()

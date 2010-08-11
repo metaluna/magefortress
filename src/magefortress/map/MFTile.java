@@ -32,8 +32,9 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.core.MFEDirection;
-import magefortress.core.MFIPlaceable;
+import magefortress.items.placeable.MFIPlaceable;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.core.MFRoom;
 import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFEMovementType;
@@ -274,8 +275,22 @@ public class MFTile implements MFIPaintable, MFISaveable
    */
   public void setObject(MFIPlaceable _placeable)
   {
+    if (this.placedObject != null && _placeable != null) {
+      String msg = "Cannot put " + _placeable + " on tile@" + this.toString() +
+                                  ". Already occupied by " + this.placedObject;
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+
+    boolean objectRemoved = (this.placedObject != null && 
+                              this.placedObject.isPlaceable() &&
+                              _placeable == null);
+
     this.placedObject = _placeable;
-    this.notifyRoom();
+
+    if (objectRemoved || (_placeable != null && _placeable.isPlaceable())) {
+      this.notifyRoom();
+    }
   }
 
   /**

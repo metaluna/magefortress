@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.core;
+package magefortress.items.placeable;
 
 /**
  * Used for items like tables, chairs, and beds which can be freely placed by
