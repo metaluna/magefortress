@@ -44,27 +44,64 @@ public class MFLocateJobSlotSubtaskTest
 {
   private MFLocateJobSlotSubtask task;
   private MFCreature owner;
+  private MFLocation ownerLoc;
   private MFRoom room;
   private MFPathFinder pathFinder;
+
+  private MFJobSlot freeJobSlot1;
+  private MFLocation freeSlotLoc1;
+  private MFJobSlot freeJobSlot2;
+  private MFLocation freeSlotLoc2;
+  private MFJobSlot freeJobSlot3;
+  private MFLocation freeSlotLoc3;
+  private MFJobSlot occupiedJobSlot;
+  private MFLocation occupiedSlotLoc;
 
   @Before
   public void setUp()
   {
     this.room = mock(MFRoom.class);
+
     this.owner = mock(MFCreature.class);
+    this.ownerLoc = new MFLocation(42, 42, 42);
+    final int clearance = 23;
+    final MFCapability capability = MFCapability.WALK_FLY;
+    when(this.owner.getLocation()).thenReturn(this.ownerLoc);
+    when(this.owner.getCapability()).thenReturn(capability);
+    when(this.owner.getClearance()).thenReturn(clearance);
+
     this.pathFinder = mock(MFPathFinder.class);
+
     this.task = new MFLocateJobSlotSubtask(this.owner, this.room, this.pathFinder);
+
+    this.freeJobSlot1 = mock(MFJobSlot.class);
+    this.freeSlotLoc1 = new MFLocation(1, 2, 3);
+    when(this.freeJobSlot1.getLocation()).thenReturn(freeSlotLoc1);
+    when(this.freeJobSlot1.isAvailable()).thenReturn(true);
+
+    this.freeJobSlot2 = mock(MFJobSlot.class);
+    this.freeSlotLoc2 = new MFLocation(3, 2, 3);
+    when(this.freeJobSlot2.getLocation()).thenReturn(freeSlotLoc2);
+    when(this.freeJobSlot2.isAvailable()).thenReturn(true);
+
+    this.freeJobSlot3 = mock(MFJobSlot.class);
+    this.freeSlotLoc3 = new MFLocation(5, 2, 3);
+    when(this.freeJobSlot3.getLocation()).thenReturn(freeSlotLoc3);
+    when(this.freeJobSlot3.isAvailable()).thenReturn(true);
+
+    this.occupiedJobSlot = mock(MFJobSlot.class);
+    this.occupiedSlotLoc = new MFLocation(7, 2, 3);
+    when(this.occupiedJobSlot.getLocation()).thenReturn(occupiedSlotLoc);
+    when(this.occupiedJobSlot.isAvailable()).thenReturn(false);
+
   }
 
   @Test
   public void shouldNotStartSearchesIfAlreadyThere() throws MFSubtaskCanceledException
   {
     // given a creature standing on a job slot
-    MFLocation jobSlotLocation = new MFLocation(1, 2, 3);
-    when(this.owner.getLocation()).thenReturn(jobSlotLocation);
-    MFJobSlot mockSlot = mock(MFJobSlot.class);
-    when(mockSlot.getLocation()).thenReturn(jobSlotLocation);
-    when(this.room.getJobSlots()).thenReturn(Arrays.asList(mockSlot));
+    when(this.owner.getLocation()).thenReturn(freeSlotLoc1);
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(freeJobSlot1));
 
     // when the creature needs to go to a job slot
     boolean done = this.task.update();
@@ -73,31 +110,15 @@ public class MFLocateJobSlotSubtaskTest
     assertTrue(done);
 
     // and the creature's heading should be set to its current location
-    verify(this.owner).setCurrentHeading(jobSlotLocation);
+    verify(this.owner).setCurrentHeading(freeSlotLoc1);
   }
 
   @Test
   public void shouldStartSearchesForAllJobSlots() throws MFSubtaskCanceledException
   {
     // given a creature standing outside of the target room
-    MFLocation someLocation = new MFLocation(42, 42, 42);
-    final int clearance = 23;
-    final MFCapability capability = MFCapability.WALK_FLY;
-    when(this.owner.getLocation()).thenReturn(someLocation);
-    when(this.owner.getCapability()).thenReturn(capability);
-    when(this.owner.getClearance()).thenReturn(clearance);
-
-    MFLocation jobSlotLoc1 = new MFLocation(1, 2, 3);
-    MFJobSlot mockSlot1 = mock(MFJobSlot.class);
-    when(mockSlot1.getLocation()).thenReturn(jobSlotLoc1);
-    MFLocation jobSlotLoc2 = new MFLocation(3, 2, 3);
-    MFJobSlot mockSlot2 = mock(MFJobSlot.class);
-    when(mockSlot2.getLocation()).thenReturn(jobSlotLoc2);
-    MFLocation jobSlotLoc3 = new MFLocation(5, 2, 3);
-    MFJobSlot mockSlot3 = mock(MFJobSlot.class);
-    when(mockSlot3.getLocation()).thenReturn(jobSlotLoc3);
-    when(this.room.getJobSlots()).thenReturn(
-                                Arrays.asList(mockSlot1, mockSlot2, mockSlot3));
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(
+                                    freeJobSlot1, freeJobSlot2, freeJobSlot3));
 
     // when the creature needs to go to a job slot
     boolean done = this.task.update();
@@ -106,12 +127,12 @@ public class MFLocateJobSlotSubtaskTest
     assertFalse(done);
 
     // and 3 searches should have been enqueued
-    verify(this.pathFinder).enqueuePathSearch(someLocation,
-                                jobSlotLoc1, clearance, capability, this.task);
-    verify(this.pathFinder).enqueuePathSearch(someLocation,
-                                jobSlotLoc2, clearance, capability, this.task);
-    verify(this.pathFinder).enqueuePathSearch(someLocation,
-                                jobSlotLoc3, clearance, capability, this.task);
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc1),
+                              anyInt(), any(MFCapability.class), eq(this.task));
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc2),
+                              anyInt(), any(MFCapability.class), eq(this.task));
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc3),
+                              anyInt(), any(MFCapability.class), eq(this.task));
 
   }
 
@@ -119,40 +140,30 @@ public class MFLocateJobSlotSubtaskTest
   public void shouldSelectNearestJobSlot() throws MFSubtaskCanceledException
   {
     // given 3 searches for job slots were started
-    MFLocation someLocation = new MFLocation(3, 3, 3);
-    final int clearance = 23;
-    final MFCapability capability = MFCapability.WALK_FLY;
-    when(this.owner.getLocation()).thenReturn(someLocation);
-    when(this.owner.getCapability()).thenReturn(capability);
-    when(this.owner.getClearance()).thenReturn(clearance);
-
-    MFLocation jobSlotLocation = new MFLocation(1, 5, 6);
-    MFJobSlot mockSlot = mock(MFJobSlot.class);
-    when(mockSlot.getLocation()).thenReturn(jobSlotLocation);
-
-    when(this.room.getJobSlots()).thenReturn(
-                                Arrays.asList(mockSlot, mockSlot, mockSlot));
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(
+                                    freeJobSlot1, freeJobSlot2, freeJobSlot3));
     this.task.update();
-    verify(this.pathFinder, times(3)).enqueuePathSearch(someLocation,
-                            jobSlotLocation, clearance, capability, this.task);
+    verify(this.pathFinder, times(3)).enqueuePathSearch(eq(ownerLoc),
+                                        any(MFLocation.class), anyInt(),
+                                        any(MFCapability.class), eq(this.task));
 
     // when 3 searches return with different lengths
     MFPath longestPath = mock(MFPath.class);
-    MFLocation furthestLoc = new MFLocation(4, 5, 6);
+    MFLocation furthestLoc = freeSlotLoc1;
     MFTile furthestTile = mock(MFTile.class);
     when(furthestTile.getLocation()).thenReturn(furthestLoc);
     when(longestPath.getGoal()).thenReturn(furthestTile);
     when(longestPath.getCost()).thenReturn(10);
 
     MFPath longerPath = mock(MFPath.class);
-    MFLocation farLoc = new MFLocation(3, 5, 6);
+    MFLocation farLoc = freeSlotLoc2;
     MFTile farTile = mock(MFTile.class);
     when(farTile.getLocation()).thenReturn(farLoc);
     when(longerPath.getGoal()).thenReturn(farTile);
     when(longerPath.getCost()).thenReturn(7);
 
     MFPath shortestPath = mock(MFPath.class);
-    MFLocation closestLoc = new MFLocation(1, 5, 6);
+    MFLocation closestLoc = freeSlotLoc3;
     MFTile closestTile = mock(MFTile.class);
     when(closestTile.getLocation()).thenReturn(closestLoc);
     when(shortestPath.getGoal()).thenReturn(closestTile);
@@ -171,22 +182,12 @@ public class MFLocateJobSlotSubtaskTest
   public void shouldCancelIfNoPathIsFound() throws MFSubtaskCanceledException
   {
     // given 3 searches for job slots were started
-    MFLocation someLocation = new MFLocation(42, 42, 42);
-    final int clearance = 23;
-    final MFCapability capability = MFCapability.WALK_FLY;
-    when(this.owner.getLocation()).thenReturn(someLocation);
-    when(this.owner.getCapability()).thenReturn(capability);
-    when(this.owner.getClearance()).thenReturn(clearance);
-
-    MFLocation jobSlotLocation = new MFLocation(1, 2, 3);
-    MFJobSlot mockSlot = mock(MFJobSlot.class);
-    when(mockSlot.getLocation()).thenReturn(jobSlotLocation);
-
-    when(this.room.getJobSlots()).thenReturn(
-                                Arrays.asList(mockSlot, mockSlot, mockSlot));
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(
+                                    freeJobSlot1, freeJobSlot2, freeJobSlot3));
     this.task.update();
-    verify(this.pathFinder, times(3)).enqueuePathSearch(someLocation,
-                            jobSlotLocation, clearance, capability, this.task);
+    verify(this.pathFinder, times(3)).enqueuePathSearch(eq(ownerLoc),
+                                        any(MFLocation.class), anyInt(),
+                                        any(MFCapability.class), eq(this.task));
 
     // when 3 searches for job slots return nothing
     this.task.pathSearchFinished(null);
@@ -198,6 +199,50 @@ public class MFLocateJobSlotSubtaskTest
 
     // and no heading should have been set
     verify(this.owner, never()).setCurrentHeading(any(MFLocation.class));
+  }
+
+  @Test
+  public void shouldStartSearchesForUnoccupiedJobSlots() throws MFSubtaskCanceledException
+  {
+    // given 2 free and 1 occupied job slots
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(
+                                  freeJobSlot1, freeJobSlot2, occupiedJobSlot));
+
+    // when the creature needs to go to a job slot
+    this.task.update();
+
+    // then 2 searches should have been enqueued
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc1),
+                              anyInt(), any(MFCapability.class), eq(this.task));
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc2),
+                              anyInt(), any(MFCapability.class), eq(this.task));
+    verify(this.pathFinder, never()).enqueuePathSearch(eq(ownerLoc), 
+                                        eq(occupiedSlotLoc), anyInt(),
+                                        any(MFCapability.class), eq(this.task));
+
+  }
+
+  @Test
+  public void shouldOccupyJobSlotWhenClosestOneWasFound() throws MFSubtaskCanceledException
+  {
+    // given 1 search for job slots was started
+    when(this.room.getJobSlots()).thenReturn(Arrays.asList(freeJobSlot1));
+    this.task.update();
+    verify(this.pathFinder).enqueuePathSearch(eq(ownerLoc), eq(freeSlotLoc1),
+                              anyInt(), any(MFCapability.class), eq(this.task));
+
+    // when a valid path returns
+    MFPath path = mock(MFPath.class);
+    MFTile goalTile = mock(MFTile.class);
+    when(goalTile.getLocation()).thenReturn(freeSlotLoc1);
+    when(path.getGoal()).thenReturn(goalTile);
+    when(path.getCost()).thenReturn(5);
+
+    this.task.pathSearchFinished(path);
+    this.task.update();
+    
+    // then the job slot at that location should be occupied
+    verify(freeJobSlot1).occupy(owner);
   }
 
 }

@@ -24,15 +24,18 @@
  */
 package magefortress.jobs;
 
+import java.awt.Graphics2D;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.creatures.MFCreature;
+import magefortress.graphics.MFIPaintable;
 
 /**
- *
+ * Work place for one creature popping up automatically when a certain room size
+ * is reached.
  */
-public class MFJobSlot
+public class MFJobSlot implements MFIPaintable
 {
 
   public MFJobSlot(MFLocation _location)
@@ -94,6 +97,17 @@ public class MFJobSlot
     }
     this.creature = null;
   }
+
+  //---vvv---         PAINTABLE INTERFACE METHODS       ---vvv---
+  public void update()
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  public void paint(Graphics2D _g, int _x, int _y)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
   
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final Logger logger = Logger.getLogger(MFJobSlot.class.getName());
@@ -101,4 +115,5 @@ public class MFJobSlot
   private final MFLocation location;
 
   private MFCreature creature;
+
 }

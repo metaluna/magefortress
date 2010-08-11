@@ -28,8 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
+import magefortress.creatures.MFCreature;
 import magefortress.creatures.behavior.movable.MFCapability;
-import magefortress.creatures.behavior.movable.MFIMovable;
 import magefortress.jobs.MFJobSlot;
 import magefortress.jobs.subtasks.MFMovingSubtask;
 import magefortress.jobs.subtasks.MFNoPathFoundException;
@@ -43,10 +43,10 @@ import magefortress.map.MFPathFinder;
  */
 public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFinderListener
 {
-  public MFLocateJobSlotSubtask(MFIMovable _movable, MFRoom _room,
+  public MFLocateJobSlotSubtask(MFCreature _creature, MFRoom _room,
                                                       MFPathFinder _pathFinder)
   {
-    super(_movable);
+    super(_creature);
     this.room = _room;
     this.pathFinder = _pathFinder;
     this.paths = new LinkedList<MFPath>();
@@ -72,9 +72,7 @@ public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFi
         throw new MFNoPathFoundException(msg, this.getMovable().getLocation(),
                                   goal1);
       } else {
-        MFPath path = this.selectShortestPath();
-        MFLocation goal = path.getGoal().getLocation();
-        this.getMovable().setCurrentHeading(goal);
+        foundNearestJobSlot();
       }
       return true;
     }
@@ -125,9 +123,11 @@ public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFi
     this.resetData();
 
     for (MFJobSlot slot : this.room.getJobSlots()) {
-      MFLocation goal = slot.getLocation();
-      this.pathFinder.enqueuePathSearch(start, goal, clearance, capability, this);
-      ++this.startedSearchesCount;
+      if (slot.isAvailable()) {
+        MFLocation goal = slot.getLocation();
+        this.pathFinder.enqueuePathSearch(start, goal, clearance, capability, this);
+        ++this.startedSearchesCount;
+      }
     }
   }
 
@@ -153,6 +153,22 @@ public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFi
     }
 
     return shortestPath;
+  }
+
+  private void foundNearestJobSlot()
+  {
+    MFPath path = this.selectShortestPath();
+    MFLocation goal = path.getGoal().getLocation();
+
+    // store heading
+    this.getMovable().setCurrentHeading(goal);
+
+    // occupy job slot
+    for (MFJobSlot slot : this.room.getJobSlots()) {
+      if (slot.getLocation().equals(goal)) {
+        slot.occupy((MFCreature) this.getMovable());
+      }
+    }
   }
 
 }
