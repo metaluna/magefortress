@@ -96,6 +96,25 @@ public class MFLocateJobSlotSubtaskTest
 
   }
 
+  //---vvv---        CONSTRUCTOR TESTS          ---vvv---
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutOwner()
+  {
+    new MFLocateJobSlotSubtask(null, room, pathFinder);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutRoom()
+  {
+    new MFLocateJobSlotSubtask(owner, null, pathFinder);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutPathFinder()
+  {
+    new MFLocateJobSlotSubtask(owner, room, null);
+  }
+
   @Test
   public void shouldNotStartSearchesIfAlreadyThere() throws MFSubtaskCanceledException
   {

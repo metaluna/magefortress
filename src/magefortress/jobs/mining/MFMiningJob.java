@@ -24,6 +24,7 @@
  */
 package magefortress.jobs.mining;
 
+import magefortress.core.MFGameObjectFactory;
 import magefortress.core.MFRoom;
 import magefortress.jobs.MFAssignableJob;
 import magefortress.jobs.subtasks.MFGotoLocationSubtask;
@@ -38,11 +39,32 @@ import magefortress.map.MFPathFinder;
 public class MFMiningJob extends MFAssignableJob
 {
 
-  public MFMiningJob(MFQuarry _sender, MFMap _map, MFPathFinder _pathFinder)
+  public MFMiningJob(MFQuarry _sender, MFMap _map, MFPathFinder _pathFinder,
+                                    MFGameObjectFactory _gameFGameObjectFactory)
   {
     super(_sender);
+    if (_map == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create a " +
+                      "mining job@" + _sender.getLocation() + " without a map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_pathFinder == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create a " +
+              "mining job@" + _sender.getLocation() + " without a path finder.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_gameFGameObjectFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create a " +
+                                    "mining job@" + _sender.getLocation() +
+                                    " without a game object factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.map = _map;
     this.pathFinder = _pathFinder;
+    this.gameObjectFactory = _gameFGameObjectFactory;
   }
 
   @Override
@@ -52,7 +74,8 @@ public class MFMiningJob extends MFAssignableJob
                                     (MFRoom) this.getSender(), this.pathFinder);
     MFISubtask gotoTile   = new MFGotoLocationSubtask(this.getOwner(),
                                                               this.pathFinder);
-    MFISubtask mineTile   = new MFMineSubtask(this.getOwner(), this.map);
+    MFISubtask mineTile   = new MFMineSubtask(this.getOwner(), this.map,
+                                                        this.gameObjectFactory);
     this.addSubtask(findJobSlot);
     this.addSubtask(gotoTile);
     this.addSubtask(mineTile);
@@ -73,4 +96,5 @@ public class MFMiningJob extends MFAssignableJob
   //---vvv---      PRIVATE METHODS      ---vvv---
   private final MFMap map;
   private final MFPathFinder pathFinder;
+  private final MFGameObjectFactory gameObjectFactory;
 }

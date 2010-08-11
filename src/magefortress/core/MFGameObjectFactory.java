@@ -32,6 +32,8 @@ import magefortress.creatures.behavior.instrumentable.MFEJob;
 import magefortress.creatures.behavior.movable.MFWalksOnTwoLegs;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
+import magefortress.items.MFItem;
+import magefortress.jobs.MFBlueprint;
 import magefortress.jobs.digging.MFDiggingSite;
 import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
@@ -64,6 +66,12 @@ public class MFGameObjectFactory
     BufferedImage img = this.imgLib.get(DEFAULT_CREATURE_SPRITE);
     MFStillPaintable sprite = new MFStillPaintable(img);
     result.setDrawingBehavior(sprite);
+    return result;
+  }
+
+  public MFItem createItem(MFBlueprint _blueprint)
+  {
+    MFItem result = _blueprint.createItem();
     return result;
   }
 

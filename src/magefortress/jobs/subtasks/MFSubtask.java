@@ -35,6 +35,12 @@ public abstract class MFSubtask implements MFISubtask
 
   public MFSubtask(MFCreature _owner)
   {
+    if (_owner == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                            "without an owner.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     setOwner(_owner);
   }
 

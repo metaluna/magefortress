@@ -47,6 +47,18 @@ public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFi
                                                       MFPathFinder _pathFinder)
   {
     super(_creature);
+    if (_room == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a room.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_pathFinder == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                       "without a path finder.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.room = _room;
     this.pathFinder = _pathFinder;
     this.paths = new LinkedList<MFPath>();
@@ -85,6 +97,11 @@ public class MFLocateJobSlotSubtask extends MFMovingSubtask implements MFIPathFi
     ++this.finishedSearchesCount;
     if (_path != null) {
       this.paths.add(_path);
+    }
+    if (this.finishedSearchesCount > this.startedSearchesCount) {
+      String msg = "More paths found than searches were started. " +
+                this.finishedSearchesCount + " > " + this.startedSearchesCount;
+      logger.warning(msg);
     }
   }
 

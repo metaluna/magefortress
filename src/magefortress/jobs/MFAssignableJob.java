@@ -43,6 +43,12 @@ public abstract class MFAssignableJob extends MFBaseJob
   public MFAssignableJob(final MFIChannelSender _sender)
   {
     super(null);
+    if (_sender == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                            "without a sender.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.sender = _sender;
   }
 

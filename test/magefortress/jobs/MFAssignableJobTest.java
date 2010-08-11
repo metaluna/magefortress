@@ -43,6 +43,14 @@ public class MFAssignableJobTest
     job = new MFAssignableJobMock(mockSender);
   }
 
+  //---vvv---        CONSTRUCTOR TESTS          ---vvv---
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutSender()
+  {
+    new MFAssignableJobMock(null);
+  }
+
+  //---vvv---        METHODS TESTS              ---vvv---
   @Test
   public void shouldGetSender()
   {

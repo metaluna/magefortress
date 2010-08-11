@@ -35,6 +35,12 @@ public abstract class MFMovingSubtask implements MFISubtask
 
   public MFMovingSubtask(MFIMovable _owner)
   {
+    if (_owner == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                    "without a movable owner.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.movable = _owner;
   }
 

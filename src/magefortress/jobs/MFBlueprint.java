@@ -74,6 +74,14 @@ public class MFBlueprint
     return this.product;
   }
 
+  public MFItem createItem()
+  {
+    MFItem result = new MFItem("TODO");
+
+    return result;
+  }
+
+
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Log */
   private static final Logger logger = Logger.getLogger(MFBlueprint.class.getName());
