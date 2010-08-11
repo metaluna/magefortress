@@ -24,6 +24,12 @@
  */
 package magefortress.storage;
 
+import magefortress.map.MFITileDao;
+import magefortress.map.MFTileSqlDao;
+import magefortress.map.MFMapSqlDao;
+import magefortress.map.MFIMapDao;
+import magefortress.creatures.MFRaceSqlDao;
+import magefortress.creatures.MFIRaceDao;
 import java.util.Collections;
 import java.util.Properties;
 import magefortress.creatures.MFRace;

@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.creatures;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -30,12 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import magefortress.core.Immutable;
-import magefortress.creatures.MFRace;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFESqlOperations;
+import magefortress.storage.MFSqlConnector;
+import magefortress.storage.MFSqlDao;
 
 /**
  *
  */
-class MFRaceSqlDao extends MFSqlDao<MFRace> implements MFIRaceDao, Immutable
+public class MFRaceSqlDao extends MFSqlDao<MFRace> implements MFIRaceDao, Immutable
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO races (name, hold_behavior, move_behavior) VALUES (?,?,?);";

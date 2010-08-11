@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.map;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,12 +31,15 @@ import java.util.List;
 import java.util.Map;
 import magefortress.core.Immutable;
 import magefortress.map.ground.MFGround;
-import magefortress.map.MFTile;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFESqlOperations;
+import magefortress.storage.MFSqlConnector;
+import magefortress.storage.MFSqlDao;
 
 /**
  *
  */
-class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
+public class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immutable
 {
   // QUERIES
   private static final String CREATE    = "INSERT INTO tiles (map_id, ground_id, room_id, " +

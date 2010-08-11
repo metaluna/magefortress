@@ -22,14 +22,15 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.map;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import magefortress.map.MFTile;
 import magefortress.map.ground.MFGround;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFSqlConnector;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

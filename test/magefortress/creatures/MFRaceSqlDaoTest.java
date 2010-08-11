@@ -22,10 +22,11 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.creatures;
 
 import java.util.List;
-import magefortress.creatures.MFRace;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFSqlConnector;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;

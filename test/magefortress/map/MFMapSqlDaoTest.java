@@ -22,7 +22,7 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.map;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import magefortress.core.MFEDirection;
-import magefortress.map.MFMap;
-import magefortress.map.MFTile;
 import magefortress.map.ground.MFGround;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFDaoFactory;
+import magefortress.storage.MFSqlConnector;
+import magefortress.storage.MFSqlDao;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -75,7 +77,7 @@ public class MFMapSqlDaoTest
     
     mockDaoFactory = mock(MFDaoFactory.class);
 
-    unsavedMap = new MFMap(MFSqlDao.UNSAVED_MARKER, 4, 5, 1, mock(MFGround.class));
+    unsavedMap = new MFMap(-1, 4, 5, 1, mock(MFGround.class));
 
     unsavedMapSqlDao = new MFMapSqlDao(mockDb, unsavedMap, realDaoFactory);
 

@@ -22,15 +22,19 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.map;
 
-import magefortress.map.MFMap;
+import java.util.List;
+import magefortress.storage.DataAccessException;
+import magefortress.storage.MFIDao;
 
 /**
  *
  */
-public interface MFIMapDao extends MFIDao<MFMap>
+public interface MFITileDao extends MFIDao<MFTile>
 {
+  public List<MFTile> loadAllOfMap(int _mapId) throws DataAccessException;
+  public int getMapId();
 
   //---vvv---      PRIVATE METHODS      ---vvv---
 

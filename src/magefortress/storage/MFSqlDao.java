@@ -39,7 +39,7 @@ import java.util.logging.Logger;
 /**
  * Superclass for all objects that need to be saved to a relational database.
  */
-abstract class MFSqlDao<T extends MFISaveable> implements MFIDao<T>
+public abstract class MFSqlDao<T extends MFISaveable> implements MFIDao<T>
 {
   /**
    * Constructor taking the database connection.
@@ -233,7 +233,7 @@ abstract class MFSqlDao<T extends MFISaveable> implements MFIDao<T>
    * Enters all prepared statements into the database (driver). Template method
    * which utilizes {@link #getStatements()} in subclasses.
    */
-  protected void prepareStatements()
+  public void prepareStatements()
   {
     EnumMap<MFESqlOperations, String> queries = this.getStatements();
     

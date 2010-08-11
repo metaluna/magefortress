@@ -22,16 +22,16 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.storage;
+package magefortress.map;
 
-import magefortress.creatures.MFRace;
+import magefortress.storage.MFIDao;
 
 /**
  *
  */
-public interface MFIRaceDao extends MFIDao<MFRace>
+public interface MFIMapDao extends MFIDao<MFMap>
 {
-  
+
   //---vvv---      PRIVATE METHODS      ---vvv---
 
 }
