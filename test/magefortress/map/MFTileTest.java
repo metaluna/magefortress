@@ -30,7 +30,7 @@ import magefortress.items.placeable.MFIPlaceable;
 import magefortress.core.MFRoom;
 import magefortress.core.MFRoomMock;
 import magefortress.creatures.behavior.movable.MFCapability;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.map.ground.MFBasicUnderground;
 import magefortress.map.ground.MFGround;
 import org.junit.Before;

@@ -33,7 +33,7 @@ import magefortress.creatures.behavior.movable.MFWalksOnTwoLegs;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.graphics.MFStillPaintable;
 import magefortress.items.MFItem;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.digging.MFDiggingSite;
 import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;

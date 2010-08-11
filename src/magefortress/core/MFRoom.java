@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.channel.MFIChannelSender;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFJobSlot;
 
 /**

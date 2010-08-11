@@ -24,6 +24,8 @@
  */
 package magefortress.jobs;
 
+import magefortress.items.MFBlueprint;
+
 /**
  * Marker interface for items which can be produced at an workshop.
  */

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,33 +22,47 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.subtasks;
+package magefortress.items.placeable;
 
-import magefortress.core.MFWorkshop;
-import magefortress.creatures.MFCreature;
-import magefortress.items.MFBlueprint;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-/**
- * Used to make an item at an workshop
- */
-public class MFProduceItemSubtask extends MFSubtask
+public class MFUnplaceableTest
 {
-  public MFProduceItemSubtask(MFCreature _owner, MFWorkshop _workshop, MFBlueprint _blueprint)
+  private MFUnplaceable unplaceable;
+
+  @Before
+  public void setUp()
   {
-    super(_owner);
-    this.workshop = _workshop;
-    this.blueprint = _blueprint;
+    this.unplaceable = new MFUnplaceable();
   }
 
-  @Override
-  public boolean update()
+  @Test
+  public void shouldNotBePlaceable()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    assertFalse(this.unplaceable.isPlaceable());
   }
 
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFWorkshop workshop;
-  private final MFBlueprint blueprint;
+  @Test
+  public void shouldNotSetPlaced()
+  {
+    boolean done = this.unplaceable.setPlaced(true);
+    assertFalse(done);
+    assertFalse(this.unplaceable.isPlaced());
+  }
 
+  @Test
+  public void shouldNotBePlaced()
+  {
+    assertFalse(this.unplaceable.isPlaced());
+  }
+
+  @Test
+  public void shouldNotHaveLivingValue()
+  {
+    assertEquals(0, this.unplaceable.getLivingValue());
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,33 +22,39 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.subtasks;
+package magefortress.items.placeable;
 
-import magefortress.core.MFWorkshop;
-import magefortress.creatures.MFCreature;
-import magefortress.items.MFBlueprint;
+import magefortress.core.Immutable;
 
 /**
- * Used to make an item at an workshop
+ *
  */
-public class MFProduceItemSubtask extends MFSubtask
+public class MFUnplaceable implements MFIPlaceable, Immutable
 {
-  public MFProduceItemSubtask(MFCreature _owner, MFWorkshop _workshop, MFBlueprint _blueprint)
+
+  @Override
+  public boolean isPlaceable()
   {
-    super(_owner);
-    this.workshop = _workshop;
-    this.blueprint = _blueprint;
+    return false;
   }
 
   @Override
-  public boolean update()
+  public boolean setPlaced(boolean _placed)
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return false;
+  }
+
+  @Override
+  public boolean isPlaced()
+  {
+    return false;
+  }
+
+  @Override
+  public int getLivingValue()
+  {
+    return 0;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFWorkshop workshop;
-  private final MFBlueprint blueprint;
-
-
 }

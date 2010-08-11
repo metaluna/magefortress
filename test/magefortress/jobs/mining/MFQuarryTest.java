@@ -27,7 +27,7 @@ package magefortress.jobs.mining;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.map.MFTile;
 import magefortress.map.ground.MFGround;
 import org.junit.Before;

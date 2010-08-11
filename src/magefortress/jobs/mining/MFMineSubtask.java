@@ -94,8 +94,7 @@ public class MFMineSubtask extends MFSubtask
 
   /**
    * Creates an item according to the blueprint received from the ground, puts
-   * it on the floor, and lets the creature pick it up. Afterwards the creature
-   * receives experience.
+   * it on the floor, and lets the creature pick it up.
    */
   private void getStone()
   {

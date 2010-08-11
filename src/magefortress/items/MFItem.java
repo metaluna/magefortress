@@ -24,8 +24,9 @@
  */
 package magefortress.items;
 
+import java.util.logging.Logger;
 import magefortress.items.placeable.MFIPlaceable;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.placeable.MFUnplaceable;
 import magefortress.jobs.MFIProducible;
 
 /**
@@ -33,50 +34,79 @@ import magefortress.jobs.MFIProducible;
  */
 public class MFItem implements MFIPlaceable, MFIProducible
 {
-  private String name;
-
-  public MFItem(String _name)
+  public MFItem(MFBlueprint _blueprint)
   {
-    this.name = _name;
+    if (_blueprint == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                        "without a blueprint.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    this.blueprint = _blueprint;
+
+    // set default behaviors
+    this.placingBehavior = UNPLACEABLE;
   }
   
   public String getName()
   {
-    return this.name;
+    return this.blueprint.getName();
   }
 
   //---vvv---     PLACEABLE INTERFACE METHODS     ---vvv---
+  public void setPlacingBehavior(MFIPlaceable _placingBehavior)
+  {
+    if (_placingBehavior == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot set placing " +
+                                                            "behavior to null.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    
+    this.placingBehavior = _placingBehavior;
+
+    String msg = this.getClass().getSimpleName() + ": Successfully set " +
+          "placing behavior to " + _placingBehavior.getClass().getSimpleName();
+    logger.finer(msg);
+  }
+
   @Override
   public boolean isPlaceable()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.placingBehavior.isPlaceable();
   }
 
   @Override
   public boolean setPlaced(boolean _placed)
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.placingBehavior.setPlaced(_placed);
   }
 
   @Override
   public boolean isPlaced()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.placingBehavior.isPlaced();
   }
 
   @Override
   public int getLivingValue()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.placingBehavior.getLivingValue();
   }
 
   //---vvv---     PRODUCIBLE INTERFACE METHODS     ---vvv---
   @Override
   public MFBlueprint getBlueprint()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    return this.blueprint;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
+  private static final Logger logger = Logger.getLogger(MFItem.class.getName());
+  private static final MFIPlaceable UNPLACEABLE = new MFUnplaceable();
 
+  private final MFBlueprint blueprint;
+  
+  // behaviors
+  private MFIPlaceable placingBehavior;
 }

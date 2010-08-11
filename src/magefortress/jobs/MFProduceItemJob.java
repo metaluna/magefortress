@@ -24,6 +24,7 @@
  */
 package magefortress.jobs;
 
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.subtasks.*;
 import magefortress.items.MFItem;
 import magefortress.core.MFWorkshop;
@@ -46,7 +47,7 @@ public class MFProduceItemJob extends MFAssignableJob
   {
     MFWorkshop workshop = (MFWorkshop) this.getSender();
 
-    for (MFItem material : this.blueprint.getMaterials()) {
+    for (MFBlueprint material : this.blueprint.getMaterials()) {
       MFISubtask locateMaterial = new MFLocateSimilarItemSubtask(this.getOwner(), material);
       MFISubtask gotoMaterial   = new MFGotoLocationSubtask(this.getOwner(), this.pathFinder);
       MFISubtask pickupMaterial = new MFPickupItemSubtask(this.getOwner());

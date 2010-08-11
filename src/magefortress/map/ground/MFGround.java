@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 import magefortress.core.Immutable;
 import magefortress.core.MFEDirection;
 import magefortress.graphics.MFIPaintable;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFIProducible;
 import magefortress.jobs.digging.MFIDiggable;
 import magefortress.map.MFTile.Corner;

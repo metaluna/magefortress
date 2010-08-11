@@ -24,18 +24,18 @@
  */
 package magefortress.jobs.subtasks;
 
-import magefortress.items.MFItem;
 import magefortress.core.MFLocation;
 import magefortress.creatures.MFCreature;
+import magefortress.items.MFBlueprint;
 
 /**
- * Looks for a type of item, finds a best path and saves both as the owner's
+ * Looks for a type of item and saves its position as the owner's
  * current heading.
  */
 public class MFLocateSimilarItemSubtask extends MFSubtask
 {
   
-  public MFLocateSimilarItemSubtask(final MFCreature _owner, final MFItem _itemType)
+  public MFLocateSimilarItemSubtask(final MFCreature _owner, final MFBlueprint _itemType)
   {
     super(_owner);
     this.itemType = _itemType;
@@ -55,6 +55,6 @@ public class MFLocateSimilarItemSubtask extends MFSubtask
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  final private MFItem itemType;
+  final private MFBlueprint itemType;
 
 }

@@ -41,7 +41,7 @@ import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
 import magefortress.items.MFItem;
-import magefortress.jobs.MFBlueprint;
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFConstructionSite;
 import magefortress.jobs.MFIConstructionSiteListener;
 import magefortress.jobs.MFJobFactory;
@@ -63,7 +63,7 @@ public class MFGame implements MFIConstructionSiteListener
   {
     // JUST FOR TESTING
     final Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>(1);
-    final MFBlueprint blueprint = new MFBlueprint(new MFItem("Null Item"));
+    final MFBlueprint blueprint = new MFBlueprint("Null Item");
     final int hardness = 150;
     final MFGround ground = new MFGround(blueprint, hardness,
                                    MFBasicUnderground.getBasicSolidTile(),

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,33 +22,57 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.subtasks;
+package magefortress.items;
 
-import magefortress.core.MFWorkshop;
-import magefortress.creatures.MFCreature;
-import magefortress.items.MFBlueprint;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-/**
- * Used to make an item at an workshop
- */
-public class MFProduceItemSubtask extends MFSubtask
+public class MFItemTest
 {
-  public MFProduceItemSubtask(MFCreature _owner, MFWorkshop _workshop, MFBlueprint _blueprint)
+  private MFItem item;
+  private MFBlueprint blueprint;
+
+  @Before
+  public void setUp()
   {
-    super(_owner);
-    this.workshop = _workshop;
-    this.blueprint = _blueprint;
+    this.blueprint = mock(MFBlueprint.class);
+    when(this.blueprint.getName()).thenReturn("Test Item");
+    this.item = new MFItem(blueprint);
   }
 
-  @Override
-  public boolean update()
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutBlueprint()
   {
-    throw new UnsupportedOperationException("Not supported yet.");
+    new MFItem(null);
   }
 
-  //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFWorkshop workshop;
-  private final MFBlueprint blueprint;
+  @Test
+  public void shouldGetNameOfTheBlueprint()
+  {
+    String name = "Blueprint Name";
+    when(this.blueprint.getName()).thenReturn(name);
+    this.item = new MFItem(blueprint);
 
+    assertEquals(name, this.item.getName());
+  }
+
+  @Test
+  public void shouldGetBlueprint()
+  {
+    assertEquals(this.blueprint, this.item.getBlueprint());
+  }
+
+  @Test
+  public void shouldByDefaultBeNotPlaceable()
+  {
+    assertFalse(this.item.isPlaceable());
+  }
+
+  @Test
+  public void shouldSetPlaceable()
+  {
+  }
 
 }
