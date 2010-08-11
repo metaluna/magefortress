@@ -35,6 +35,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import magefortress.creatures.MFRace;
+import magefortress.items.MFBlueprint;
+import magefortress.items.MFBlueprintSqlDao;
+import magefortress.items.MFIBlueprintDao;
 import magefortress.map.ground.MFGround;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
@@ -67,12 +70,13 @@ public class MFDaoFactory
     this.switchStorage(_props);
   }
 
-  public MFIRaceDao getRaceDao()
+  //---vvv---            RACE DAOS                 ---vvv---
+  public MFIRaceDao getRaceLoadingDao()
   {
-    return this.getRaceDao(null);
+    return this.getRaceSavingDao(null);
   }
 
-  public MFIRaceDao getRaceDao(MFRace _payload)
+  public MFIRaceDao getRaceSavingDao(MFRace _payload)
   {
     MFIRaceDao raceDao;
     switch (this.storage) {
@@ -83,7 +87,25 @@ public class MFDaoFactory
     return raceDao;
   }
 
-  public MFIMapDao getMapDao(Map<Integer, MFGround> _groundTypes)
+  //---vvv---            BLUEPRINT DAOS                 ---vvv---
+  public MFIBlueprintDao getBlueprintLoadingDao()
+  {
+    return this.getBlueprintSavingDao(null);
+  }
+
+  public MFIBlueprintDao getBlueprintSavingDao(MFBlueprint _payload)
+  {
+    MFIBlueprintDao blueprintDaoDao;
+    switch (this.storage) {
+      case SQL: blueprintDaoDao = new MFBlueprintSqlDao(this.db, _payload); break;
+      default: throw new AssertionError("Unexpected statement: storage mechanism " +
+              storage + " unknown.");
+    }
+    return blueprintDaoDao;
+  }
+
+  //---vvv---            MAP DAOS                 ---vvv---
+  public MFIMapDao getMapLoadingDao(Map<Integer, MFGround> _groundTypes)
   {
     MFIMapDao mapDao;
     switch (this.storage) {
@@ -94,7 +116,7 @@ public class MFDaoFactory
     return mapDao;
   }
 
-  public MFIMapDao getMapDao(MFMap _payload)
+  public MFIMapDao getMapSavingDao(MFMap _payload)
   {
     MFIMapDao mapDao;
     switch (this.storage) {
@@ -105,10 +127,11 @@ public class MFDaoFactory
     return mapDao;
   }
 
+  //---vvv---            TILE DAOS                 ---vvv---
   /**
-   * Factory method for constructing tile loading DAOs
-   * @param _groundTypes
-   * @return
+   * Factory method for constructing tile loading DAOs.
+   * @param _groundTypes A list of all {@link MFGround} types in the game
+   * @return a DAO containing all data needed to load one or all tiles.
    */
   public MFITileDao getTileLoadingDao(Map<Integer, MFGround> _groundTypes)
   {
@@ -123,10 +146,11 @@ public class MFDaoFactory
   }
 
   /**
-   * Factory method for constructing save/delete DAOs
-   * @param _payload
-   * @param _mapId
-   * @return
+   * Factory method for constructing save/delete DAOs. Just call
+   * {@link MFITileDao#save()} or {@link MFITileDao#delete()} to use it.
+   * @param _payload The tile which shall be saved/deleted
+   * @param _mapId The ID of the map which contains the tile
+   * @return a DAO containing a reference to the tile
    */
   public MFITileDao getTileSavingDao(MFTile _payload, int _mapId)
   {

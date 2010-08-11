@@ -68,7 +68,7 @@ public class MFDaoFactoryTest
   @Test
   public void shouldGetRaceDaoWithoutRace()
   {
-    MFIRaceDao raceDao = factory.getRaceDao();
+    MFIRaceDao raceDao = factory.getRaceLoadingDao();
     assertNotNull(raceDao);
     assertNull(raceDao.getPayload());
   }
@@ -77,14 +77,14 @@ public class MFDaoFactoryTest
   public void shouldGetRaceDaoWithRace()
   {
     MFRace mockRace = mock(MFRace.class);
-    MFIRaceDao raceDao = factory.getRaceDao(mockRace);
+    MFIRaceDao raceDao = factory.getRaceSavingDao(mockRace);
     assertEquals(mockRace, raceDao.getPayload());
   }
 
   @Test
   public void shouldGetRaceSqlDao()
   {
-    MFIRaceDao raceDao = factory.getRaceDao();
+    MFIRaceDao raceDao = factory.getRaceLoadingDao();
     assertEquals(MFRaceSqlDao.class, raceDao.getClass());
   }
 
@@ -92,7 +92,7 @@ public class MFDaoFactoryTest
   public void shouldGetMapDaoWithMap()
   {
     MFMap mockMap = mock(MFMap.class);
-    MFIMapDao mapDao = factory.getMapDao(mockMap);
+    MFIMapDao mapDao = factory.getMapSavingDao(mockMap);
     assertEquals(mockMap, mapDao.getPayload());
   }
 
@@ -100,7 +100,7 @@ public class MFDaoFactoryTest
   public void shouldGetMapSqlDao()
   {
     @SuppressWarnings("unchecked")
-    MFIMapDao mapDao = factory.getMapDao(Collections.EMPTY_MAP);
+    MFIMapDao mapDao = factory.getMapLoadingDao(Collections.EMPTY_MAP);
     assertEquals(MFMapSqlDao.class, mapDao.getClass());
   }
 

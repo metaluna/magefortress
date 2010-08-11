@@ -31,17 +31,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import magefortress.items.placeable.MFIPlaceable;
 import magefortress.items.placeable.MFUnplaceable;
+import magefortress.storage.MFISaveable;
 
 /**
  * The class holds information about materials needed to produce an item.
  */
-public class MFBlueprint
+public class MFBlueprint implements MFISaveable
 {
   /**
    * Constructor
    * @param _name The name of the item produced
    */
-  public MFBlueprint(String _name)
+  public MFBlueprint(int _id, String _name)
   {
     if (_name == null || _name.trim().isEmpty()) {
       String msg = this.getClass().getSimpleName() + ": Cannot create " +
@@ -49,6 +50,7 @@ public class MFBlueprint
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
+    this.id = _id;
     this.name = _name;
     this.materials = new ArrayList<MFBlueprint>();
 
@@ -105,6 +107,19 @@ public class MFBlueprint
     return result;
   }
 
+  //---vvv---          SAVEABLE INTERFACE METHODS         ---vvv---
+  @Override
+  public int getId()
+  {
+    return this.id;
+  }
+
+  @Override
+  public void setId(int _id)
+  {
+    this.id = _id;
+  }
+  
   //---vvv---         PLACING BEHAVIOR GETTER/SETTER         ---vvv---
   @SuppressWarnings("unchecked")
   public void setPlacingBehavior(String _placingBehaviorClassName) throws ClassNotFoundException
@@ -128,7 +143,7 @@ public class MFBlueprint
     this.placingBehavior = _placingBehavior;
   }
 
-  public Class<? extends MFIPlaceable> getPlacingBehavior()
+  Class<? extends MFIPlaceable> getPlacingBehavior()
   {
     return this.placingBehavior;
   }
@@ -144,6 +159,9 @@ public class MFBlueprint
   private final String name;
   /** The ingredients */
   private final ArrayList<MFBlueprint> materials;
+
+  /** ID used for storage */
+  private int id;
   // Configured behaviors
   private Class<? extends MFIPlaceable> placingBehavior;
 

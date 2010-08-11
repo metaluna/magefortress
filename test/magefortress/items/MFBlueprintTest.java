@@ -42,23 +42,41 @@ public class MFBlueprintTest
   @Before
   public void setUp()
   {
-    this.blueprint = new MFBlueprint("Test print");
+    this.blueprint = new MFBlueprint(42, "Test print");
   }
 
   //---vvv---      CONSTRUCTOR TESTS        ---vvv---
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutName()
   {
-    new MFBlueprint(null);
+    new MFBlueprint(-1, null);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithEmtpyName()
   {
-    new MFBlueprint("");
+    new MFBlueprint(-1, "");
   }
 
   //---vvv---          METHOD TESTS        ---vvv---
+  @Test
+  public void shouldGetId()
+  {
+    int expId = 42;
+    int gotId = this.blueprint.getId();
+    assertEquals(expId, gotId);
+  }
+
+  @Test
+  public void shouldSetId()
+  {
+    int expId = 23;
+    this.blueprint.setId(expId);
+
+    int gotId = this.blueprint.getId();
+    assertEquals(expId, gotId);
+  }
+
   @Test
   public void shouldGetName()
   {

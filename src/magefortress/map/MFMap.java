@@ -172,7 +172,7 @@ public class MFMap implements MFISaveable
   public static MFMap loadMap(int _mapId, MFDaoFactory _daoFactory, Map<Integer, MFGround> _groundTypes)
   {
     try {
-      return _daoFactory.getMapDao(_groundTypes).load(_mapId);
+      return _daoFactory.getMapLoadingDao(_groundTypes).load(_mapId);
     } catch (DataAccessException e) {
       String msg = "Unable to load map #" + _mapId;
       logger.log(Level.SEVERE, msg, e);

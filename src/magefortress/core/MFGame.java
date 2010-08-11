@@ -63,7 +63,7 @@ public class MFGame implements MFIConstructionSiteListener
   {
     // JUST FOR TESTING
     final Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>(1);
-    final MFBlueprint blueprint = new MFBlueprint("Null Item");
+    final MFBlueprint blueprint = new MFBlueprint(-1, "Null Item");
     final int hardness = 150;
     final MFGround ground = new MFGround(blueprint, hardness,
                                    MFBasicUnderground.getBasicSolidTile(),
