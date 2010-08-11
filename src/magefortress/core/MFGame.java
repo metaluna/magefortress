@@ -65,7 +65,7 @@ public class MFGame implements MFIConstructionSiteListener
     final Map<Integer, MFGround> groundTypes = new HashMap<Integer, MFGround>(1);
     final MFBlueprint blueprint = new MFBlueprint(-1, "Null Item");
     final int hardness = 150;
-    final MFGround ground = new MFGround(blueprint, hardness,
+    final MFGround ground = new MFGround(-1, blueprint, hardness,
                                    MFBasicUnderground.getBasicSolidTile(),
                                    MFBasicUnderground.getBasicUndergroundFloor(),
                                    MFBasicUnderground.getBasicUndergroundWalls(),

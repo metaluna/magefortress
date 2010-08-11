@@ -34,17 +34,19 @@ import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFIProducible;
 import magefortress.jobs.digging.MFIDiggable;
 import magefortress.map.MFTile.Corner;
+import magefortress.storage.MFISaveable;
 
 /**
  * Stores image data of various states of a specific ground type.
  */
-public class MFGround implements Immutable, MFIProducible, MFIDiggable
+public class MFGround implements Immutable, MFIProducible, MFIDiggable, MFISaveable
 {
-  public MFGround(MFBlueprint _blueprint, int _hardness, 
+  public MFGround(int _id, MFBlueprint _blueprint, int _hardness,
                   MFIPaintable _solidTile, MFIPaintable _basicFloor,
                   EnumMap<MFEDirection, MFIPaintable> _basicWall,
                   EnumMap<MFEDirection, EnumMap<Corner, MFIPaintable>> _basicCorner)
   {
+    this.id = _id;
     this.blueprint = _blueprint;
     this.hardness = _hardness;
     this.solidTile = _solidTile;
@@ -69,6 +71,17 @@ public class MFGround implements Immutable, MFIProducible, MFIDiggable
         corner.update();
       }
     }
+  }
+
+  //---vvv---      SAVEABLE INTERFACE METHODS      ---vvv---
+  public int getId()
+  {
+    return this.id;
+  }
+
+  public void setId(int _id)
+  {
+    this.id = _id;
   }
 
   //---vvv---     PRODUCIBLE INTERFACE METHODS     ---vvv---
@@ -125,6 +138,8 @@ public class MFGround implements Immutable, MFIProducible, MFIDiggable
   private final EnumMap<MFEDirection, MFIPaintable> basicWalls;
   private final EnumMap<MFEDirection, EnumMap<Corner,MFIPaintable>> basicCorners;
 
+  private int id;
+
   private final void validateState()
   {
     if (this.blueprint == null) {
@@ -154,10 +169,10 @@ public class MFGround implements Immutable, MFIProducible, MFIDiggable
     }
     if (this.basicCorners == null ||
           !this.basicCorners.keySet().containsAll(MFEDirection.diagonals()) ||
-          !this.basicCorners.get(MFEDirection.NE).keySet().containsAll(Arrays.asList(Corner.values())) ||
-          !this.basicCorners.get(MFEDirection.SE).keySet().containsAll(Arrays.asList(Corner.values())) ||
-          !this.basicCorners.get(MFEDirection.SW).keySet().containsAll(Arrays.asList(Corner.values())) ||
-          !this.basicCorners.get(MFEDirection.NW).keySet().containsAll(Arrays.asList(Corner.values()))) {
+          !this.basicCorners.get(MFEDirection.NE).keySet().containsAll(Arrays.asList(Corner.HORIZONTAL, Corner.VERTICAL, Corner.INWARD, Corner.BOTH)) ||
+          !this.basicCorners.get(MFEDirection.SE).keySet().containsAll(Arrays.asList(Corner.HORIZONTAL, Corner.VERTICAL, Corner.INWARD, Corner.BOTH)) ||
+          !this.basicCorners.get(MFEDirection.SW).keySet().containsAll(Arrays.asList(Corner.HORIZONTAL, Corner.VERTICAL, Corner.INWARD, Corner.BOTH)) ||
+          !this.basicCorners.get(MFEDirection.NW).keySet().containsAll(Arrays.asList(Corner.HORIZONTAL, Corner.VERTICAL, Corner.INWARD, Corner.BOTH))) {
       String msg = this.getClass().getSimpleName() + ": Cannot create without " +
                                                      "all basic corners.";
       logger.severe(msg);

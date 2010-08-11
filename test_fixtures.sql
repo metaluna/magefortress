@@ -5,6 +5,9 @@ INSERT INTO races (name, hold_behavior, move_behavior) VALUES ("Venusian", "mage
 DELETE FROM blueprints;
 INSERT INTO blueprints (name, placing_behavior) VALUES ("Green Nail", "magefortress.items.placeable.MFUnplaceable");
 INSERT INTO blueprints (name, placing_behavior) VALUES ("Purple Nail", "magefortress.items.placeable.MFUnplaceable");
+DELETE FROM grounds;
+INSERT INTO grounds (blueprint_id, hardness) VALUES (1, 255);
+INSERT INTO grounds (blueprint_id, hardness) VALUES (2, 128);
 DELETE FROM maps;
 INSERT INTO maps (width, height, depth) VALUES (13, 14, 15);
 INSERT INTO maps (width, height, depth) VALUES (4, 4, 1);

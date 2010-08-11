@@ -48,7 +48,7 @@ public class MFTileTest
   {
     MFBlueprint blueprint = mock(MFBlueprint.class);
     int hardness = 250;
-    MFGround ground = new MFGround(blueprint, hardness,
+    MFGround ground = new MFGround(-1, blueprint, hardness,
                                    MFBasicUnderground.getBasicSolidTile(),
                                    MFBasicUnderground.getBasicUndergroundFloor(),
                                    MFBasicUnderground.getBasicUndergroundWalls(),
