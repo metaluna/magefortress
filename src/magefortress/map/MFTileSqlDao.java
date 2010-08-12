@@ -59,12 +59,27 @@ public class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immuta
           "WHERE map_id=?;";
 
   /**
+   * Basic constructor. For preparing statements only!
+   * @param _db
+   */
+  public MFTileSqlDao(MFSqlConnector _db)
+  {
+    this(_db, null, null, null);
+  }
+
+  /**
    * Constructor used for loading tiles. No data about a tile is held.
    * @param _db
    */
   public MFTileSqlDao(MFSqlConnector _db, Map<Integer, MFGround> _groundTypes)
   {
-    this(_db, null, MFSqlDao.UNSAVED_MARKER, _groundTypes);
+    this(_db, null, null, _groundTypes);
+    if (_groundTypes == null || _groundTypes.isEmpty()) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                        "without ground types.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
   }
 
   /**
@@ -74,16 +89,32 @@ public class MFTileSqlDao extends MFSqlDao<MFTile> implements MFITileDao, Immuta
    * @param _mapId
    */
   @SuppressWarnings("unchecked")
-  public MFTileSqlDao(MFSqlConnector _db, MFTile _tile, int _mapId)
+  public MFTileSqlDao(MFSqlConnector _db, MFTile _tile, MFMap _map)
   {
-    this(_db, _tile, _mapId, Collections.EMPTY_MAP);
+    this(_db, _tile, _map, Collections.EMPTY_MAP);
+    if (_tile == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a tile.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_map == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
   }
 
-  private MFTileSqlDao(MFSqlConnector _db, MFTile _tile, int _mapId,
+  private MFTileSqlDao(MFSqlConnector _db, MFTile _tile, MFMap _map,
                                             Map<Integer, MFGround> _groundTypes)
   {
     super(_db, _tile);
-    this.mapId = _mapId;
+    if (_map != null) {
+      this.mapId = _map.getId();
+    } else {
+      this.mapId = this.getUnsavedMarker();
+    }
     this.groundTypes = _groundTypes;
   }
 

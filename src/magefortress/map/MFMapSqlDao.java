@@ -50,6 +50,15 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   private static final String DESTROY   = "DELETE FROM maps WHERE id=?";
 
   /**
+   * Basic constructor. For preparing statements only!
+   * @param _db
+   */
+  public MFMapSqlDao(MFSqlConnector _db)
+  {
+    this(_db, null, null, null);
+  }
+
+  /**
    * Constructor used for loading maps
    * @param _db
    * @param _daoFactory
@@ -59,6 +68,18 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
                                             Map<Integer, MFGround> _groundTypes)
   {
     this(_db, null, _daoFactory, _groundTypes);
+    if (_daoFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                      "without a DAO factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_groundTypes == null || _groundTypes.isEmpty()) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                        "without ground types.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
   }
 
   /**
@@ -71,6 +92,18 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
   public MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory)
   {
     this(_db, _map, _daoFactory, Collections.EMPTY_MAP);
+    if (_map == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a map.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    if (_daoFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                      "without a DAO factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
   }
 
   private MFMapSqlDao(MFSqlConnector _db, MFMap _map, MFDaoFactory _daoFactory,
@@ -190,18 +223,18 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
     for (int x=0; x<map.getWidth(); ++x) {
       for (int y=0; y<map.getHeight(); ++y) {
         for (int z=0; z<map.getDepth(); ++z) {
-          saveTile(map.getTile(x, y, z), map.getId());
+          saveTile(map.getTile(x, y, z), map);
         }
       }
     }
 
   }
 
-  private void saveTile(MFTile _tile, int _mapId) throws DataAccessException
+  private void saveTile(MFTile _tile, MFMap _map) throws DataAccessException
   {
     assert _tile != null : "MFMapSqlDao: No tile to save.";
     
-    MFITileDao tileDao = this.daoFactory.getTileSavingDao(_tile, _mapId);
+    MFITileDao tileDao = this.daoFactory.getTileSavingDao(_tile, _map);
     tileDao.save();
   }
 
@@ -231,7 +264,7 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
       for (int y=0; y<map.getHeight(); ++y) {
         for (int z=0; z<map.getDepth(); ++z) {
           MFTile tile = map.getTile(x, y, z);
-          MFITileDao tileDao = this.daoFactory.getTileSavingDao(tile, map.getId());
+          MFITileDao tileDao = this.daoFactory.getTileSavingDao(tile, map);
           tileDao.delete();
         }
       }

@@ -114,10 +114,9 @@ public class MFMapSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
-  @SuppressWarnings("unchecked")
   public void shouldNotSaveWithoutMap() throws DataAccessException
   {
-    new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP).save();
+    new MFMapSqlDao(mockDb).save();
   }
 
   @Test
@@ -258,10 +257,9 @@ public class MFMapSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
-  @SuppressWarnings("unchecked")
   public void shouldNotDeleteWithouMap() throws DataAccessException
   {
-    new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP).delete();
+    new MFMapSqlDao(mockDb).delete();
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -285,10 +283,9 @@ public class MFMapSqlDaoTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldNotGetMapWithoutMap()
   {
-    unsavedMapSqlDao = new MFMapSqlDao(mockDb, mockDaoFactory, Collections.EMPTY_MAP);
+    unsavedMapSqlDao = new MFMapSqlDao(mockDb);
     assertNull(unsavedMapSqlDao.getPayload());
   }
 

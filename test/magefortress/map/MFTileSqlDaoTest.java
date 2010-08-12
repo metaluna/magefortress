@@ -24,7 +24,6 @@
  */
 package magefortress.map;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ public class MFTileSqlDaoTest
     realDb.connect("magefortress.test.db");
     realDb.loadFromFile("magefortress.sql");
     realDb.loadFromFile("test_fixtures.sql");
-    new MFTileSqlDao(realDb, Collections.EMPTY_MAP).prepareStatements();
+    new MFTileSqlDao(realDb).prepareStatements();
   }
 
   @Before
@@ -68,14 +67,16 @@ public class MFTileSqlDaoTest
     //resetDb();
 
     mockDb = mock(MFSqlConnector.class);
+    MFMap mockMap = mock(MFMap.class);
+    when(mockMap.getId()).thenReturn(1);
 
     unsavedMockTile = mock(MFTile.class);
-    when(unsavedMockTile.getId()).thenReturn(new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).getUnsavedMarker());
-    unsavedTileSqlDao = new MFTileSqlDao(mockDb, unsavedMockTile, 1);
+    when(unsavedMockTile.getId()).thenReturn(new MFTileSqlDao(mockDb).getUnsavedMarker());
+    unsavedTileSqlDao = new MFTileSqlDao(mockDb, unsavedMockTile, mockMap);
 
     savedMockTile = mock(MFTile.class);
     when(savedMockTile.getId()).thenReturn(42);
-    savedTileSqlDao = new MFTileSqlDao(mockDb, savedMockTile, 1);
+    savedTileSqlDao = new MFTileSqlDao(mockDb, savedMockTile, mockMap);
 
   }
 
@@ -107,10 +108,9 @@ public class MFTileSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
-  @SuppressWarnings("unchecked")
   public void shouldNotSaveWithoutTile() throws DataAccessException
   {
-    new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).save();
+    new MFTileSqlDao(mockDb).save();
   }
 
   @Test
@@ -223,10 +223,9 @@ public class MFTileSqlDaoTest
   }
 
   @Test(expected=NullPointerException.class)
-  @SuppressWarnings("unchecked")
   public void shouldNotDeleteWithouTile() throws DataAccessException
   {
-    new MFTileSqlDao(mockDb, Collections.EMPTY_MAP).delete();
+    new MFTileSqlDao(mockDb).delete();
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -250,10 +249,9 @@ public class MFTileSqlDaoTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void shouldNotGetTileWithoutTile()
   {
-    unsavedTileSqlDao = new MFTileSqlDao(mockDb, Collections.EMPTY_MAP);
+    unsavedTileSqlDao = new MFTileSqlDao(mockDb);
     assertNull(unsavedTileSqlDao.getPayload());
   }
 

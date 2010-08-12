@@ -30,17 +30,19 @@ import magefortress.map.MFMapSqlDao;
 import magefortress.map.MFTileSqlDao;
 import magefortress.creatures.MFRaceSqlDao;
 import magefortress.creatures.MFIRaceDao;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import magefortress.creatures.MFRace;
+import magefortress.graphics.MFImageLibrary;
 import magefortress.items.MFBlueprint;
 import magefortress.items.MFBlueprintSqlDao;
 import magefortress.items.MFIBlueprintDao;
 import magefortress.map.ground.MFGround;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
+import magefortress.map.ground.MFGroundSqlDao;
+import magefortress.map.ground.MFIGroundDao;
 
 /**
  * Factory which produces Data Access Objects which are used to save&load
@@ -73,59 +75,124 @@ public class MFDaoFactory
   //---vvv---            RACE DAOS                 ---vvv---
   public MFIRaceDao getRaceLoadingDao()
   {
-    return this.getRaceSavingDao(null);
+    return this.getRaceDao(true, null);
   }
 
   public MFIRaceDao getRaceSavingDao(MFRace _payload)
   {
-    MFIRaceDao raceDao;
+    if (_payload == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a race.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    return this.getRaceDao(false, _payload);
+  }
+
+  private MFIRaceDao getRaceDao(boolean isForLoading, MFRace _payload)
+  {
+    MFIRaceDao resultDao;
     switch (this.storage) {
-      case SQL: raceDao = new MFRaceSqlDao(this.db, _payload); break;
+      case SQL: if (isForLoading) {
+                  resultDao = new MFRaceSqlDao(this.db);
+                } else {
+                  resultDao = new MFRaceSqlDao(this.db, _payload);
+                }
+                break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
-    return raceDao;
+    return resultDao;
   }
 
   //---vvv---            BLUEPRINT DAOS                 ---vvv---
   public MFIBlueprintDao getBlueprintLoadingDao()
   {
-    return this.getBlueprintSavingDao(null);
+    return this.getBlueprintDao(true, null);
   }
 
   public MFIBlueprintDao getBlueprintSavingDao(MFBlueprint _payload)
   {
-    MFIBlueprintDao blueprintDaoDao;
+    if (_payload == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                        "without a blueprint.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
+    return this.getBlueprintDao(false, _payload);
+  }
+
+  private MFIBlueprintDao getBlueprintDao(boolean isForLoading, MFBlueprint _payload)
+  {
+    MFIBlueprintDao resultDao;
     switch (this.storage) {
-      case SQL: blueprintDaoDao = new MFBlueprintSqlDao(this.db, _payload); break;
+      case SQL: if (isForLoading) {
+                  resultDao = new MFBlueprintSqlDao(this.db);
+                } else {
+                  resultDao = new MFBlueprintSqlDao(this.db, _payload);
+                }
+                break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
-    return blueprintDaoDao;
+    return resultDao;
+  }
+
+  //---vvv---            MAP DAOS                 ---vvv---
+  public MFIGroundDao getGroundLoadingDao(Map<Integer, MFBlueprint> _blueprints, MFImageLibrary _imgLib)
+  {
+    return this.getGroundDao(true, null, _blueprints, _imgLib);
+  }
+
+  public MFIGroundDao getGroundSavingDao(MFGround _payload)
+  {
+    return this.getGroundDao(false, _payload, null, null);
+  }
+
+  private MFIGroundDao getGroundDao(boolean isForLoading, MFGround _payload, Map<Integer, MFBlueprint> _blueprints, MFImageLibrary _imgLib)
+  {
+    MFIGroundDao resultDao;
+    switch (this.storage) {
+      case SQL: if (isForLoading) {
+                  resultDao = new MFGroundSqlDao(this.db, _blueprints, _imgLib);
+                } else {
+                  resultDao = new MFGroundSqlDao(this.db, _payload);
+                }
+                break;
+      default: throw new AssertionError("Unexpected statement: storage mechanism " +
+              storage + " unknown.");
+    }
+    return resultDao;
   }
 
   //---vvv---            MAP DAOS                 ---vvv---
   public MFIMapDao getMapLoadingDao(Map<Integer, MFGround> _groundTypes)
   {
-    MFIMapDao mapDao;
-    switch (this.storage) {
-      case SQL: mapDao = new MFMapSqlDao(this.db, this, _groundTypes); break;
-      default: throw new AssertionError("Unexpected statement: storage mechanism " +
-              storage + " unknown.");
-    }
-    return mapDao;
+    return this.getMapDao(true, null, _groundTypes);
   }
 
   public MFIMapDao getMapSavingDao(MFMap _payload)
   {
-    MFIMapDao mapDao;
+    return this.getMapDao(false, _payload, null);
+  }
+
+  private MFIMapDao getMapDao(boolean isForLoading, MFMap _payload,
+                                            Map<Integer, MFGround> _groundTypes)
+  {
+    MFIMapDao resultDao;
     switch (this.storage) {
-      case SQL: mapDao = new MFMapSqlDao(this.db, _payload, this); break;
+      case SQL: if (isForLoading) {
+                  resultDao = new MFMapSqlDao(db, this, _groundTypes);
+                } else {
+                  resultDao = new MFMapSqlDao(this.db, _payload, this);
+                }
+                break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
-    return mapDao;
+    return resultDao;
   }
+
 
   //---vvv---            TILE DAOS                 ---vvv---
   /**
@@ -135,35 +202,37 @@ public class MFDaoFactory
    */
   public MFITileDao getTileLoadingDao(Map<Integer, MFGround> _groundTypes)
   {
-    MFITileDao tileDao;
-    switch (this.storage) {
-      case SQL: tileDao = new MFTileSqlDao(this.db, _groundTypes);
-                break;
-      default: throw new AssertionError("Unexpected statement: storage mechanism " +
-              storage + " unknown.");
-    }
-    return tileDao;
+    return this.getTileDao(true, null, null, _groundTypes);
   }
 
   /**
    * Factory method for constructing save/delete DAOs. Just call
    * {@link MFITileDao#save()} or {@link MFITileDao#delete()} to use it.
    * @param _payload The tile which shall be saved/deleted
-   * @param _mapId The ID of the map which contains the tile
+   * @param _map The map which the tile is a part of
    * @return a DAO containing a reference to the tile
    */
-  public MFITileDao getTileSavingDao(MFTile _payload, int _mapId)
+  public MFITileDao getTileSavingDao(MFTile _payload, MFMap _map)
   {
-    MFITileDao tileDao;
+    return this.getTileDao(false, _payload, _map, null);
+  }
+
+  private MFITileDao getTileDao(boolean isForLoading, MFTile _payload,
+                                MFMap _map, Map<Integer, MFGround> _groundTypes)
+  {
+    MFITileDao resultDao;
     switch (this.storage) {
-      case SQL: tileDao = new MFTileSqlDao(this.db, _payload, _mapId);
+      case SQL: if (isForLoading) {
+                  resultDao = new MFTileSqlDao(this.db, _groundTypes);
+                } else {
+                  resultDao = new MFTileSqlDao(this.db, _payload, _map);
+                }
                 break;
       default: throw new AssertionError("Unexpected statement: storage mechanism " +
               storage + " unknown.");
     }
-    return tileDao;
+    return resultDao;
   }
-
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   private static final Logger logger = Logger.getLogger(MFDaoFactory.class.getName());
@@ -194,8 +263,10 @@ public class MFDaoFactory
   private void prepareStatements()
   {
     new MFRaceSqlDao(this.db).prepareStatements();
-    new MFMapSqlDao(this.db, this, Collections.EMPTY_MAP).prepareStatements();
-    new MFTileSqlDao(this.db, Collections.EMPTY_MAP).prepareStatements();
+    new MFBlueprintSqlDao(this.db).prepareStatements();
+    new MFGroundSqlDao(this.db).prepareStatements();
+    new MFMapSqlDao(this.db).prepareStatements();
+    new MFTileSqlDao(this.db).prepareStatements();
   }
 
 }
