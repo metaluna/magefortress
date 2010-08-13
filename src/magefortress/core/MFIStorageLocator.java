@@ -22,48 +22,20 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.creatures.behavior.holdable;
+package magefortress.core;
 
-import magefortress.core.Immutable;
-import magefortress.items.MFItem;
-import magefortress.map.MFTile;
+import magefortress.items.MFBlueprint;
 
 /**
- * Null implementation of MFIHoldable not being able to hold anything or to put
- * anything down.
+ * Interace used by classes giving information about where to store
+ * and where to get items.
  */
-public class MFNullHoldable implements MFIHoldable, Immutable
+public interface MFIStorageLocator
 {
-
-  public boolean canHold()
-  {
-    return false;
-  }
-
-  public boolean pickup()
-  {
-    return false;
-  }
-
-  public boolean putDown()
-  {
-    return false;
-  }
-
-  public MFItem getItem()
-  {
-    return null;
-  }
-
-  public void addItem(MFItem _item)
-  {
-  }
-
-  public boolean putItem(MFTile _tile)
-  {
-    return false;
-  }
-
-  //---vvv---      PRIVATE METHODS      ---vvv---
-
+  /**
+   * Informs about where to store an item of the specified type.
+   * @param _blueprint The item type to store
+   * @return The location of a suitable storage place
+   */
+  public MFLocation findStorage(MFBlueprint _blueprint);
 }

@@ -251,7 +251,9 @@ public class MFMapSqlDao extends MFSqlDao<MFMap> implements MFIMapDao, Immutable
     }
 
     for (MFTile tile : tiles) {
-      _map.calculateCorners(tile);
+      if (tile.isDugOut()) {
+        _map.calculateCorners(tile);
+      }
     }
   }
 

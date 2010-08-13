@@ -26,15 +26,17 @@ package magefortress.jobs.mining;
 
 import java.util.Set;
 import magefortress.channel.MFIChannelSubscriber;
+import magefortress.core.MFIStorageLocator;
 import magefortress.core.MFLocation;
 import magefortress.core.MFRoom;
+import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFAssignableJob;
 import magefortress.map.MFTile;
 
 /**
  * Room for mining ore
  */
-public class MFQuarry extends MFRoom
+public class MFQuarry extends MFRoom implements MFIStorageLocator
 {
   public MFQuarry(String _name, Set<MFTile> _tiles)
   {
@@ -96,6 +98,19 @@ public class MFQuarry extends MFRoom
     throw new UnsupportedOperationException("Not supported yet.");
   }
 
+  //---vvv---        STORAGE LOCATOR INTERFACE METHODS         ---vvv---
+  /**
+   * This should always return a storage location within the bounds of this room.
+   * If there isn't enough storage room, no production order should have been
+   * accepted in the first place.
+   * @param _blueprint The item type to store
+   * @return A location within the room
+   */
+  @Override
+  public MFLocation findStorage(MFBlueprint _blueprint)
+  {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
   //---vvv---      PRIVATE METHODS      ---vvv---
   private int miningEfficiency;
 

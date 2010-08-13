@@ -297,6 +297,12 @@ public class MFCreature implements MFIMovable, MFIHoldable, MFIPaintable, MFIIns
   }
 
   @Override
+  public MFItem getItem()
+  {
+    return this.holdingBehavior.getItem();
+  }
+
+  @Override
   public void addItem(MFItem _item)
   {
     this.holdingBehavior.addItem(_item);

@@ -48,6 +48,11 @@ public class MFMockHoldable implements MFIHoldable
     return true;
   }
 
+  public MFItem getItem()
+  {
+    return null;
+  }
+
   public void addItem(MFItem _item)
   {
   }

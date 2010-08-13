@@ -24,11 +24,13 @@
  */
 package magefortress.jobs.mining;
 
+import magefortress.jobs.subtasks.MFLocateStorageSpace;
 import magefortress.core.MFGameObjectFactory;
 import magefortress.core.MFRoom;
 import magefortress.jobs.MFAssignableJob;
 import magefortress.jobs.subtasks.MFGotoLocationSubtask;
 import magefortress.jobs.subtasks.MFISubtask;
+import magefortress.jobs.subtasks.MFPutDraggedItemSubtask;
 import magefortress.map.MFMap;
 import magefortress.map.MFPathFinder;
 
@@ -40,7 +42,7 @@ public class MFMiningJob extends MFAssignableJob
 {
 
   public MFMiningJob(MFQuarry _sender, MFMap _map, MFPathFinder _pathFinder,
-                                    MFGameObjectFactory _gameFGameObjectFactory)
+                                    MFGameObjectFactory _gameObjectFactory)
   {
     super(_sender);
     if (_map == null) {
@@ -55,7 +57,7 @@ public class MFMiningJob extends MFAssignableJob
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_gameFGameObjectFactory == null) {
+    if (_gameObjectFactory == null) {
       String msg = this.getClass().getSimpleName() + ": Cannot create a " +
                                     "mining job@" + _sender.getLocation() +
                                     " without a game object factory.";
@@ -64,7 +66,7 @@ public class MFMiningJob extends MFAssignableJob
     }
     this.map = _map;
     this.pathFinder = _pathFinder;
-    this.gameObjectFactory = _gameFGameObjectFactory;
+    this.gameObjectFactory = _gameObjectFactory;
   }
 
   @Override
@@ -76,9 +78,18 @@ public class MFMiningJob extends MFAssignableJob
                                                               this.pathFinder);
     MFISubtask mineTile   = new MFMineSubtask(this.getOwner(), this.map,
                                                         this.gameObjectFactory);
+    MFISubtask findStoneStorage = new MFLocateStorageSpace(
+                                              this.getOwner(),
+                                              (MFQuarry) this.getSender());
+    MFISubtask gotoStorage      = new MFGotoLocationSubtask(
+                                              this.getOwner(), this.pathFinder);
+    MFISubtask dropStone        = new MFPutDraggedItemSubtask(this.getOwner());
     this.addSubtask(findJobSlot);
     this.addSubtask(gotoTile);
     this.addSubtask(mineTile);
+    this.addSubtask(findStoneStorage);
+    this.addSubtask(gotoStorage);
+    this.addSubtask(dropStone);
   }
 
   @Override

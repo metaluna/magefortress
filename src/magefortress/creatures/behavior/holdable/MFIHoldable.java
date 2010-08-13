@@ -35,6 +35,7 @@ public interface MFIHoldable
   public boolean canHold();
   public boolean pickup();
   public boolean putDown();
+  public MFItem getItem();
   public void addItem(MFItem _item);
   public boolean putItem(MFTile _tile);
 
