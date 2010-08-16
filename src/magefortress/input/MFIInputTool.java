@@ -24,13 +24,13 @@
  */
 package magefortress.input;
 
-import magefortress.map.MFTile;
+import magefortress.core.MFLocation;
 
 /**
  * Input listeners use this to check if a tile is a valid selection.
  */
 public interface MFIInputTool
 {
-  public boolean isValid(MFTile _tile);
-  public MFInputAction click(MFTile _tile);
+  public boolean isValid(MFLocation _location);
+  public MFInputAction click(MFLocation _location);
 }

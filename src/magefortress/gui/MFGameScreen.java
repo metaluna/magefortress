@@ -38,6 +38,7 @@ import magefortress.core.MFLocation;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.input.*;
+import magefortress.jobs.digging.MFDigInputTool;
 
 /**
  * Represents the main game screen. It's handling the interface elements and
@@ -62,6 +63,9 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     // init input
     this.loadKeyMappings();
     this.inputActionQueue = new LinkedList<MFInputAction>();
+
+    // TODO digging tool is default action
+    this.activeInputTool = new MFDigInputTool(_game.getMap(), _game);
   }
 
   /**
@@ -121,39 +125,31 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     paintClickedTile(_g);
   }
 
+  @Override
   public void mouseClicked(int _x, int _y)
   {
     this.tileClicked = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
 
-    final MFTile tile = this.game.getMap().getTile(this.tileClicked);
-    
-    if (this.activeInputTool != null && this.activeInputTool.isValid(tile)) {
-      this.activeInputTool.click(tile);
+    if (this.activeInputTool != null && this.activeInputTool.isValid(this.tileClicked)) {
+      MFInputAction action = this.activeInputTool.click(this.tileClicked);
+      this.enqueueInputAction(action);
     }
 
-    // dig out tile if it's inside the map and not dug out
-    MFMap map = this.game.getMap();
-    if (0 <= tileClicked.x && tileClicked.x < map.getWidth() &&
-        0 <= tileClicked.y && tileClicked.y < map.getHeight() &&
-        map.getTile(tileClicked.x, tileClicked.y, tileClicked.z).isDugOut() == false) {
-      MFLocation[] locations = {new MFLocation(this.tileClicked)};
-      MFDigInputAction digAction = new MFDigInputAction(this.game, locations);
-      this.enqueueInputAction(digAction);
-    }
   }
 
+  @Override
   public void mouseMoved(int _x, int _y)
   {
     this.tileMouseMoved = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
     
     if (this.activeInputTool != null) {
-      MFTile tile = this.game.getMap().getTile(this.tileMouseMoved);
-      this.activeInputTool.isValid(tile);
+      this.tileValid = this.activeInputTool.isValid(this.tileMouseMoved);
     }
   }
 
+  @Override
   public void keyPressed(int _keyCode)
   {
     // beware of teh b0xing
@@ -192,6 +188,7 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   private MFLocation tileClicked;
   // last tile the mouse touched while moving
   private MFLocation tileMouseMoved;
+  private boolean tileValid;
 
   private void paintClickedTile(Graphics2D _g)
   {
@@ -213,7 +210,13 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     Point pos = MFMap.convertFromTilespace(this.tileMouseMoved.x, this.tileMouseMoved.y);
     pos.translate(this.clippingRect.x, this.clippingRect.y);
     
-    _g.setColor(Color.MAGENTA);
+    Color color = null;
+    if (this.tileValid) {
+      color = Color.GREEN;
+    } else {
+      color = Color.RED;
+    }
+    _g.setColor(color);
     _g.drawRect(pos.x, pos.y, MFTile.TILESIZE, MFTile.TILESIZE);
     _g.setColor(Color.GRAY);
     _g.drawString("" + this.tileMouseMoved.x + "/" + this.tileMouseMoved.y, 2, 13);

@@ -25,6 +25,7 @@
 package magefortress.gui;
 
 import magefortress.core.MFGame;
+import magefortress.core.MFLocation;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFInputAction;
 import magefortress.input.MFInputManager;
@@ -52,6 +53,8 @@ public class MFGameScreenTest
   {
     this.mockScreensManager = mock(MFScreensManager.class);
     this.game = mock(MFGame.class);
+    MFMap map = mock(MFMap.class);
+    when(this.game.getMap()).thenReturn(map);
     this.gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
   }
 
@@ -133,7 +136,7 @@ public class MFGameScreenTest
     this.gameScreen.mouseMoved(x, y);
 
     // then the active input tool should be queried
-    verify(inputTool).isValid(any(MFTile.class));
+    verify(inputTool).isValid(new MFLocation(0,0,0));
   }
 
   @Test
@@ -149,7 +152,7 @@ public class MFGameScreenTest
     this.gameScreen.setActiveInputTool(null);
 
     // then the input tool should not be queried
-    verify(inputTool, never()).isValid(any(MFTile.class));
+    verify(inputTool, never()).isValid(any(MFLocation.class));
   }
 
   @Test
@@ -160,7 +163,9 @@ public class MFGameScreenTest
     when(this.game.getMap()).thenReturn(map);
 
     MFIInputTool inputTool = mock(MFIInputTool.class);
-    when(inputTool.isValid(any(MFTile.class))).thenReturn(true);
+    MFInputAction action = mock(MFInputAction.class);
+    when(inputTool.isValid(any(MFLocation.class))).thenReturn(true);
+    when(inputTool.click(any(MFLocation.class))).thenReturn(action);
     this.gameScreen.setActiveInputTool(inputTool);
 
     // when i click on a valid tile
@@ -169,7 +174,7 @@ public class MFGameScreenTest
     this.gameScreen.mouseClicked(x, y);
 
     // then the screen should receive an input action from the input tool
-    verify(inputTool).click(any(MFTile.class));
+    verify(inputTool).click(new MFLocation(0,0,0));
   }
 
   @Test
@@ -180,7 +185,7 @@ public class MFGameScreenTest
     when(this.game.getMap()).thenReturn(map);
 
     MFIInputTool inputTool = mock(MFIInputTool.class);
-    when(inputTool.isValid(any(MFTile.class))).thenReturn(false);
+    when(inputTool.isValid(any(MFLocation.class))).thenReturn(false);
     this.gameScreen.setActiveInputTool(inputTool);
 
     // when i click on an invalid tile
@@ -189,10 +194,10 @@ public class MFGameScreenTest
     this.gameScreen.mouseClicked(x, y);
 
     // then the screen should query the input tool if is valid
-    verify(inputTool).isValid(any(MFTile.class));
+    verify(inputTool).isValid(new MFLocation(0,0,0));
 
     // and the screen should not ask the input tool for a input action
-    verify(inputTool, never()).click(any(MFTile.class));
+    verify(inputTool, never()).click(any(MFLocation.class));
   }
 
 }
