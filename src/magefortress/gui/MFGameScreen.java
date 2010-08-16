@@ -49,8 +49,9 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   public MFGameScreen(MFInputManager _inputManager, MFScreensManager _screensManager, MFGame _game)
   {
     super(_inputManager, _screensManager);
-    if (_inputManager == null) {
-      String msg = "Screen: Game must not be null. Can't instantiate game screen.";
+    if (_game == null) {
+      String msg = this.getClass().getSimpleName() + ": Game must not be null. " +
+                                          "Can't instantiate game screen.";
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
@@ -76,6 +77,11 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
       throw new IllegalArgumentException(msg);
     }
     this.inputActionQueue.add(_action);
+  }
+
+  void setActiveInputTool(MFIInputTool _inputTool)
+  {
+    this.activeInputTool = _inputTool;
   }
 
   @Override
@@ -120,6 +126,12 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     this.tileClicked = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
 
+    final MFTile tile = this.game.getMap().getTile(this.tileClicked);
+    
+    if (this.activeInputTool != null && this.activeInputTool.isValid(tile)) {
+      this.activeInputTool.click(tile);
+    }
+
     // dig out tile if it's inside the map and not dug out
     MFMap map = this.game.getMap();
     if (0 <= tileClicked.x && tileClicked.x < map.getWidth() &&
@@ -135,6 +147,11 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   {
     this.tileMouseMoved = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
+    
+    if (this.activeInputTool != null) {
+      MFTile tile = this.game.getMap().getTile(this.tileMouseMoved);
+      this.activeInputTool.isValid(tile);
+    }
   }
 
   public void keyPressed(int _keyCode)
@@ -168,6 +185,8 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
   private int currentLevel;
   /** Currently visible part of the map */
   private Rectangle clippingRect;
+  /** Currently active input tool */
+  private MFIInputTool activeInputTool;
 
   // last tile clicked
   private MFLocation tileClicked;
