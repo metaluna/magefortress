@@ -40,7 +40,6 @@ import magefortress.creatures.behavior.instrumentable.MFEJob;
 import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.graphics.MFImageLibrary;
 import magefortress.gui.MFScreen;
-import magefortress.items.MFItem;
 import magefortress.items.MFBlueprint;
 import magefortress.jobs.MFConstructionSite;
 import magefortress.jobs.MFIConstructionSiteListener;
@@ -191,11 +190,13 @@ public class MFGame implements MFIConstructionSiteListener
     this.creatures.add(_creature);
   }
 
+  //---vvv---     CONSTRUCTION SITE LISTENER INTERFACE      ---vvv---
   /**
    * Adds a construction site. Does not check if there's already a site at
    * the position of the new construction site.
    * @param _constructionSite The construction site to add
    */
+  @Override
   public void addConstructionSite(MFConstructionSite _constructionSite)
   {
     this.constructionSites.add(_constructionSite);
@@ -206,6 +207,7 @@ public class MFGame implements MFIConstructionSiteListener
    * beginning of the next game update.
    * @param _location The location of the site to remove.
    */
+  @Override
   public void removeConstructionSite(MFLocation _location)
   {
     for (MFConstructionSite site : this.constructionSites) {
@@ -217,16 +219,16 @@ public class MFGame implements MFIConstructionSiteListener
   }
 
   /**
-   * Iterates over all construction site. Do not try to remove sites directly,
+   * Iterates over all construction sites. Do not try to remove sites directly,
    * but use {@link #removeConstructionSite}.
    * @return An iterator over all construction sites
    */
+  @Override
   public Iterable<MFConstructionSite> getConstructionSites()
   {
     return Collections.unmodifiableList(this.constructionSites);
   }
 
-  //---vvv---     CONSTRUCTION SITE LISTENER INTERFACE      ---vvv---
   @Override
   public void constructionSiteFinished(MFConstructionSite _constructionSite)
   {

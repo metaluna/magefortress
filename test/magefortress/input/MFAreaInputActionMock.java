@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -24,29 +24,26 @@
  */
 package magefortress.input;
 
-import java.util.logging.Logger;
-import magefortress.core.*;
+import magefortress.core.MFGame;
+import magefortress.core.MFLocation;
 
 /**
- * Parent class for all actions a player can execute
+ *
  */
-public abstract class MFInputAction
+class MFAreaInputActionMock extends MFAreaInputAction
 {
-  protected final MFGame game;
 
-  public MFInputAction(MFGame _game)
+  public MFAreaInputActionMock(MFGame _game, MFLocation[] _designatedArea)
   {
-    if (_game == null) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                                              "without a game.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    this.game = _game;
+    super(_game, _designatedArea);
   }
 
-  public abstract void execute();
+  @Override
+  public void execute()
+  {
+    // noop
+  }
 
-  //--vvv---         PROTECTED METHODS         ---vvv---
-  protected static final Logger logger = Logger.getLogger(MFInputAction.class.getName());
+  //---vvv---      PRIVATE METHODS      ---vvv---
+
 }

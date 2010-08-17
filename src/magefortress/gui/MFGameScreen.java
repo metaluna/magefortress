@@ -24,7 +24,6 @@
  */
 package magefortress.gui;
 
-import magefortress.jobs.digging.MFDigInputAction;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;

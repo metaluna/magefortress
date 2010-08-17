@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2009 Simon Hardijanto
+ *  Copyright (c) 2010 Simon Hardijanto
  * 
  *  Permission is hereby granted, free of charge, to any person
  *  obtaining a copy of this software and associated documentation
@@ -22,31 +22,34 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.input;
+package magefortress.jobs.mining;
 
-import java.util.logging.Logger;
-import magefortress.core.*;
+import magefortress.core.MFGame;
+import magefortress.core.MFLocation;
+import magefortress.jobs.MFConstructionSite;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-/**
- * Parent class for all actions a player can execute
- */
-public abstract class MFInputAction
+public class MFBuildQuarryInputActionTest
 {
-  protected final MFGame game;
+  private MFBuildQuarryInputAction action;
+  private MFGame game;
 
-  public MFInputAction(MFGame _game)
+  @Before
+  public void setUp()
   {
-    if (_game == null) {
-      String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                                              "without a game.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    this.game = _game;
+    this.game = mock(MFGame.class);
+    MFLocation[] locations = { new MFLocation(42, 42, 42)};
+    this.action = new MFBuildQuarryInputAction(this.game, locations);
   }
 
-  public abstract void execute();
+  @Test
+  public void shouldCreateConstructionSiteOnExecute()
+  {
+    this.action.execute();
+    verify(this.game).addConstructionSite(any(MFConstructionSite.class));
+  }
 
-  //--vvv---         PROTECTED METHODS         ---vvv---
-  protected static final Logger logger = Logger.getLogger(MFInputAction.class.getName());
 }

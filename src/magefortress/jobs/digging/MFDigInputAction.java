@@ -24,33 +24,25 @@
  */
 package magefortress.jobs.digging;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import magefortress.input.MFAreaInputAction;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
-import magefortress.input.MFInputAction;
 import magefortress.jobs.MFConstructionSite;
 
 /**
  * Digs out a tile
  */
-public class MFDigInputAction extends MFInputAction
+public class MFDigInputAction extends MFAreaInputAction
 {
   public MFDigInputAction(MFGame _game, MFLocation[] _markedForDigging)
   {
-    super(_game);
-    if (_markedForDigging == null || _markedForDigging.length == 0) {
-      String msg = "MFDigInputAction: Can't create action without locations.";
-      Logger.getLogger(MFDigInputAction.class.getName()).log(Level.SEVERE, msg);
-      throw new IllegalArgumentException(msg);
-    }
-    this.markedForDigging = _markedForDigging;
+    super(_game, _markedForDigging);
   }
 
   @Override
   public void execute()
   {
-    for (MFLocation location : markedForDigging) {
+    for (MFLocation location : this.getArea()) {
       if (!alreadyMarked(location)) {
         this.game.addConstructionSite(this.game.getGameObjectFactory().createDiggingSite(location));
       } else {
@@ -61,9 +53,6 @@ public class MFDigInputAction extends MFInputAction
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-
-  private final MFLocation[] markedForDigging;
-
   /**
    * Checks for the presence of a digging site.
    * @param _location The location

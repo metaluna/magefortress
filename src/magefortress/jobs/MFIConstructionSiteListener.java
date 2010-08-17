@@ -24,10 +24,15 @@
  */
 package magefortress.jobs;
 
+import magefortress.core.MFLocation;
+
 /**
  *
  */
 public interface MFIConstructionSiteListener
 {
-  public void constructionSiteFinished(MFConstructionSite _constructionSite);
+public void addConstructionSite(MFConstructionSite _constructionSite);
+public void removeConstructionSite(MFLocation _location);
+public Iterable<MFConstructionSite> getConstructionSites();
+public void constructionSiteFinished(MFConstructionSite _constructionSite);
 }

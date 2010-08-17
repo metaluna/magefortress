@@ -32,7 +32,6 @@ import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFInputAction;
 import magefortress.map.MFMap;
-import magefortress.map.MFTile;
 
 /**
  * Checks wether a selected tile is underground and wether it has not been
