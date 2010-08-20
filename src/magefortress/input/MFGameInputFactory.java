@@ -24,15 +24,27 @@
  */
 package magefortress.input;
 
+import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.jobs.mining.MFBuildQuarryInputAction;
 
 /**
- * Input listeners use methods of this interface to construct a
- * {@link MFInputAction}.
+ * Produces input actions and tools concerning a specific game/map.
  */
-public interface MFIInputTool
+public class MFGameInputFactory
 {
-  public boolean isValid(MFLocation _location);
-  public void click(MFLocation _location);
-  public MFInputAction buildAction();
+
+  public MFGameInputFactory(MFGame _game)
+  {
+    this.game = _game;
+  }
+
+  public MFBuildQuarryInputAction createQuarryAction(MFLocation[] _locations)
+  {
+    throw new UnsupportedOperationException("Not done yet.");
+  }
+
+  //---vvv---      PRIVATE METHODS      ---vvv---
+  private final MFGame game;
+  
 }

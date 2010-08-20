@@ -39,6 +39,17 @@ public class MFBuildQuarryInputAction extends MFAreaInputAction
     super(_game, _memberLocations);
   }
 
+  public int getJobSlotCount()
+  {
+    return 1;
+  }
+
+  boolean isValidJobSlotLocation(MFLocation _location)
+  {
+    throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  //---vvv---       INPUT ACTION ABSTRACT METHODS       ---vvv---
   @Override
   public void execute()
   {

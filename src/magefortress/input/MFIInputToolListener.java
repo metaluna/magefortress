@@ -24,15 +24,11 @@
  */
 package magefortress.input;
 
-import magefortress.core.MFLocation;
-
 /**
- * Input listeners use methods of this interface to construct a
- * {@link MFInputAction}.
+ * Methods which are called when data in an input tool have changed
  */
-public interface MFIInputTool
+public interface MFIInputToolListener
 {
-  public boolean isValid(MFLocation _location);
-  public void click(MFLocation _location);
-  public MFInputAction buildAction();
+  public void toolFinished();
+  public void toolPhaseChanged();
 }

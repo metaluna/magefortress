@@ -26,6 +26,7 @@ package magefortress.gui;
 
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFInputAction;
 import magefortress.input.MFInputManager;
@@ -156,29 +157,28 @@ public class MFGameScreenTest
   }
 
   @Test
-  public void shouldReceiveActionFromInputToolWhenAValidTileWasClicked()
+  public void shouldSendClickedLocationToActiveInputTool()
   {
     // given a game screen with an activated input tool
     MFMap map = mock(MFMap.class);
     when(this.game.getMap()).thenReturn(map);
 
     MFIInputTool inputTool = mock(MFIInputTool.class);
-    MFInputAction action = mock(MFInputAction.class);
-    when(inputTool.isValid(any(MFLocation.class))).thenReturn(true);
-    when(inputTool.click(any(MFLocation.class))).thenReturn(action);
     this.gameScreen.setActiveInputTool(inputTool);
 
-    // when i click on a valid tile
+    // when i click on a tile
     final int x = MFTile.TILESIZE-1;
     final int y = MFTile.TILESIZE-1;
     this.gameScreen.mouseClicked(x, y);
 
-    // then the screen should receive an input action from the input tool
-    verify(inputTool).click(new MFLocation(0,0,0));
+    MFLocation tileLocation = MFMap.convertToTilespace(x, y, 0, 0, 0);
+
+    // then the screen should send a click to the input tool
+    verify(inputTool).click(tileLocation);
   }
 
   @Test
-  public void shouldNotClickInputToolWhenAnInvalidTileWasClicked()
+  public void shouldNotQueryInputToolWhenToolFinishedWasCalled()
   {
     // given a game screen with an activated input tool
     MFMap map = mock(MFMap.class);
@@ -186,18 +186,44 @@ public class MFGameScreenTest
 
     MFIInputTool inputTool = mock(MFIInputTool.class);
     when(inputTool.isValid(any(MFLocation.class))).thenReturn(false);
+    MFInputAction action = mock(MFInputAction.class);
+    when(inputTool.buildAction()).thenReturn(action);
     this.gameScreen.setActiveInputTool(inputTool);
 
-    // when i click on an invalid tile
-    final int x = MFTile.TILESIZE-1;
-    final int y = MFTile.TILESIZE-1;
-    this.gameScreen.mouseClicked(x, y);
+    // when the tool has finished
+    this.gameScreen.toolFinished();
 
-    // then the screen should query the input tool if is valid
-    verify(inputTool).isValid(new MFLocation(0,0,0));
+    // then it should no longer be queried
+    this.gameScreen.mouseMoved(0, 0);
+    verify(inputTool, never()).isValid(any(MFLocation.class));
 
-    // and the screen should not ask the input tool for a input action
+    // and the screen should not send a click to the input tool
+    this.gameScreen.mouseClicked(0, 0);
     verify(inputTool, never()).click(any(MFLocation.class));
+  }
+
+  @Test(expected=MFPrerequisitesNotMetException.class)
+  public void shouldThrowExceptionWhenToolFinishedWasCalledWithoutActiveTool()
+  {
+    // given a game screen without an active input tool
+    this.gameScreen.setActiveInputTool(null);
+
+    // when the tool is reported finished
+    this.gameScreen.toolFinished();
+
+    // then an exception should be thrown
+  }
+
+  @Test(expected=MFPrerequisitesNotMetException.class)
+  public void shouldThrowExceptionWhenToolPhaseChangedWasCalledWithoutActiveTool()
+  {
+    // given a game screen without an active input tool
+    this.gameScreen.setActiveInputTool(null);
+
+    // when the tool is reported finished
+    this.gameScreen.toolPhaseChanged();
+
+    // then an exception should be thrown
   }
 
 }

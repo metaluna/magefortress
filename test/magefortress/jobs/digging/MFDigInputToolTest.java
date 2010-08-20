@@ -26,7 +26,7 @@ package magefortress.jobs.digging;
 
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
-import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.input.MFIInputToolListener;
 import magefortress.input.MFInputAction;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
@@ -40,26 +40,34 @@ public class MFDigInputToolTest
   private MFDigInputTool digInputTool;
   private MFMap map;
   private MFGame game;
+  private MFIInputToolListener toolListener;
 
   @Before
   public void setUp()
   {
     this.map = mock(MFMap.class);
     this.game = mock(MFGame.class);
-    this.digInputTool = new MFDigInputTool(map, game);
+    this.toolListener = mock(MFIInputToolListener.class);
+    this.digInputTool = new MFDigInputTool(map, game, toolListener);
   }
 
   //---vvv---       CONSTRUCTOR TESTS      ---vvv---
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFDigInputTool(null, this.game);
+    new MFDigInputTool(null, this.game, this.toolListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutGame()
   {
-    new MFDigInputTool(this.map, null);
+    new MFDigInputTool(this.map, null, this.toolListener);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutInputToolListener()
+  {
+    new MFDigInputTool(this.map, this.game, null);
   }
 
   //---vvv---      MEMBER METHOD TESTS      ---vvv---
@@ -117,22 +125,31 @@ public class MFDigInputToolTest
     when(this.map.isInsideMap(selectedLocation)).thenReturn(true);
     when(this.map.getTile(selectedLocation)).thenReturn(tile);
 
-    MFInputAction action = this.digInputTool.click(selectedLocation);
+    this.digInputTool.click(selectedLocation);
+    MFInputAction action = this.digInputTool.buildAction();
 
     assertNotNull(action);
     assertTrue(action instanceof MFDigInputAction);
+  }
+
+  @Test
+  public void shouldBeFinishedAfterOneValidClick()
+  {
+    MFTile tile = mock(MFTile.class);
+    when(tile.isDugOut()).thenReturn(false);
+    MFLocation selectedLocation = new MFLocation(42, 42, 42);
+    when(this.map.isInsideMap(selectedLocation)).thenReturn(true);
+    when(this.map.getTile(selectedLocation)).thenReturn(tile);
+
+    this.digInputTool.click(selectedLocation);
+
+    verify(this.toolListener).toolFinished();
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldThrowExceptionIfSelectionIsNull()
   {
     this.digInputTool.click(null);
-  }
-
-  @Test(expected=MFPrerequisitesNotMetException.class)
-  public void shouldThrowExceptionIfSelectionIsInvalid()
-  {
-    this.digInputTool.click(new MFLocation(42, 42, 42));
   }
 
 }

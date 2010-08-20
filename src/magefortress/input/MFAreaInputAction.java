@@ -26,7 +26,6 @@ package magefortress.input;
 
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
-import magefortress.input.MFInputAction;
 
 /**
  *

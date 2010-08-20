@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.input.*;
@@ -43,7 +44,7 @@ import magefortress.jobs.digging.MFDigInputTool;
  * Represents the main game screen. It's handling the interface elements and
  * player input.
  */
-public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyListener
+public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyListener, MFIInputToolListener
 {
 
   public MFGameScreen(MFInputManager _inputManager, MFScreensManager _screensManager, MFGame _game)
@@ -64,7 +65,7 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     this.inputActionQueue = new LinkedList<MFInputAction>();
 
     // TODO digging tool is default action
-    this.activeInputTool = new MFDigInputTool(_game.getMap(), _game);
+    this.activeInputTool = new MFDigInputTool(_game.getMap(), _game, this);
   }
 
   /**
@@ -80,11 +81,6 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
       throw new IllegalArgumentException(msg);
     }
     this.inputActionQueue.add(_action);
-  }
-
-  void setActiveInputTool(MFIInputTool _inputTool)
-  {
-    this.activeInputTool = _inputTool;
   }
 
   @Override
@@ -130,9 +126,8 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     this.tileClicked = MFMap.convertToTilespace(_x, _y, this.currentLevel,
                                       this.clippingRect.x, this.clippingRect.y);
 
-    if (this.activeInputTool != null && this.activeInputTool.isValid(this.tileClicked)) {
-      MFInputAction action = this.activeInputTool.click(this.tileClicked);
-      this.enqueueInputAction(action);
+    if (this.activeInputTool != null) {
+      this.activeInputTool.click(this.tileClicked);
     }
 
   }
@@ -167,6 +162,43 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     } else if (_keyCode == KeyEvent.VK_DOWN || _keyCode == KeyEvent.VK_KP_DOWN) {
       this.clippingRect.y-=scrollSpeed;
     }
+  }
+
+  //---vvv---     INPUT TOOL INTERFACE METHODS      ---vvv---
+  @Override
+  public void toolFinished()
+  {
+    if (this.activeInputTool == null) {
+      String msg = this.getClass().getSimpleName() + ": Tool is reported " +
+                                "to be finished, but there is no active tool.";
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+    MFInputAction action = this.activeInputTool.buildAction();
+    this.enqueueInputAction(action);
+    this.activeInputTool = null;
+  }
+
+  @Override
+  public void toolPhaseChanged()
+  {
+    if (this.activeInputTool == null) {
+      String msg = this.getClass().getSimpleName() + ": Tool's phase is " +
+                      "reported to have changed, but there is no active tool.";
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+    }
+  }
+
+  //---vvv---       PACKAGE-PRIVATE METHODS        ---vvv---
+  /**
+   * For Testing Only. Remove ASAP by loading hotkey sets and sending
+   * key pressed events.
+   * @param _inputTool The input tool used
+   */
+  void setActiveInputTool(MFIInputTool _inputTool)
+  {
+    this.activeInputTool = _inputTool;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---

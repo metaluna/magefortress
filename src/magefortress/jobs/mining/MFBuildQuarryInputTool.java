@@ -22,38 +22,34 @@
  *  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  *  OTHER DEALINGS IN THE SOFTWARE.
  */
-package magefortress.jobs.digging;
+package magefortress.jobs.mining;
 
 import java.util.logging.Logger;
-import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFIInputToolListener;
 import magefortress.input.MFInputAction;
 import magefortress.map.MFMap;
 
 /**
- * Checks wether a selected tile is underground and wether it has not been
- * dug out yet.
+ * First checks wether selected {@link MFTile tiles} are all dug out and
+ * underground. Then a number of job slots have to be placed according to the
+ * size of the room.
  */
-public class MFDigInputTool implements MFIInputTool
+public class MFBuildQuarryInputTool implements MFIInputTool
 {
-  /**
-   * Constructor
-   * @param _map The map is needed to check wether a tile is valid.
-   * @param _game The game is used during the construction of the dig input action. Replace with factory!
-   */
-  public MFDigInputTool(MFMap _map, MFGame _game, MFIInputToolListener _toolListener)
+  public MFBuildQuarryInputTool(MFMap _map, MFGameInputFactory _inputFactory,
+                                            MFIInputToolListener _toolListener)
   {
-    validateConstructorParams(_map, _game, _toolListener);
-
+    this.validateConstructorParams(_map, _inputFactory, _toolListener);
+    
     this.map = _map;
-    this.game = _game;
+    this.inputFactory = _inputFactory;
     this.toolListener = _toolListener;
   }
 
-  //--vvv---      INPUT TOOL INTERFACE METHODS      ---vvv---
   @Override
   public boolean isValid(MFLocation _location)
   {
@@ -64,19 +60,31 @@ public class MFDigInputTool implements MFIInputTool
       throw new IllegalArgumentException(msg);
     }
 
+    // Room selection phase
     if (this.inputAction == null) {
-      // tile is not inside map or already dug out
+
+      // tile is not inside map or not dug out or not underground
       if (this.map.isInsideMap(_location) &&
-          !this.map.getTile(_location).isDugOut()) {
+          this.map.getTile(_location).isUnderground() &&
+          this.map.getTile(_location).isDugOut()) {
         return true;
       }
+
+    // Job slot placement phase
+    } else if (!this.allJobSlotsPlaced()) {
+
+      if (this.inputAction.isValidJobSlotLocation(_location)) {
+        return true;
+      }
+
+    // All done - should not happen
     } else {
 
       String msg = this.getClass().getSimpleName() + ": Cannot test validity " +
-                  "if input action was built. Please use a new dig input tool.";
+                          "of work place location if all places have been set.";
       logger.severe(msg);
       throw new MFPrerequisitesNotMetException(msg);
-
+      
     }
 
     return false;
@@ -85,59 +93,73 @@ public class MFDigInputTool implements MFIInputTool
   @Override
   public void click(MFLocation _location)
   {
-    if (_location == null) {
-      String msg = this.getClass().getSimpleName() + ": Cannot generate " +
-                                          "dig input action for null location.";
-      logger.severe(msg);
-      throw new IllegalArgumentException(msg);
-    }
-    
-    if (this.inputAction == null && this.isValid(_location)) {
+    // Room selection phase
+    if (this.inputAction == null) {
 
-      final MFLocation[] locations = {_location};
-      this.inputAction = new MFDigInputAction(this.game, locations);
-      this.toolListener.toolFinished();
+      if (this.isValid(_location)) {
+        MFLocation[] locations = { _location };
+        this.inputAction = this.inputFactory.createQuarryAction(locations);
+        this.toolListener.toolPhaseChanged();
+      }
 
-    } else if (this.inputAction != null) {
-      
-      String msg = this.getClass().getSimpleName() + ": Cannot dig any more " +
-                                  "than this. Please use a new dig input tool.";
+    // Job slot placement phase
+    } else if (!this.allJobSlotsPlaced()) {
+
+      if (this.isValid(_location)) {
+        ++this.placedJobSlots;
+        if (this.allJobSlotsPlaced()) {
+          this.toolListener.toolFinished();
+        }
+      }
+
+    // All done - should not happen
+    } else if (this.allJobSlotsPlaced()) {
+
+      String msg = this.getClass().getSimpleName() + ": Cannot add any more work " +
+                                  "places than this. All places have been set.";
       logger.severe(msg);
       throw new MFPrerequisitesNotMetException(msg);
-      
-    }
 
+    }
+    
   }
 
   @Override
   public MFInputAction buildAction()
   {
+    // Room selection phase
     if (this.inputAction == null) {
 
-      String msg = this.getClass().getSimpleName() + ": Cannot generate " +
-                                    "input action when no tiles were selected.";
+      String msg = this.getClass().getSimpleName() + ": Cannot build quarry " +
+                                  "input action when no room has been marked.";
       logger.severe(msg);
       throw new MFPrerequisitesNotMetException(msg);
 
+    // Job slot placement phase
+    } else if (!this.allJobSlotsPlaced()) {
+
+      String msg = this.getClass().getSimpleName() + ": Cannot build quarry " +
+            "input cation when not all job slots have been placed. Still " +
+            (this.inputAction.getJobSlotCount()-this.placedJobSlots) + " more to go.";
+      logger.severe(msg);
+      throw new MFPrerequisitesNotMetException(msg);
+      
     }
 
     return this.inputAction;
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  /** Log */
-  private static final Logger logger = Logger.getLogger(MFDigInputTool.class.getName());
+  private static final Logger logger = Logger.getLogger(MFBuildQuarryInputTool.class.getName());
 
-  /** The map */
   private final MFMap map;
-  /** The game - used for constructing the dig input action*/
-  private final MFGame game;
-  /** The listener to notify when a phase change takes place */
+  private final MFGameInputFactory inputFactory;
   private final MFIInputToolListener toolListener;
 
-  private MFInputAction inputAction;
+  private MFBuildQuarryInputAction inputAction;
+  private int placedJobSlots;
 
-  private void validateConstructorParams(MFMap _map, MFGame _game,
+  private void validateConstructorParams(MFMap _map, MFGameInputFactory _inputFactory,
           MFIInputToolListener _toolListener)
   {
     if (_map == null) {
@@ -146,7 +168,7 @@ public class MFDigInputTool implements MFIInputTool
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_game == null) {
+    if (_inputFactory == null) {
       String msg = this.getClass().getSimpleName() + ": Cannot create " +
                                                               "without a game.";
       logger.severe(msg);
@@ -158,6 +180,18 @@ public class MFDigInputTool implements MFIInputTool
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
+  }
+
+  private boolean allJobSlotsPlaced()
+  {
+    assert this.inputAction != null : "Cannot check if all job slots were " +
+                                  "placed without a room.";
+
+    if (this.placedJobSlots < this.inputAction.getJobSlotCount()) {
+      return false;
+    }
+
+    return true;
   }
 
 }
