@@ -92,6 +92,13 @@ public class MFGameObjectFactory
                             this.siteListener);
   }
 
+  public MFJobSlotSite createJobSlotSite(MFLocation _location)
+  {
+    return new MFJobSlotSite(_location, this.map, jobFactory,
+                            this.channelFactory.getChannel(MFEJob.DIGGING),
+                            this.siteListener);
+  }
+
   public MFChannelFactory createChannelFactory()
   {
     return this.channelFactory;

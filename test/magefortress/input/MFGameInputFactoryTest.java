@@ -24,6 +24,8 @@
  */
 package magefortress.input;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import magefortress.jobs.digging.MFDigInputAction;
@@ -71,7 +73,8 @@ public class MFGameInputFactoryTest
   @Test
   public void shouldCreateQuarryAction()
   {
-    MFLocation[] locations = { new MFLocation(42, 42, 42) };
+    final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(new MFLocation(42, 42, 42));
     MFInputAction gotAction = this.gameInputFactory.createQuarryAction(locations);
     assertNotNull(gotAction);
     assertTrue(gotAction instanceof MFBuildQuarryInputAction);
@@ -90,7 +93,8 @@ public class MFGameInputFactoryTest
   @Test
   public void shouldCreateDigAction()
   {
-    MFLocation[] locations = { new MFLocation(42, 42, 42) };
+    Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(new MFLocation(42, 42, 42));
     MFInputAction gotAction = this.gameInputFactory.createDigAction(locations);
     assertNotNull(gotAction);
     assertTrue(gotAction instanceof MFDigInputAction);

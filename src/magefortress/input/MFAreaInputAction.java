@@ -24,6 +24,8 @@
  */
 package magefortress.input;
 
+import java.util.Collection;
+import java.util.Collections;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 
@@ -33,10 +35,10 @@ import magefortress.core.MFLocation;
 public abstract class MFAreaInputAction extends MFInputAction
 {
 
-  public MFAreaInputAction(MFGame _game, MFLocation[] _designatedArea)
+  public MFAreaInputAction(MFGame _game, Collection<MFLocation> _designatedArea)
   {
     super(_game);
-    if (_designatedArea == null || _designatedArea.length == 0) {
+    if (_designatedArea == null || _designatedArea.size() == 0) {
       String msg = this.getClass().getSimpleName() + ": Cannot create " +
                                                           "without locations.";
       logger.severe(msg);
@@ -55,11 +57,11 @@ public abstract class MFAreaInputAction extends MFInputAction
   }
 
   //---vvv---      PROTECTED METHODS      ---vvv---
-  protected MFLocation[] getArea()
+  protected Collection<MFLocation> getArea()
   {
-    return this.designatedArea;
+    return Collections.unmodifiableCollection(this.designatedArea);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFLocation[] designatedArea;
+  private final Collection<MFLocation> designatedArea;
 }

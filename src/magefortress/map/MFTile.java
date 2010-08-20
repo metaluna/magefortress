@@ -39,7 +39,6 @@ import magefortress.core.MFRoom;
 import magefortress.creatures.behavior.movable.MFCapability;
 import magefortress.creatures.behavior.movable.MFEMovementType;
 import magefortress.graphics.MFIPaintable;
-import magefortress.jobs.MFIProducible;
 import magefortress.storage.MFISaveable;
 
 /**

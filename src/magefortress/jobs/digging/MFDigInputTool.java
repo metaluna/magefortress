@@ -24,6 +24,8 @@
  */
 package magefortress.jobs.digging;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
@@ -95,7 +97,8 @@ public class MFDigInputTool implements MFIInputTool
     
     if (this.inputAction == null && this.isValid(_location)) {
 
-      final MFLocation[] locations = {_location};
+      final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+      locations.add(_location);
       this.inputAction = this.inputFactory.createDigAction(locations);
       this.toolListener.toolFinished();
 

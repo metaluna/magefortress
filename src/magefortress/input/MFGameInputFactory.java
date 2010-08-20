@@ -24,6 +24,7 @@
  */
 package magefortress.input;
 
+import java.util.Collection;
 import java.util.logging.Logger;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
@@ -54,7 +55,7 @@ public class MFGameInputFactory
     return new MFBuildQuarryInputTool(this.game.getMap(), this, _toolListener);
   }
 
-  public MFBuildQuarryInputAction createQuarryAction(MFLocation[] _locations)
+  public MFBuildQuarryInputAction createQuarryAction(Collection<MFLocation> _locations)
   {
     return new MFBuildQuarryInputAction(this.game, _locations);
   }
@@ -64,7 +65,7 @@ public class MFGameInputFactory
     return new MFDigInputTool(this.game.getMap(), this, _toolListener);
   }
 
-  public MFInputAction createDigAction(MFLocation[] _locations)
+  public MFInputAction createDigAction(Collection<MFLocation> _locations)
   {
     return new MFDigInputAction(this.game, _locations);
   }

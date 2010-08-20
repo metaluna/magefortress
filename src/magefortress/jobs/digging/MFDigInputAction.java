@@ -24,6 +24,7 @@
  */
 package magefortress.jobs.digging;
 
+import java.util.Collection;
 import magefortress.input.MFAreaInputAction;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
@@ -34,7 +35,7 @@ import magefortress.jobs.MFConstructionSite;
  */
 public class MFDigInputAction extends MFAreaInputAction
 {
-  public MFDigInputAction(MFGame _game, MFLocation[] _markedForDigging)
+  public MFDigInputAction(MFGame _game, Collection<MFLocation> _markedForDigging)
   {
     super(_game, _markedForDigging);
   }

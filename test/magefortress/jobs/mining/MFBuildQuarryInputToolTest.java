@@ -24,6 +24,8 @@
  */
 package magefortress.jobs.mining;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import magefortress.core.MFEDirection;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
@@ -66,7 +68,8 @@ public class MFBuildQuarryInputToolTest
     when(this.map.isInsideMap(validLocation)).thenReturn(true);
 
     // input action factory
-    MFLocation[] locations = { this.validLocation };
+    final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(this.validLocation);
     this.action = mock(MFBuildQuarryInputAction.class);
     when(this.inputFactory.createQuarryAction(locations)).thenReturn(action);
     when(action.getJobSlotCount()).thenReturn(1);
@@ -116,7 +119,8 @@ public class MFBuildQuarryInputToolTest
   {
     this.tool.click(validLocation);
 
-    MFLocation[] locations = { this.validLocation };
+    final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(this.validLocation);
     verify(this.inputFactory).createQuarryAction(locations);
 
     verify(this.toolListener).toolPhaseChanged();
@@ -130,7 +134,8 @@ public class MFBuildQuarryInputToolTest
 
     this.tool.click(invalidLocation);
 
-    MFLocation[] locations = { invalidLocation };
+    final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(this.validLocation);
     verify(this.inputFactory, never()).createQuarryAction(locations);
 
     verify(this.toolListener, never()).toolPhaseChanged();

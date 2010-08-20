@@ -24,6 +24,8 @@
  */
 package magefortress.jobs.mining;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Logger;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
@@ -97,7 +99,8 @@ public class MFBuildQuarryInputTool implements MFIInputTool
     if (this.inputAction == null) {
 
       if (this.isValid(_location)) {
-        MFLocation[] locations = { _location };
+        final Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+        locations.add(_location);
         this.inputAction = this.inputFactory.createQuarryAction(locations);
         this.toolListener.toolPhaseChanged();
       }

@@ -25,7 +25,6 @@
 package magefortress.jobs.digging;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import magefortress.core.MFGame;
 import magefortress.core.MFGameObjectFactory;
@@ -40,13 +39,14 @@ public class MFDigInputActionTest
 {
   private MFDigInputAction action;
   private MFGame game;
-  private MFLocation[] locations;
+  private List<MFLocation> locations;
 
   @Before
   public void setUp()
   {
     this.game = mock(MFGame.class);
-    this.locations = new MFLocation[] {new MFLocation(42, 42, 42)};
+    this.locations = new ArrayList<MFLocation>();
+    this.locations.add(new MFLocation(42, 42, 42));
     this.action = new MFDigInputAction(this.game, this.locations);
   }
 
@@ -67,7 +67,7 @@ public class MFDigInputActionTest
   public void shouldNotCreateConstructionSiteOnExecuteIfLocationIsOccupied()
   {
     MFConstructionSite site = mock(MFDiggingSite.class);
-    when(site.getLocation()).thenReturn(this.locations[0]);
+    when(site.getLocation()).thenReturn(this.locations.get(0));
     List<MFConstructionSite> constructionSites = new ArrayList<MFConstructionSite>();
     constructionSites.add(site);
     when(this.game.getConstructionSites()).thenReturn(constructionSites);

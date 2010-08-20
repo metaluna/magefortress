@@ -24,6 +24,8 @@
  */
 package magefortress.input;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import org.junit.Before;
@@ -35,20 +37,20 @@ public class MFAreaInputActionTest
 {
   private MFAreaInputAction action;
   private MFGame game;
-  private MFLocation[] locations;
+  private Collection<MFLocation> locations;
 
   @Before
   public void setUp()
   {
     this.game = mock(MFGame.class);
-    this.locations = new MFLocation[] {new MFLocation(42, 42, 42)};
+    this.locations = new ArrayList<MFLocation>();
+    this.locations.add(new MFLocation(42, 42, 42));
     this.action = new MFAreaInputActionMock(game, locations);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutGame()
   {
-    locations = new MFLocation[] {new MFLocation(42, 42, 42)};
     new MFAreaInputActionMock(null, this.locations);
   }
 
@@ -61,14 +63,22 @@ public class MFAreaInputActionTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithZeroLocations()
   {
-    new MFAreaInputActionMock(this.game, new MFLocation[0]);
+    new MFAreaInputActionMock(this.game, new ArrayList<MFLocation>());
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateIfLocationsContainsNullElements()
   {
-    this.locations = new MFLocation[1];
+    this.locations = new ArrayList<MFLocation>();
+    this.locations.add(null);
     new MFAreaInputActionMock(this.game, this.locations);
+  }
+
+  //---vvv---            METHOD TEST               ---vvv---
+  @Test
+  public void shouldGetArea()
+  {
+    
   }
 
 }

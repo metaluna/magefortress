@@ -24,6 +24,8 @@
  */
 package magefortress.jobs.digging;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import magefortress.core.MFLocation;
 import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFIInputToolListener;
@@ -124,7 +126,8 @@ public class MFDigInputToolTest
     MFLocation selectedLocation = new MFLocation(42, 42, 42);
     when(this.map.isInsideMap(selectedLocation)).thenReturn(true);
     when(this.map.getTile(selectedLocation)).thenReturn(tile);
-    MFLocation[] locations = { selectedLocation };
+    Collection<MFLocation> locations = new ArrayList<MFLocation>(1);
+    locations.add(selectedLocation);
     MFInputAction expAction = mock(MFDigInputAction.class);
     when(this.inputFactory.createDigAction(locations)).thenReturn(expAction);
 

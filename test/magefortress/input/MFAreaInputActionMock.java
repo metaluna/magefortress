@@ -24,6 +24,7 @@
  */
 package magefortress.input;
 
+import java.util.Collection;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 
@@ -33,7 +34,7 @@ import magefortress.core.MFLocation;
 class MFAreaInputActionMock extends MFAreaInputAction
 {
 
-  public MFAreaInputActionMock(MFGame _game, MFLocation[] _designatedArea)
+  public MFAreaInputActionMock(MFGame _game, Collection<MFLocation> _designatedArea)
   {
     super(_game, _designatedArea);
   }

@@ -38,7 +38,6 @@ import magefortress.core.MFPrerequisitesNotMetException;
 import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.input.*;
-import magefortress.jobs.digging.MFDigInputTool;
 
 /**
  * Represents the main game screen. It's handling the interface elements and
