@@ -27,6 +27,7 @@ package magefortress.gui;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFInputAction;
 import magefortress.input.MFInputManager;
@@ -55,14 +56,24 @@ public class MFGameScreenTest
     this.mockScreensManager = mock(MFScreensManager.class);
     this.game = mock(MFGame.class);
     MFMap map = mock(MFMap.class);
+    MFGameInputFactory inputFactory = mock(MFGameInputFactory.class);
     when(this.game.getMap()).thenReturn(map);
-    this.gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
+    this.gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, 
+                                                            game, inputFactory);
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutAGame()
   {
-    new MFGameScreen(mock(MFInputManager.class), this.mockScreensManager, null);
+    new MFGameScreen(mock(MFInputManager.class), this.mockScreensManager, null,
+                                                      mock(MFGameInputFactory.class));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotCreateWithoutAGameInputFactory()
+  {
+    new MFGameScreen(mock(MFInputManager.class), this.mockScreensManager,
+                                                       mock(MFGame.class), null);
   }
 
   @Test

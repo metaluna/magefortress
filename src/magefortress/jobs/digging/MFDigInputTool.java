@@ -25,9 +25,9 @@
 package magefortress.jobs.digging;
 
 import java.util.logging.Logger;
-import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
 import magefortress.core.MFPrerequisitesNotMetException;
+import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFIInputTool;
 import magefortress.input.MFIInputToolListener;
 import magefortress.input.MFInputAction;
@@ -42,14 +42,15 @@ public class MFDigInputTool implements MFIInputTool
   /**
    * Constructor
    * @param _map The map is needed to check wether a tile is valid.
-   * @param _game The game is used during the construction of the dig input action. Replace with factory!
+   * @param _inputFactory The game input factory used during the construction
+   *                      of the dig input action.
    */
-  public MFDigInputTool(MFMap _map, MFGame _game, MFIInputToolListener _toolListener)
+  public MFDigInputTool(MFMap _map, MFGameInputFactory _inputFactory, MFIInputToolListener _toolListener)
   {
-    validateConstructorParams(_map, _game, _toolListener);
+    validateConstructorParams(_map, _inputFactory, _toolListener);
 
     this.map = _map;
-    this.game = _game;
+    this.inputFactory = _inputFactory;
     this.toolListener = _toolListener;
   }
 
@@ -95,7 +96,7 @@ public class MFDigInputTool implements MFIInputTool
     if (this.inputAction == null && this.isValid(_location)) {
 
       final MFLocation[] locations = {_location};
-      this.inputAction = new MFDigInputAction(this.game, locations);
+      this.inputAction = this.inputFactory.createDigAction(locations);
       this.toolListener.toolFinished();
 
     } else if (this.inputAction != null) {
@@ -130,14 +131,14 @@ public class MFDigInputTool implements MFIInputTool
 
   /** The map */
   private final MFMap map;
-  /** The game - used for constructing the dig input action*/
-  private final MFGame game;
+  /** The game input factory used for constructing the dig input action*/
+  private final MFGameInputFactory inputFactory;
   /** The listener to notify when a phase change takes place */
   private final MFIInputToolListener toolListener;
 
   private MFInputAction inputAction;
 
-  private void validateConstructorParams(MFMap _map, MFGame _game,
+  private void validateConstructorParams(MFMap _map, MFGameInputFactory _inputFactory,
           MFIInputToolListener _toolListener)
   {
     if (_map == null) {
@@ -146,9 +147,9 @@ public class MFDigInputTool implements MFIInputTool
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }
-    if (_game == null) {
+    if (_inputFactory == null) {
       String msg = this.getClass().getSimpleName() + ": Cannot create " +
-                                                              "without a game.";
+                                                "without a game input factory.";
       logger.severe(msg);
       throw new IllegalArgumentException(msg);
     }

@@ -51,6 +51,7 @@ import magefortress.creatures.behavior.instrumentable.MFUnlimitedToolbelt;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreen;
 import magefortress.gui.MFScreensManager;
+import magefortress.input.MFGameInputFactory;
 import magefortress.jobs.MFJobFactory;
 import magefortress.storage.MFDaoFactory;
 
@@ -161,8 +162,9 @@ public class MageFortress extends JFrame implements Runnable
     summonSticky(imgLib, game, new MFLocation(0,0,0), "Sticky 000");
 //    summonSticky(imgLib, game, new MFLocation(0,1,0), "Sticky 010");
 //    summonSticky(imgLib, game, new MFLocation(1,0,0), "Sticky 100");
-
-    MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), this.screenStack, game);
+    MFGameInputFactory gameInputFactory = new MFGameInputFactory(game);
+    MFScreen gameScreen = new MFGameScreen(MFInputManager.getInstance(), 
+                                      this.screenStack, game, gameInputFactory);
     game.setScreen(gameScreen);
     screenStack.push(gameScreen);
   }

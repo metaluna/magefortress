@@ -47,7 +47,8 @@ import magefortress.jobs.digging.MFDigInputTool;
 public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyListener, MFIInputToolListener
 {
 
-  public MFGameScreen(MFInputManager _inputManager, MFScreensManager _screensManager, MFGame _game)
+  public MFGameScreen(MFInputManager _inputManager, MFScreensManager _screensManager,
+                      MFGame _game, MFGameInputFactory _gameInputFactory)
   {
     super(_inputManager, _screensManager);
     if (_game == null) {
@@ -56,7 +57,15 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
       logger.log(Level.SEVERE, msg);
       throw new IllegalArgumentException(msg);
     }
+    if (_gameInputFactory == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create without " +
+                                                        "a game input factory.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.game = _game;
+    this.gameInputFactory = _gameInputFactory;
+    
     this.currentLevel = 0;
     this.clippingRect = new Rectangle(0,0,1,1);
 
@@ -64,8 +73,8 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     this.loadKeyMappings();
     this.inputActionQueue = new LinkedList<MFInputAction>();
 
-    // TODO digging tool is default action
-    this.activeInputTool = new MFDigInputTool(_game.getMap(), _game, this);
+    // set default action
+    this.activeInputTool = this.getDefaultInputTool();
   }
 
   /**
@@ -176,7 +185,7 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     }
     MFInputAction action = this.activeInputTool.buildAction();
     this.enqueueInputAction(action);
-    this.activeInputTool = null;
+    this.activeInputTool = this.getDefaultInputTool();
   }
 
   @Override
@@ -203,7 +212,9 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
 
   //---vvv---      PRIVATE METHODS      ---vvv---
   /** Active game */
-  private MFGame game;
+  private final MFGame game;
+  /** Factory for input tools */
+  private final MFGameInputFactory gameInputFactory;
   /** Key mappings */
   private HashMap<Integer, MFInputAction> keyMappings;
   /** Player's input actions */
@@ -291,6 +302,12 @@ public class MFGameScreen extends MFScreen implements MFIMouseListener, MFIKeyLi
     }
     // clear queue
     this.inputActionQueue.clear();
+  }
+
+  private MFIInputTool getDefaultInputTool()
+  {
+    MFIInputTool result = this.gameInputFactory.createDigTool(this);
+    return result;
   }
 
 }

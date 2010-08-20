@@ -30,6 +30,7 @@ import magefortress.map.MFMap;
 import magefortress.map.MFTile;
 import magefortress.gui.MFGameScreen;
 import magefortress.gui.MFScreensManager;
+import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFInputManager;
 import magefortress.jobs.MFConstructionSite;
 import magefortress.storage.MFDaoFactory;
@@ -67,7 +68,8 @@ public class MFGameTest
     // mock the screens manager because we can't verify if close() was called on
     // the screen any other way because the method is final
     mockScreensManager = mock(MFScreensManager.class);
-    MFGameScreen gameScreen = new MFGameScreen(mock(MFInputManager.class), mockScreensManager, game);
+    MFGameScreen gameScreen = new MFGameScreen(mock(MFInputManager.class), 
+                      mockScreensManager, game, mock(MFGameInputFactory.class));
     game.setScreen(gameScreen);
     when(mockScreensManager.peek()).thenReturn(gameScreen);
 

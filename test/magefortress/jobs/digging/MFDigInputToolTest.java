@@ -24,8 +24,8 @@
  */
 package magefortress.jobs.digging;
 
-import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.input.MFGameInputFactory;
 import magefortress.input.MFIInputToolListener;
 import magefortress.input.MFInputAction;
 import magefortress.map.MFMap;
@@ -39,27 +39,27 @@ public class MFDigInputToolTest
 {
   private MFDigInputTool digInputTool;
   private MFMap map;
-  private MFGame game;
+  private MFGameInputFactory inputFactory;
   private MFIInputToolListener toolListener;
 
   @Before
   public void setUp()
   {
     this.map = mock(MFMap.class);
-    this.game = mock(MFGame.class);
+    this.inputFactory = mock(MFGameInputFactory.class);
     this.toolListener = mock(MFIInputToolListener.class);
-    this.digInputTool = new MFDigInputTool(map, game, toolListener);
+    this.digInputTool = new MFDigInputTool(map, inputFactory, toolListener);
   }
 
   //---vvv---       CONSTRUCTOR TESTS      ---vvv---
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutMap()
   {
-    new MFDigInputTool(null, this.game, this.toolListener);
+    new MFDigInputTool(null, this.inputFactory, this.toolListener);
   }
 
   @Test(expected=IllegalArgumentException.class)
-  public void shouldNotCreateWithoutGame()
+  public void shouldNotCreateWithoutGameInputFactory()
   {
     new MFDigInputTool(this.map, null, this.toolListener);
   }
@@ -67,7 +67,7 @@ public class MFDigInputToolTest
   @Test(expected=IllegalArgumentException.class)
   public void shouldNotCreateWithoutInputToolListener()
   {
-    new MFDigInputTool(this.map, this.game, null);
+    new MFDigInputTool(this.map, this.inputFactory, null);
   }
 
   //---vvv---      MEMBER METHOD TESTS      ---vvv---
@@ -124,12 +124,15 @@ public class MFDigInputToolTest
     MFLocation selectedLocation = new MFLocation(42, 42, 42);
     when(this.map.isInsideMap(selectedLocation)).thenReturn(true);
     when(this.map.getTile(selectedLocation)).thenReturn(tile);
+    MFLocation[] locations = { selectedLocation };
+    MFInputAction expAction = mock(MFDigInputAction.class);
+    when(this.inputFactory.createDigAction(locations)).thenReturn(expAction);
 
     this.digInputTool.click(selectedLocation);
-    MFInputAction action = this.digInputTool.buildAction();
+    MFInputAction gotAction = this.digInputTool.buildAction();
 
-    assertNotNull(action);
-    assertTrue(action instanceof MFDigInputAction);
+    assertEquals(expAction, gotAction);
+    assertTrue(gotAction instanceof MFDigInputAction);
   }
 
   @Test

@@ -24,9 +24,13 @@
  */
 package magefortress.input;
 
+import java.util.logging.Logger;
 import magefortress.core.MFGame;
 import magefortress.core.MFLocation;
+import magefortress.jobs.digging.MFDigInputAction;
+import magefortress.jobs.digging.MFDigInputTool;
 import magefortress.jobs.mining.MFBuildQuarryInputAction;
+import magefortress.jobs.mining.MFBuildQuarryInputTool;
 
 /**
  * Produces input actions and tools concerning a specific game/map.
@@ -36,15 +40,38 @@ public class MFGameInputFactory
 
   public MFGameInputFactory(MFGame _game)
   {
+    if (_game == null) {
+      String msg = this.getClass().getSimpleName() + ": Cannot create " +
+                                                              "without a game.";
+      logger.severe(msg);
+      throw new IllegalArgumentException(msg);
+    }
     this.game = _game;
+  }
+
+  public MFIInputTool createQuarryTool(MFIInputToolListener _toolListener)
+  {
+    return new MFBuildQuarryInputTool(this.game.getMap(), this, _toolListener);
   }
 
   public MFBuildQuarryInputAction createQuarryAction(MFLocation[] _locations)
   {
-    throw new UnsupportedOperationException("Not done yet.");
+    return new MFBuildQuarryInputAction(this.game, _locations);
+  }
+
+  public MFIInputTool createDigTool(MFIInputToolListener _toolListener)
+  {
+    return new MFDigInputTool(this.game.getMap(), this, _toolListener);
+  }
+
+  public MFInputAction createDigAction(MFLocation[] _locations)
+  {
+    return new MFDigInputAction(this.game, _locations);
   }
 
   //---vvv---      PRIVATE METHODS      ---vvv---
-  private final MFGame game;
+  private static final Logger logger = Logger.getLogger(MFGameInputFactory.class.getName());
   
+  private final MFGame game;
+
 }
