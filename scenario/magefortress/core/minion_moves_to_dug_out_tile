@@ -1,0 +1,4 @@
+Given a map
+and a minion has dug out a tile
+When he moves to the tile
+Then ensure he has arrived
